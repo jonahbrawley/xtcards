@@ -1,2 +1,2 @@
-# mobi-md
-"Mobi MD" capstone project
+# xtcards
+AI poker bot capstone project!
