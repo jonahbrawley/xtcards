@@ -1,2 +1,2 @@
 # xtcards
-AI poker bot capstone project!
+AI poker bot capstone project
