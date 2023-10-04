@@ -3,7 +3,7 @@ from button import Button
 
 pygame.init()
 
-window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+window = pygame.display.set_mode((800, 800), pygame.FULLSCREEN)
 pygame.display.set_caption('xtcards')
 width = window.get_width()
 height = window.get_height()
