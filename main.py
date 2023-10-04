@@ -2,8 +2,9 @@ import pygame
 from button import Button
 
 pygame.init()
+dimensions = pygame.display.Info() # get screen dimensions
 
-window = pygame.display.set_mode((800, 800), pygame.FULLSCREEN)
+window = pygame.display.set_mode((dimensions.current_w, dimensions.current_h), pygame.FULLSCREEN)
 pygame.display.set_caption('xtcards')
 width = window.get_width()
 height = window.get_height()
