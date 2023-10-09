@@ -27,7 +27,7 @@ width = window.get_width()
 height = window.get_height()
 
 # Webcam
-print('SETUP: Initialize webcam')
+print('>> SETUP: Initialize webcam')
 cam = WebcamCapture(show_window=True)
 
 def main():
@@ -35,15 +35,15 @@ def main():
     # main window loop
     while True:
         if game_state == GameState.TITLE:
-            print('SETUP: SET STATE TITLE')
-            print('----------------------')
+            print('>> SETUP: SET STATE TITLE')
             game_state = title_screen(window)
         #if game_state == GameState.START:
             #game_state = play_game(window)
         if game_state == GameState.CONFIG:
+            print('>> SETUP: SET STATE CONFIG')
             game_state = config_screen(window)
         if game_state == GameState.QUIT:
-            print('Quitting...')
+            print('>> SETUP: SET STATE QUIT')
             pygame.quit()
             return
 
