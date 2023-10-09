@@ -17,6 +17,7 @@ pygame.display.set_caption('xtcards')
 game_state = GameState.TITLE # set state to Title screen
 
 # colors
+# https://coolors.co/a8c7b8-283e33-697776-c9cfce-f3f3f3
 color_window_bg = (40, 62, 51) 
 color_window_header = (243, 243, 243) 
 color_button_text = (243, 243, 243) 
