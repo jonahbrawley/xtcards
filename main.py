@@ -1,7 +1,7 @@
 import pygame
 import platform # detect system
 import ctypes # windows disp
-from button import Button
+from objects.button import Button
 from webcam import WebcamCapture
 from enum import Enum
 
