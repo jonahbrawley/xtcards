@@ -1,7 +1,12 @@
 import pygame
+import platform # detect system
+import ctypes # windows disp
 from button import Button
 from webcam import WebcamCapture
 from enum import Enum
+
+if platform.uname().system == 'Windows':
+    ctypes.windll.user32.SetProcessDPIAware() # fix dpi for win
 
 class GameState(Enum):
     QUIT = -1
@@ -113,6 +118,7 @@ def config_screen(window):
     button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', color_button_bg, color_button_darken, font_button, color_button_text)
     button_start_webcam = Button((width/2)-400, (height/1.4), 200, 50, 'Start Webcam', color_button_bg, color_button_darken, font_button, color_button_text)
     button_end_webcam = Button((width/2)-100, (height/1.4), 200, 50, 'End Webcam', color_button_bg, color_button_darken, font_button, color_button_text)
+    button_start_test = Button((width/2)+200, (height/1.4), 200, 50, 'Interface Test', color_button_bg, color_button_darken, font_button, color_button_text)
 
     # create header
     print('CONFIG: Making header')
@@ -136,6 +142,8 @@ def config_screen(window):
                     cam.stop()
                 if button_back.is_clicked(event.pos):
                     return GameState.TITLE
+                if button_start_test.is_clicked(event.pos):
+                    print('Test run starts')
             # quit
             if event.type == pygame.QUIT:
                 return GameState.QUIT
@@ -150,6 +158,8 @@ def config_screen(window):
         button_start_webcam.draw(window)
         button_end_webcam.update()
         button_end_webcam.draw(window)
+        button_start_test.update()
+        button_start_test.draw(window)
 
         # draw header and texts
         window.blit(header_surface, header_rect)
