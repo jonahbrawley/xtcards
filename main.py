@@ -1,7 +1,12 @@
 import pygame
 import platform # detect system
 import ctypes # windows disp
+
 from objects.button import Button
+from objects.scheme import Scheme
+
+from screens.interface_debug import interface_debug
+
 from webcam import WebcamCapture
 from enum import Enum
 
@@ -20,14 +25,7 @@ window = pygame.display.set_mode((dimensions.current_w, dimensions.current_h), p
 pygame.display.set_caption('xtcards')
 
 game_state = GameState.TITLE # set state to Title screen
-
-# colors
-# https://coolors.co/a8c7b8-283e33-697776-c9cfce-f3f3f3
-color_window_bg = (40, 62, 51) 
-color_window_header = (243, 243, 243) 
-color_button_text = (243, 243, 243) 
-color_button_bg = (105, 119, 118) 
-color_button_darken = (183, 191, 190) 
+colors = Scheme()
 
 width = window.get_width()
 height = window.get_height()
@@ -64,13 +62,13 @@ def title_screen(window):
 
     # buttons
     print('TITLE: Making buttons')
-    button_start = Button((width/2)-100, (height)/1.42, 200, 50, 'Start', color_button_bg, color_button_darken, font_button, color_button_text)
-    button_settings = Button((width/2)-100, (height)/1.3, 200, 50, 'Config', color_button_bg, color_button_darken, font_button, color_button_text)
-    button_quit = Button((width/2)-100, (height/1.2), 200, 50, 'Quit', color_button_bg, color_button_darken, font_button, color_button_text)
+    button_start = Button((width/2)-100, (height)/1.42, 200, 50, 'Start', colors.button_bg, colors.button_darken, font_button, colors.button_text)
+    button_settings = Button((width/2)-100, (height)/1.3, 200, 50, 'Config', colors.button_bg, colors.button_darken, font_button, colors.button_text)
+    button_quit = Button((width/2)-100, (height/1.2), 200, 50, 'Quit', colors.button_bg, colors.button_darken, font_button, colors.button_text)
 
     # create header
     print('TITLE: Making header')
-    header_surface = font_header.render('xtcards', True, color_window_header, color_window_bg)
+    header_surface = font_header.render('xtcards', True, colors.window_header, colors.window_bg)
     header_rect = header_surface.get_rect()
     header_rect.center = (width // 2, height // 5)
 
@@ -89,7 +87,7 @@ def title_screen(window):
                 return GameState.QUIT
         
         # fill with black bg
-        window.fill(color_window_bg)
+        window.fill(colors.window_bg)
 
         # draw objects
         button_start.update()
@@ -115,20 +113,20 @@ def config_screen(window):
 
     # buttons
     print('CONFIG: Making buttons')
-    button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', color_button_bg, color_button_darken, font_button, color_button_text)
-    button_start_webcam = Button((width/2)-400, (height/1.4), 200, 50, 'Start Webcam', color_button_bg, color_button_darken, font_button, color_button_text)
-    button_end_webcam = Button((width/2)-100, (height/1.4), 200, 50, 'End Webcam', color_button_bg, color_button_darken, font_button, color_button_text)
-    button_start_test = Button((width/2)+200, (height/1.4), 200, 50, 'Interface Test', color_button_bg, color_button_darken, font_button, color_button_text)
+    button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', colors.button_bg, colors.button_darken, font_button, colors.button_text)
+    button_start_webcam = Button((width/2)-400, (height/1.4), 200, 50, 'Start Webcam', colors.button_bg, colors.button_darken, font_button, colors.button_text)
+    button_end_webcam = Button((width/2)-100, (height/1.4), 200, 50, 'End Webcam', colors.button_bg, colors.button_darken, font_button, colors.button_text)
+    button_start_test = Button((width/2)+200, (height/1.4), 200, 50, 'Interface Test', colors.button_bg, colors.button_darken, font_button, colors.button_text)
 
     # create header
     print('CONFIG: Making header')
-    header_surface = font_header.render('xtcards', True, color_window_header, color_window_bg)
+    header_surface = font_header.render('xtcards', True, colors.window_header, colors.window_bg)
     header_rect = header_surface.get_rect()
     header_rect.center = (width // 2, height // 5)
 
     # create texts
     print('CONFIG: Making texts')
-    text_debug_surface = font_button.render('Debug options', True, color_window_header, color_window_bg)
+    text_debug_surface = font_button.render('Debug options', True, colors.window_header, colors.window_bg)
     text_debug_rect = text_debug_surface.get_rect()
     text_debug_rect.center = ((width // 2)-320, height // 1.5)
 
@@ -149,7 +147,7 @@ def config_screen(window):
                 return GameState.QUIT
         
         # fill with black bg
-        window.fill(color_window_bg)
+        window.fill(colors.window_bg)
 
         # draw objects
         button_back.update()
