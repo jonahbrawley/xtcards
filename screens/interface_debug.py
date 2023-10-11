@@ -1,13 +1,17 @@
 import pygame
 from enum import Enum
-from objects.button import Button
 
-class interface_debug:
-    def __init__(self, window, state):
-        self.state = state
+from objects.button import Button
+from objects.gamestate import GameState
+
+class debug():
+    def __init__(self, window, colors, width, height):
         self.window = window
-    
-    def load():
+        self.colors = colors
+        self.width = width
+        self.height = height
+
+    def load(window, colors, width, height):
         # fonts
         print('DEBUG: Making fonts')
         pygame.font.init()
@@ -16,6 +20,28 @@ class interface_debug:
 
         # buttons
         print('TITLE: Making buttons')
-        button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', color_button_bg, color_button_darken, font_button, color_button_text)
+        button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', colors.button_bg, colors.button_darken, font_button, colors.button_text)
 
-        return state
+        while True:
+            for event in pygame.event.get():
+                # mouse press
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if button_back.is_clicked(event.pos):
+                        print('Quit button pressed')
+                        return GameState.CONFIG
+                # quit
+                if event.type == pygame.QUIT:
+                    return GameState.QUIT
+        
+            # fill with bg
+            window.fill(colors.window_bg)
+
+            # draw objects
+            button_back.update()
+            button_back.draw(window)
+        
+            # draw header
+            #window.blit(header_surface, header_rect)
+
+            pygame.display.update()
+        

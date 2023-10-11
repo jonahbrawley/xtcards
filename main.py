@@ -4,20 +4,14 @@ import ctypes # windows disp
 
 from objects.button import Button
 from objects.scheme import Scheme
+from objects.gamestate import GameState
 
-from screens.interface_debug import interface_debug
+from screens.interface_debug import debug
 
 from webcam import WebcamCapture
-from enum import Enum
 
 if platform.uname().system == 'Windows':
     ctypes.windll.user32.SetProcessDPIAware() # fix dpi for win
-
-class GameState(Enum):
-    QUIT = -1
-    TITLE = 0
-    START = 1
-    CONFIG = 2
 
 pygame.init()
 dimensions = pygame.display.Info() # get screen dimensions
@@ -25,7 +19,7 @@ window = pygame.display.set_mode((dimensions.current_w, dimensions.current_h), p
 pygame.display.set_caption('xtcards')
 
 game_state = GameState.TITLE # set state to Title screen
-colors = Scheme()
+colors = Scheme() # colorscheme
 
 width = window.get_width()
 height = window.get_height()
@@ -46,6 +40,9 @@ def main():
         if game_state == GameState.CONFIG:
             print('>> SETUP: SET STATE CONFIG')
             game_state = config_screen(window)
+        if game_state == GameState.DEBUG:
+            print('>> SETUP: SET STATE DEBUG')
+            game_state = debug.load(window, colors, width, height)
         if game_state == GameState.QUIT:
             print('>> SETUP: SET STATE QUIT')
             pygame.quit()
@@ -141,7 +138,8 @@ def config_screen(window):
                 if button_back.is_clicked(event.pos):
                     return GameState.TITLE
                 if button_start_test.is_clicked(event.pos):
-                    print('Test run starts')
+                    print('Test run starting')
+                    return GameState.DEBUG
             # quit
             if event.type == pygame.QUIT:
                 return GameState.QUIT
