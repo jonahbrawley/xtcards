@@ -1,17 +1,16 @@
 import pygame
-from enum import Enum
-
 from objects.button import Button
 from objects.gamestate import GameState
+from objects.scheme import Scheme
 
 class debug():
-    def __init__(self, window, colors, width, height):
+    def __init__(self, window, width, height):
         self.window = window
-        self.colors = colors
         self.width = width
         self.height = height
 
-    def load(window, colors, width, height):
+    def load(window, width, height):
+        colors = Scheme()
         # fonts
         print('DEBUG: Making fonts')
         pygame.font.init()
@@ -19,7 +18,7 @@ class debug():
         font_header = pygame.font.Font('assets/jbm-semibold.ttf', 64)
 
         # buttons
-        print('TITLE: Making buttons')
+        print('DEBUG: Making buttons')
         button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', colors.button_bg, colors.button_darken, font_button, colors.button_text)
 
         while True:
@@ -27,7 +26,7 @@ class debug():
                 # mouse press
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if button_back.is_clicked(event.pos):
-                        print('Quit button pressed')
+                        print('Back button pressed')
                         return GameState.CONFIG
                 # quit
                 if event.type == pygame.QUIT:

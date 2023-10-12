@@ -45,7 +45,7 @@ def main():
             game_state = config_screen(window, colors, width, height, cam, game_state)
         if game_state == GameState.DEBUG:
             print('>> SETUP: SET STATE DEBUG')
-            game_state = debug.load(window, colors, width, height)
+            game_state = debug.load(window, width, height)
         if game_state == GameState.QUIT:
             print('>> SETUP: SET STATE QUIT')
             pygame.quit()
