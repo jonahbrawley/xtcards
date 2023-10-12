@@ -37,12 +37,12 @@ def main():
     while True:
         if game_state == GameState.TITLE:
             print('>> SETUP: SET STATE TITLE')
-            game_state = title_screen(window, colors, width, height, game_state)
+            game_state = title_screen(window, width, height)
         #if game_state == GameState.START:
             #game_state = play_game(window)
         if game_state == GameState.CONFIG:
             print('>> SETUP: SET STATE CONFIG')
-            game_state = config_screen(window, colors, width, height, cam, game_state)
+            game_state = config_screen(window, width, height, cam)
         if game_state == GameState.DEBUG:
             print('>> SETUP: SET STATE DEBUG')
             game_state = debug.load(window, width, height)

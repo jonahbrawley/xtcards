@@ -1,11 +1,11 @@
 import pygame
 from objects.button import Button
-from enum import Enum
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
 
-def title_screen(window, colors, width, height, game_state):
+def title_screen(window, width, height):
+    colors = Scheme()
 
     # fonts
     print('TITLE: Making fonts')
