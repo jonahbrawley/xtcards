@@ -32,6 +32,8 @@ def config_screen(window, width, height, cam):
     text_debug_rect.center = ((width // 2)-320, height // 1.5)
 
     while True:
+        keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             # mouse press
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -44,6 +46,8 @@ def config_screen(window, width, height, cam):
                 if button_start_test.is_clicked(event.pos):
                     print('Test run starting')
                     return GameState.DEBUG
+            if keys[pygame.K_ESCAPE]:
+                return GameState.TITLE
             # quit
             if event.type == pygame.QUIT:
                 return GameState.QUIT
