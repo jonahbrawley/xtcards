@@ -22,7 +22,7 @@ class Button:
 
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
-        self.is_hovered = self.rect.collidepoint(mouse_pos)
+        self.is_hovered = self.rect.collidepoint(mouse_pos) 
         
     def is_clicked(self, pos):
         if self.rect.collidepoint(*pos):

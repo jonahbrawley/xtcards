@@ -26,12 +26,20 @@ class debug():
         moving = False
 
         while True:
+            mousepos = pygame.mouse.get_pos()
             keys = pygame.key.get_pressed()
+
+            button_back.update()
+
+            if setup.is_hovered(mousepos) and button_back.is_hovered:
+                button_back.is_hovered = False
 
             for event in pygame.event.get():
                 # mouse press
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if button_back.is_clicked(event.pos):
+                    if button_back.is_clicked(event.pos) and setup.is_hovered(event.pos):
+                        print('Ignoring button')
+                    elif button_back.is_clicked(event.pos):
                         print('Back button pressed')
                         return GameState.CONFIG
                     if setup.is_hovered(event.pos):
@@ -51,9 +59,8 @@ class debug():
             window.fill(colors.window_bg)
 
             # draw objects
-            button_back.update()
             button_back.draw(window)
-        
+
             # draw header
             #window.blit(header_surface, header_rect)
 
