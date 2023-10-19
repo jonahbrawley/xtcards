@@ -1,9 +1,56 @@
 import pygame
-from objects.button import Button
-from objects.scheme import Scheme
+import pygame_gui
+from pygame_gui.elements import UIButton
 from objects.gamestate import GameState
+from objects.scheme import Scheme
 
+class titleScreen:
+    def __init__(self, manager, window):
+        self.is_running = False
 
+        Colors = Scheme()
+
+        self.width = manager.window_resolution[0]
+        self.height = manager.window_resolution[1]
+        self.clock = pygame.time.Clock()
+        self.window = window
+        self.background = pygame.Surface((self.width, self.height))
+        self.background.fill(Colors.window_bg)
+        
+        self.load(manager)
+        self.run(manager)
+
+    def load(self, manager):
+        self.test_button = UIButton(pygame.Rect((int(self.width/2),
+                                                 int(self.height*.9)),
+                                                 (110, 40)),
+                                                 'EVERYTHING',
+                                                 manager)
+
+        # self.test_button_2 = UIButton(pygame.Rect((int(self.options.resolution[0] / 3),
+        #                                            int(self.options.resolution[1] * 0.90)),
+        #                                           (110, 40)),
+        #                               'EVERYTHING',
+        #                               self.ui_manager,
+        #                               object_id='#everything_button')
+        self.is_running = True
+    
+    def run(self, manager):
+        while (self.is_running):
+            time_delta = self.clock.tick(60) / 1000.0
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                    return GameState.QUIT
+            
+            manager.update(time_delta)
+            self.window.blit(self.background, (0,0))
+            manager.draw_ui(self.window)
+
+            pygame.display.update()
+
+"""
 def title_screen(window, width, height):
     colors = Scheme()
 
@@ -54,3 +101,4 @@ def title_screen(window, width, height):
         window.blit(header_surface, header_rect)
 
         pygame.display.update()
+"""
