@@ -1,18 +1,19 @@
 import pygame
-from objects.button import Button
-from objects.gamestate import GameState
+from objects.dialog import Dialog
 from objects.scheme import Scheme
 
-# width, height in parameter is SCREEN width/height.
-# it is not intended to be dialog
-class SetupDialog():
+# width, height is SCREEN width/height.
+class SetupDialog(Dialog): # extends Dialog
     def __init__(self, x, y, width, height):
-        self.rect = pygame.Rect(x, y, width/3, height/1.3)
+        colors = Scheme()
+        self.boxwidth = width/3
+        self.boxheight = height/3
+        self.rect = pygame.Rect(x, y, self.boxwidth, self.boxheight)
 
     def draw(self, window):
         colors = Scheme()
         pygame.draw.rect(window, colors.button_bg, self.rect)
-    
+        
     def is_hovered(self, pos):
         if self.rect.collidepoint(*pos):
             return True

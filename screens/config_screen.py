@@ -68,5 +68,5 @@ def config_screen(window, width, height, cam):
         # draw header and texts
         window.blit(header_surface, header_rect)
         window.blit(text_debug_surface, text_debug_rect)
-
+        
         pygame.display.update()

@@ -22,7 +22,10 @@ class debug():
         print('DEBUG: Making buttons')
         button_back = Button((width/2)-100, (height/1.2), 200, 50, 'Back', colors.button_bg, colors.button_darken, font_button, colors.button_text)
 
-        setup = SetupDialog(width/4, 200, width, height)
+        # setup diag
+        setupx = width/4
+        setupy = 200
+        setup = SetupDialog(setupx, setupy, width, height)
         moving = False
 
         while True:
@@ -47,8 +50,8 @@ class debug():
                 if keys[pygame.K_ESCAPE]:
                     return GameState.CONFIG
                 if (event.type == pygame.MOUSEMOTION and moving):
-                    setup.rect.move_ip(event.rel)
-                    #setup.move(event.rel)
+                    # setup.shadow_surface.fill(colors.window_bg)
+                    setup.move(event.rel)
                 if event.type == pygame.MOUSEBUTTONUP:
                     moving = False
                 # quit
@@ -57,16 +60,12 @@ class debug():
         
             # fill with bg
             window.fill(colors.window_bg)
+            # window.blit(setup.shadow_surface, (0, 0))
 
             # draw objects
             button_back.draw(window)
-
-            # draw header
-            #window.blit(header_surface, header_rect)
-
-            #print('DEBUG: Drawing setup dialog')
-            #setup.update()
             setup.draw(window)
+            # pygame.transform.gaussian_blur(setup.shadow_surface, 5, repeat_edge_pixels=True)
 
             pygame.display.update()
         
