@@ -3,7 +3,6 @@ import pygame_gui # gui rewrite
 import platform # detect system
 import ctypes # windows disp
 
-from objects.button import Button
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 

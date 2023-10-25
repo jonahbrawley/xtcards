@@ -1,5 +1,4 @@
 import pygame
-from objects.button import Button
 from objects.gamestate import GameState
 from objects.scheme import Scheme
 from objects.setup_dialog import SetupDialog
