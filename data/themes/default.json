@@ -56,5 +56,16 @@
             "size": "80",
             "regular_path": "assets/jbm-semibold.ttf"
         }
+    },
+    "#config_screen":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(24, 38, 31)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28"
+        }
     }
 }

@@ -47,15 +47,14 @@ class xtcApp:
                 print('>> SET STATE TITLE')
                 xtTitle = titleScreen(self.manager, self.window)
                 game_state = xtTitle.run(self.manager)
-                #game_state = title_screen(window, width, height)
             #if game_state == GameState.START:
                 #game_state = play_game(window)
             if game_state == GameState.CONFIG:
                 print('>> SET STATE CONFIG')
-                game_state = config_screen(window, width, height, cam)
+                #game_state = config_screen(window, width, height, cam)
             if game_state == GameState.DEBUG:
                 print('>> SET STATE DEBUG')
-                game_state = debug.load(window, width, height)
+                #game_state = debug.load(window, width, height)
             if game_state == GameState.QUIT:
                 print('>> SET STATE QUIT')
                 pygame.quit()

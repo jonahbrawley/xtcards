@@ -1,6 +1,6 @@
 import pygame
 import pygame_gui
-from pygame_gui.elements import UIButton, UILabel
+from pygame_gui.elements import UIButton, UILabel, UIWindow
 from objects.gamestate import GameState
 from objects.scheme import Scheme
 
@@ -66,7 +66,6 @@ class titleScreen:
 
     def run(self, manager):
         state = GameState.TITLE
-        print('entering loops')
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -75,12 +74,16 @@ class titleScreen:
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.quit_button:
-                        print('I should really be going!')
+                        print('TITLE: I should really be going!')
                         return GameState.QUIT
+                    if event.ui_element == self.settings_button:
+                        print('TITLE: Drawing config dialog')
+                        # DRAW CONFIG DIALOG HERE
+                        config = configWindow(manager=manager)
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
-                    print('I should really be going!')
+                    print('TITLE: I should really be going!')
                     return GameState.QUIT
 
                 manager.process_events(event)
@@ -93,3 +96,10 @@ class titleScreen:
 
             if (state != GameState.TITLE):
                 return state
+            
+class configWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager):
+        super().__init__(pygame.Rect((200, 50), (400, 500)),
+                         manager,
+                         window_display_title='Settings',
+                         object_id='#config_window')
