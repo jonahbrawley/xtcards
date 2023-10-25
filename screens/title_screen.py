@@ -19,7 +19,8 @@ class titleScreen:
         self.quit_button = None
         self.settings_button = None
         self.play_button = None
-        
+        self.config = None
+
         self.load(manager)
 
     def load(self, manager):
@@ -66,6 +67,7 @@ class titleScreen:
 
     def run(self, manager):
         state = GameState.TITLE
+        self.isConfClicked = False
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -76,10 +78,10 @@ class titleScreen:
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
                         return GameState.QUIT
-                    if event.ui_element == self.settings_button:
+                    if (event.ui_element == self.settings_button and not self.isConfClicked):
                         print('TITLE: Drawing config dialog')
-                        # DRAW CONFIG DIALOG HERE
-                        config = configWindow(manager=manager)
+                        self.config = configWindow(manager=manager)
+                        self.isConfClicked = True
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -94,6 +96,10 @@ class titleScreen:
 
             pygame.display.update()
 
+            if (self.isConfClicked):
+                if not self.config.alive():
+                    self.isConfClicked = False
+
             if (state != GameState.TITLE):
                 return state
             
@@ -102,4 +108,4 @@ class configWindow(pygame_gui.elements.UIWindow):
         super().__init__(pygame.Rect((200, 50), (400, 500)),
                          manager,
                          window_display_title='Settings',
-                         object_id='#config_window')
+                         object_id='#config_screen')
