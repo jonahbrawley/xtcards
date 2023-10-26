@@ -90,5 +90,14 @@
         {
             "size": "25"
         }
+    },
+    "config_window_label": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "16",
+            "regular_path": "assets/jbm-regular.ttf"
+        }
     }
 }

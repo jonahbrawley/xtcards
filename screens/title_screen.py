@@ -110,3 +110,30 @@ class configWindow(pygame_gui.elements.UIWindow):
                          window_display_title='Settings',
                          object_id='#config_window')
         
+        self.debug_category_label = pygame_gui.elements.UILabel(pygame.Rect((0, 10), (150, 40)),
+                                                                "Debug options",
+                                                                manager=manager,
+                                                                object_id="config_window_label",
+                                                                container=self,
+                                                                parent_element=self,
+                                                                anchors={
+                                                                    "centerx": "centerx"
+                                                                })
+        
+        self.start_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (170, 40)),
+                                                             text='Start webcam',
+                                                             manager=manager,
+                                                             container=self,
+                                                             parent_element=self,
+                                                             anchors={
+                                                                "top_target": self.debug_category_label   
+                                                             })
+        
+        self.stop_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (170, 40)),
+                                                             text='Stop webcam',
+                                                             manager=manager,
+                                                             container=self,
+                                                             parent_element=self,
+                                                             anchors={
+                                                                 "top_target": self.start_cam_button
+                                                             })
