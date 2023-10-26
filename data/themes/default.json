@@ -57,15 +57,38 @@
             "regular_path": "assets/jbm-semibold.ttf"
         }
     },
-    "#config_screen":
+    "#config_window":
     {
         "colours":
         {
-            "dark_bg": "rgb(105, 119, 118)"
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
         },
         "misc":
         {
-            "title_bar_height": "28"
+            "title_bar_height": "28",
+            "border_width": "5"
+        }
+    },
+    "#config_window.#title_bar": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "18",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "misc": 
+        {
+            "text_horiz_alignment": "left",
+            "text_horiz_alignment_padding": "10"
+        }
+    },
+    "#config_window.#close_button":
+    {
+        "font":
+        {
+            "size": "25"
         }
     }
 }

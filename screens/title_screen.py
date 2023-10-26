@@ -108,4 +108,5 @@ class configWindow(pygame_gui.elements.UIWindow):
         super().__init__(pygame.Rect((200, 50), (400, 500)),
                          manager,
                          window_display_title='Settings',
-                         object_id='#config_screen')
+                         object_id='#config_window')
+        
