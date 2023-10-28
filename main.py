@@ -6,8 +6,6 @@ import ctypes # windows disp
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
-from webcam import WebcamCapture
-
 from screens.interface_debug import debug
 from screens.title_screen import titleScreen
 from screens.config_screen import config_screen
@@ -36,7 +34,6 @@ class xtcApp:
         self.manager.preload_fonts(fonts)
 
         print('>> Initialize webcam')
-        self.cam = WebcamCapture(show_window=True)
 
     def run(self):
         game_state = GameState.TITLE # set state to Title screen

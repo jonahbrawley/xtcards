@@ -98,6 +98,19 @@
             "name": "jb-button",
             "size": "16",
             "regular_path": "assets/jbm-regular.ttf"
+        },
+        "colours":
+        {
+            "normal_text":"rgb(243, 243, 243)"
+        }
+    },
+    "#config_window.button":
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "16",
+            "regular_path": "assets/jbm-regular.ttf"
         }
     }
 }

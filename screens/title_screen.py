@@ -4,6 +4,10 @@ from pygame_gui.elements import UIButton, UILabel, UIWindow
 from objects.gamestate import GameState
 from objects.scheme import Scheme
 
+from webcam import WebcamCapture
+
+cam = WebcamCapture(show_window=True)
+
 class titleScreen:
     def __init__(self, manager, window):
         Colors = Scheme()
@@ -68,6 +72,7 @@ class titleScreen:
     def run(self, manager):
         state = GameState.TITLE
         self.isConfClicked = False
+        pos = pygame.Rect((300, 350), (350, 500))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -80,8 +85,10 @@ class titleScreen:
                         return GameState.QUIT
                     if (event.ui_element == self.settings_button and not self.isConfClicked):
                         print('TITLE: Drawing config dialog')
-                        self.config = configWindow(manager=manager)
+                        self.config = configWindow(manager=manager, pos=pos)
                         self.isConfClicked = True
+                if event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT:
+                    pos = self.config.rect
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -104,36 +111,54 @@ class titleScreen:
                 return state
             
 class configWindow(pygame_gui.elements.UIWindow):
-    def __init__(self, manager):
-        super().__init__(pygame.Rect((200, 50), (400, 500)),
+    def __init__(self, manager, pos):
+        super().__init__((pos),
                          manager,
                          window_display_title='Settings',
                          object_id='#config_window')
         
-        self.debug_category_label = pygame_gui.elements.UILabel(pygame.Rect((0, 10), (150, 40)),
+        self.debug_category_label = pygame_gui.elements.UILabel(pygame.Rect((10, 10), (150, 40)),
                                                                 "Debug options",
                                                                 manager=manager,
                                                                 object_id="config_window_label",
                                                                 container=self,
                                                                 parent_element=self,
                                                                 anchors={
-                                                                    "centerx": "centerx"
+                                                                    "left": "left"
                                                                 })
         
-        self.start_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (170, 40)),
-                                                             text='Start webcam',
+        self.start_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (-1, 40)),
+                                                             text='Start cam',
                                                              manager=manager,
+                                                             #object_id="",
                                                              container=self,
                                                              parent_element=self,
                                                              anchors={
-                                                                "top_target": self.debug_category_label   
+                                                                "top_target": self.debug_category_label,
                                                              })
         
-        self.stop_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (170, 40)),
-                                                             text='Stop webcam',
+        self.stop_cam_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), (-1, 40)),
+                                                             text='Stop cam',
                                                              manager=manager,
+                                                             #object_id="",
                                                              container=self,
                                                              parent_element=self,
                                                              anchors={
-                                                                 "top_target": self.start_cam_button
+                                                                 "top_target": self.debug_category_label,
+                                                                 "left_target": self.start_cam_button,
+                                                                 "left": "left"
                                                              })
+        
+    def process_event(self, event):
+        global cam
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
+            if (event.ui_element == self.start_cam_button):
+                print('TITLE: Start cam')
+                cam.start()
+            if (event.ui_element == self.stop_cam_button):
+                print('TITLE: Stop cam')
+                cam.stop()
+        
+
