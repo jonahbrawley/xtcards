@@ -16,7 +16,7 @@ class xtcApp:
         pygame.display.set_caption('xtcards')
 
         if platform.uname().system == 'Windows':
-            ctypes.windll.user32.SetProcessDPIAware() # fix dpi for win
+            ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
         display = pygame.display.Info()
         dimensions = (display.current_w, display.current_h)
         

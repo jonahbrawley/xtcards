@@ -1,5 +1,3 @@
-import pygame
-
 class Scheme:
     def __init__(object):
         Scheme.window_bg = (40, 62, 51) 

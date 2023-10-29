@@ -72,7 +72,7 @@ class titleScreen:
     def run(self, manager):
         state = GameState.TITLE
         self.isConfClicked = False
-        pos = pygame.Rect((300, 350), (350, 500))
+        cfgpos = pygame.Rect((300, 350), (350, 500))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -85,10 +85,10 @@ class titleScreen:
                         return GameState.QUIT
                     if (event.ui_element == self.settings_button and not self.isConfClicked):
                         print('TITLE: Drawing config dialog')
-                        self.config = configWindow(manager=manager, pos=pos)
+                        self.config = configWindow(manager=manager, pos=cfgpos)
                         self.isConfClicked = True
                 if event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT:
-                    pos = self.config.rect
+                    cfgpos = self.config.rect
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -149,6 +149,18 @@ class configWindow(pygame_gui.elements.UIWindow):
                                                                  "left": "left"
                                                              })
         
+        start_width = self.start_cam_button.drawable_shape.containing_rect.width
+        stop_width = self.stop_cam_button.drawable_shape.containing_rect.width
+        
+        self.interface_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), ((start_width + stop_width + 10), 40)),
+                                                             text='Interface debug',
+                                                             manager=manager,
+                                                             container=self,
+                                                             parent_element=self,
+                                                             anchors={
+                                                                 "top_target": self.stop_cam_button
+                                                             })
+        
     def process_event(self, event):
         global cam
         handled = super().process_event(event)
@@ -161,4 +173,3 @@ class configWindow(pygame_gui.elements.UIWindow):
                 print('TITLE: Stop cam')
                 cam.stop()
         
-
