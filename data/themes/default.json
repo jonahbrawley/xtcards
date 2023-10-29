@@ -1,0 +1,116 @@
+{
+    "button":
+    {
+        "colours":
+        {
+            "normal_bg":"rgb(105, 119, 118)",
+            "hovered_bg":"rgb(183, 191, 190)",
+            "disabled_bg":"#25292e",
+            "selected_bg":"rgb(201, 209, 208)",
+            "dark_bg":"#15191e",
+            "normal_text":"rgb(243, 243, 243)",
+            "hovered_text":"#FFFFFF",
+            "selected_text":"#FFFFFF",
+            "disabled_text":"#6d736f",
+            "link_text": "#0000EE",
+            "link_hover": "#2020FF",
+            "link_selected": "#551A8B",
+            "text_shadow": "#777777",
+            "normal_border": "rgb(105, 119, 118)",
+            "hovered_border": "rgb(183, 191, 190)",
+            "disabled_border": "#808080",
+            "selected_border": "rgb(201, 209, 208)",
+            "active_border": "#8080B0",
+            "filled_bar":"#f4251b",
+            "unfilled_bar":"#CCCCCC",
+            "selected_text_shadow": "rgb(201, 209, 208)"
+        },
+        "font":
+        {
+            "name": "jb-button",
+            "size": "20",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "misc":
+         {
+             "shadow_width": "1",
+             "text_horiz_alignment": "center",
+             "text_vert_alignment": "center",
+             "state_transitions":
+             {
+                 "normal_hovered": "0.25",
+                 "hovered_normal": "0.25"
+             }
+         }
+    },
+    "header":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_text": "rgb(243, 243, 243)"
+        },
+        "font":
+        {
+            "name": "jb-header",
+            "size": "80",
+            "regular_path": "assets/jbm-semibold.ttf"
+        }
+    },
+    "#config_window":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28",
+            "border_width": "5"
+        }
+    },
+    "#config_window.#title_bar": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "18",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "misc": 
+        {
+            "text_horiz_alignment": "left",
+            "text_horiz_alignment_padding": "10"
+        }
+    },
+    "#config_window.#close_button":
+    {
+        "font":
+        {
+            "size": "25"
+        }
+    },
+    "config_window_label": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "16",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "colours":
+        {
+            "normal_text":"rgb(243, 243, 243)"
+        }
+    },
+    "#config_window.button":
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "16",
+            "regular_path": "assets/jbm-regular.ttf"
+        }
+    }
+}

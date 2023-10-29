@@ -1,5 +1,5 @@
 # xtcards
-AI poker bot capstone project using Python
+AI poker bot capstone project written with Python, using the `pygame` and `pygame_gui` libraries
 
 ## Setup instructions
 1. Clone project
