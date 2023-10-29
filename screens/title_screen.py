@@ -7,11 +7,12 @@ from objects.scheme import Scheme
 from webcam import WebcamCapture
 
 cam = WebcamCapture(show_window=True)
+Colors = Scheme()
+debugswitch = False # needed due to self.state class variable conundrum with configScreen
 
 class titleScreen:
-    def __init__(self, manager, window):
-        Colors = Scheme()
-
+    def __init__(self, manager, window, state):
+        self.state = state
         self.width = manager.window_resolution[0]
         self.height = manager.window_resolution[1]
         self.clock = pygame.time.Clock()
@@ -25,9 +26,12 @@ class titleScreen:
         self.play_button = None
         self.config = None
 
-        self.load(manager)
+        #self.load(manager)
 
-    def load(self, manager):
+    def load(self, manager, state):
+        global debugswitch
+        debugswitch = False
+        self.state = state
         header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
 
         self.header = UILabel(relative_rect=header_rect,
@@ -70,7 +74,6 @@ class titleScreen:
                                                  })
 
     def run(self, manager):
-        state = GameState.TITLE
         self.isConfClicked = False
         cfgpos = pygame.Rect((300, 350), (350, 500))
 
@@ -101,17 +104,25 @@ class titleScreen:
             self.window.blit(self.background, (0,0))
             manager.draw_ui(self.window)
 
-            pygame.display.update()
+            pygame.display.flip()
+
+            if (debugswitch):
+                self.state = GameState.DEBUG
 
             if (self.isConfClicked):
                 if not self.config.alive():
                     self.isConfClicked = False
 
-            if (state != GameState.TITLE):
-                return state
+            if (self.state != GameState.TITLE):
+                return self.state
+    
+    def delete(self, manager):
+        print('TITLE: Deleting objects')
+        manager.clear_and_reset()
             
 class configWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
+
         super().__init__((pos),
                          manager,
                          window_display_title='Settings',
@@ -163,6 +174,7 @@ class configWindow(pygame_gui.elements.UIWindow):
         
     def process_event(self, event):
         global cam
+        global debugswitch
         handled = super().process_event(event)
 
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
@@ -172,4 +184,7 @@ class configWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.stop_cam_button):
                 print('TITLE: Stop cam')
                 cam.stop()
+            if (event.ui_element == self.interface_button):
+                print('TITLE: Switching to debug')
+                debugswitch = True
         

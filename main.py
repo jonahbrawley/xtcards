@@ -6,9 +6,11 @@ import ctypes # windows disp
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
-from screens.interface_debug import debug
+from screens.interface_debug import debugScreen
 from screens.title_screen import titleScreen
-from screens.config_screen import config_screen
+#from screens.config_screen import config_screen
+
+Colors = Scheme()
 
 class xtcApp:
     def __init__(self):
@@ -37,20 +39,25 @@ class xtcApp:
 
     def run(self):
         game_state = GameState.TITLE # set state to Title screen
+        xtTitle = titleScreen(self.manager, self.window, game_state)
+        xtDebug = debugScreen(self.manager, self.window, game_state)
 
         while True:
             if game_state == GameState.TITLE:
                 print('>> SET STATE TITLE')
-                xtTitle = titleScreen(self.manager, self.window)
+                xtTitle.load(self.manager, game_state)
                 game_state = xtTitle.run(self.manager)
+                xtTitle.delete(self.manager)
+
             #if game_state == GameState.START:
                 #game_state = play_game(window)
-            if game_state == GameState.CONFIG:
-                print('>> SET STATE CONFIG')
-                #game_state = config_screen(window, width, height, cam)
+
             if game_state == GameState.DEBUG:
                 print('>> SET STATE DEBUG')
-                #game_state = debug.load(window, width, height)
+                xtDebug.load(self.manager, game_state)
+                game_state = xtDebug.run(self.manager)
+                xtDebug.delete(self.manager)
+
             if game_state == GameState.QUIT:
                 print('>> SET STATE QUIT')
                 pygame.quit()
