@@ -3,6 +3,7 @@ import pygame_gui
 from pygame_gui.elements import UIButton, UILabel, UIWindow
 from objects.gamestate import GameState
 from objects.scheme import Scheme
+from objects.setup import setupWindow
 
 class debugScreen:
     def __init__(self, manager, window, state):
@@ -32,6 +33,12 @@ class debugScreen:
                                   'centerx': 'centerx',
                                   'top': 'top'
                               })
+        
+        stp_width = 500
+        stp_height = 500
+        stppos = pygame.Rect((200, 300), (stp_width, stp_height))
+
+        self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
         while True:
