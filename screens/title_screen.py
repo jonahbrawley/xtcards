@@ -75,13 +75,17 @@ class titleScreen:
 
     def run(self, manager):
         self.isConfClicked = False
-        cfgpos = pygame.Rect((300, 350), (350, 500))
+        cfg_width = 350
+        cfg_height = 500
+        cfgpos = pygame.Rect((300, 350), (cfg_width, cfg_height))
+        bounds = pygame.Rect((0, 0), (manager.window_resolution[0], manager.window_resolution[1]))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
             for event in pygame.event.get():
+                # buttons
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
@@ -90,8 +94,22 @@ class titleScreen:
                         print('TITLE: Drawing config dialog')
                         self.config = configWindow(manager=manager, pos=cfgpos)
                         self.isConfClicked = True
-                if event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT:
+
+                # cfg window position
+                if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT):
                     cfgpos = self.config.rect
+                
+                # cfg snap to bounds
+                if (cfgpos.x < 0):
+                    self.config.set_position((0, cfgpos.y))
+                if ((cfgpos.x+cfg_width) > manager.window_resolution[0]):
+                    self.config.set_position((manager.window_resolution[0]-cfg_width, cfgpos.y))
+                if (cfgpos.y < 0):
+                    self.config.set_position((cfgpos.x, 0))
+                if ((cfgpos.y+cfg_height) > manager.window_resolution[1]):
+                    self.config.set_position((cfgpos.x, manager.window_resolution[1]-cfg_height))
+
+                # quit program handling
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -122,7 +140,6 @@ class titleScreen:
             
 class configWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
-
         super().__init__((pos),
                          manager,
                          window_display_title='Settings',
