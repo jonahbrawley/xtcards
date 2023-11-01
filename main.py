@@ -18,13 +18,16 @@ class xtcApp:
         pygame.display.set_caption('xtcards')
 
         print('OS: '+ os.name)
-        # if os.name == 'nt':
-        #     print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
-        #     ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
-        display = pygame.display.Info()
-        dimensions = (display.current_w, display.current_h)
+        if os.name == 'nt':
+            print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
+            ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
+            dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+            self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
+        else:
+            display = pygame.display.Info()
+            dimensions = (display.current_w, display.current_h)
+            self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         
-        self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         self.background = pygame.Surface(dimensions)
 
         self.manager = pygame_gui.UIManager(dimensions, 'data/themes/default.json')
