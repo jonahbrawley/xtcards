@@ -1,6 +1,6 @@
 import pygame
 import pygame_gui # gui rewrite
-import platform # detect system
+import os # detect system
 import ctypes # windows disp
 
 from objects.scheme import Scheme
@@ -17,7 +17,9 @@ class xtcApp:
         pygame.init()
         pygame.display.set_caption('xtcards')
 
-        if platform.uname().system == 'Windows':
+        print('OS: '+ os.name)
+        if os.name == 'nt':
+            print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
             ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
         display = pygame.display.Info()
         dimensions = (display.current_w, display.current_h)
