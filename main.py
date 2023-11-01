@@ -21,8 +21,10 @@ class xtcApp:
         if os.name == 'nt':
             print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
             ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
-            dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-            print(dimensions)
+            # dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+            # print(dimensions)
+            display = pygame.display.Info()
+            dimensions = (display.current_w, display.current_h)
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         else:
             display = pygame.display.Info()
