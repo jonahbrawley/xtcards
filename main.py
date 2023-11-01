@@ -23,13 +23,10 @@ class xtcApp:
             ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
             dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
             print(dimensions)
-            sf = ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100
-            print(sf)
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         else:
             display = pygame.display.Info()
             dimensions = (display.current_w, display.current_h)
-            sf = 1
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         
         self.background = pygame.Surface(dimensions)
@@ -39,8 +36,8 @@ class xtcApp:
         self.manager.add_font_paths('jb-button', 'assets/jbm-semibold.ttf')
         self.manager.add_font_paths('jb-header', 'assets/jbm-semibold.ttf')
         fonts = [
-            {'name': 'jb-button', 'point_size': 20 * sf, 'style': 'regular'},
-            {'name': 'jb-header', 'point_size': 64 * sf, 'style': 'regular'},
+            {'name': 'jb-button', 'point_size': 20, 'style': 'regular'},
+            {'name': 'jb-header', 'point_size': 64, 'style': 'regular'},
         ]
         self.manager.preload_fonts(fonts)
 

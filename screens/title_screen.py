@@ -6,6 +6,8 @@ from objects.scheme import Scheme
 
 from webcam import WebcamCapture
 
+import os, ctypes
+
 cam = WebcamCapture(show_window=True)
 Colors = Scheme()
 debugswitch = False # needed due to self.state class variable conundrum with configScreen
@@ -26,7 +28,12 @@ class titleScreen:
         self.play_button = None
         self.config = None
 
-        #self.load(manager)
+        # get dimensions
+        if os.name == 'nt':
+            self.dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+        else:
+            display = pygame.display.Info()
+            self.dimensions = (display.current_w, display.current_h)
 
     def load(self, manager, state):
         global debugswitch
@@ -121,6 +128,8 @@ class titleScreen:
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
             manager.draw_ui(self.window)
+            pygame.transform.smoothscale(self.window, self.dimensions)
+            
 
             pygame.display.flip()
 
