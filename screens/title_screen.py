@@ -100,15 +100,16 @@ class titleScreen:
                     cfgpos = self.config.rect
                 
                 # cfg snap to bounds
-                if (cfgpos.x < 0):
-                    self.config.set_position((0, cfgpos.y))
-                if ((cfgpos.x+cfg_width) > manager.window_resolution[0]):
-                    self.config.set_position((manager.window_resolution[0]-cfg_width, cfgpos.y))
-                if (cfgpos.y < 0):
-                    self.config.set_position((cfgpos.x, 0))
-                if ((cfgpos.y+cfg_height) > manager.window_resolution[1]):
-                    self.config.set_position((cfgpos.x, manager.window_resolution[1]-cfg_height))
-
+                if (self.isConfClicked):
+                    if (cfgpos.x < 0):
+                        self.config.set_position((0, cfgpos.y))
+                    if ((cfgpos.x+cfg_width) > manager.window_resolution[0]):
+                        self.config.set_position((manager.window_resolution[0]-cfg_width, cfgpos.y))
+                    if (cfgpos.y < 0):
+                        self.config.set_position((cfgpos.x, 0))
+                    if ((cfgpos.y+cfg_height) > manager.window_resolution[1]):
+                        self.config.set_position((cfgpos.x, manager.window_resolution[1]-cfg_height))
+                
                 # quit program handling
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
