@@ -78,7 +78,6 @@ class titleScreen:
         cfg_width = 350
         cfg_height = 500
         cfgpos = pygame.Rect((300, 350), (cfg_width, cfg_height))
-        bounds = pygame.Rect((0, 0), (manager.window_resolution[0], manager.window_resolution[1]))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -121,7 +120,7 @@ class titleScreen:
             
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
-            manager.draw_ui(self.window)
+            manager.draw_ui(pygame.transform.smoothscale(self.window, (3840, 2400)))
 
             pygame.display.flip()
 
