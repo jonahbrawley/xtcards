@@ -120,7 +120,7 @@ class titleScreen:
             
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
-            manager.draw_ui(pygame.transform.smoothscale(self.window, (3840, 2400)))
+            manager.draw_ui(self.window)
 
             pygame.display.flip()
 
