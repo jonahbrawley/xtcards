@@ -71,6 +71,11 @@ class xtcApp:
                 pygame.quit()
                 return
             
+import os
+if __name__ == "__main__":
+	plat = os.name
+	print(plat)
 if __name__ == "__main__":
     app = xtcApp()
     app.run()
+
