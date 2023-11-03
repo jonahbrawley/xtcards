@@ -33,8 +33,8 @@ class xtcApp:
         
         self.background = pygame.Surface(dimensions)
 
-        self.manager = pygame_gui.UIManager(dimensions, 'data/themes/default.json')
-        self.manager.set_window_resolution(dimensions)
+        self.manager = pygame_gui.UIManager(window_resolution=dimensions, theme_path='data/themes/default.json')
+        #self.manager.set_window_resolution(dimensions)
         self.manager.add_font_paths('jb-button', 'assets/jbm-semibold.ttf')
         self.manager.add_font_paths('jb-header', 'assets/jbm-semibold.ttf')
         fonts = [
