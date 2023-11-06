@@ -1,15 +1,13 @@
 import pygame
 import pygame_gui # gui rewrite
 import os # detect system
-import ctypes # windows disp
+import ctypes # windows displays
 
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
 from screens.interface_debug import debugScreen
 from screens.title_screen import titleScreen
-#from screens.config_screen import config_screen
-
 Colors = Scheme()
 
 class xtcApp:
@@ -21,27 +19,27 @@ class xtcApp:
         if os.name == 'nt':
             print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
             ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
-            # dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-            # print(dimensions)
-            display = pygame.display.Info()
-            dimensions = (display.current_w, display.current_h)
+            dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+            print(dimensions)
+            #display = pygame.display.Info()
+            #dimensions = (display.current_w, display.current_h)
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         else:
             display = pygame.display.Info()
             dimensions = (display.current_w, display.current_h)
+            print(dimensions)   
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         
         self.background = pygame.Surface(dimensions)
 
         self.manager = pygame_gui.UIManager(window_resolution=dimensions, theme_path='data/themes/default.json')
-        #self.manager.set_window_resolution(dimensions)
         self.manager.add_font_paths('jb-button', 'assets/jbm-semibold.ttf')
         self.manager.add_font_paths('jb-header', 'assets/jbm-semibold.ttf')
-        fonts = [
-            {'name': 'jb-button', 'point_size': 20, 'style': 'regular'},
-            {'name': 'jb-header', 'point_size': 64, 'style': 'regular'},
-        ]
-        self.manager.preload_fonts(fonts)
+        # fonts = [
+        #     {'name': 'jb-button', 'point_size': 20, 'style': 'regular'},
+        #     {'name': 'jb-header', 'point_size': 64, 'style': 'regular'},
+        # ]
+        # self.manager.preload_fonts(fonts)
 
         print('>> Initialize webcam')
 

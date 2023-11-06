@@ -8,7 +8,7 @@ from webcam import WebcamCapture
 
 cam = WebcamCapture(show_window=True)
 Colors = Scheme()
-debugswitch = False # needed due to self.state class variable conundrum with configScreen
+debugswitch = False
 
 class titleScreen:
     def __init__(self, manager, window, state):
@@ -25,13 +25,6 @@ class titleScreen:
         self.settings_button = None
         self.play_button = None
         self.config = None
-        """
-        if os.name == 'nt':
-            self.dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-        else:
-            display = pygame.display.Info()
-            self.dimensions = (display.current_w, display.current_h)
-        """
 
     def load(self, manager, state):
         global debugswitch

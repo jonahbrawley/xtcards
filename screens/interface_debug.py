@@ -19,8 +19,6 @@ class debugScreen:
 
         self.header = None
 
-        #self.load(manager)
-
     def load(self, manager, state):
         self.state = state
         header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
