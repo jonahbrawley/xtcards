@@ -84,6 +84,9 @@ class titleScreen:
             for event in pygame.event.get():
                 # buttons
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == self.play_button:
+                        print('TITLE: Starting game')
+                        self.state = GameState.START
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
                         return GameState.QUIT
@@ -179,7 +182,7 @@ class configWindow(pygame_gui.elements.UIWindow):
         stop_width = self.stop_cam_button.drawable_shape.containing_rect.width
         
         self.interface_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((10, 10), ((start_width + stop_width + 10), 40)),
-                                                             text='Interface debug',
+                                                             text='Nothing button',
                                                              manager=manager,
                                                              container=self,
                                                              parent_element=self,
@@ -199,7 +202,4 @@ class configWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.stop_cam_button):
                 print('TITLE: Stop cam')
                 cam.stop()
-            if (event.ui_element == self.interface_button):
-                print('TITLE: Switching to debug')
-                debugswitch = True
         

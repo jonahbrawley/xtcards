@@ -102,8 +102,13 @@
         "colours":
         {
             "normal_text":"rgb(243, 243, 243)"
+        },
+        "misc":
+        {
+            "text_horiz_alignment": "left"
         }
     },
+    
     "#config_window.button":
     {
         "font":
@@ -111,6 +116,37 @@
             "name": "jb-button",
             "size": "16",
             "regular_path": "assets/jbm-regular.ttf"
+        }
+    },
+    "#setup_window":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28",
+            "border_width": "5",
+            "enable_close_button": "0"
+        }
+    },
+    "drop_down_menu.button":
+    {
+        "font":
+        {
+            "name": "jb-dropdown",
+            "size": "16",
+            "regular_path": "assets/jbm-regular.ttf"
+        }
+    },
+    "drop_down_menu.#drop_down_options_list.button":
+    {
+        "font":
+        {
+            "name": "jb-dropdown",
+            "size": "16"
         }
     }
 }

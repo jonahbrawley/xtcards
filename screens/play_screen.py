@@ -5,7 +5,7 @@ from objects.gamestate import GameState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
 
-class debugScreen:
+class playScreen:
     def __init__(self, manager, window, state):
         Colors = Scheme()
         self.state = state
@@ -21,20 +21,20 @@ class debugScreen:
 
     def load(self, manager, state):
         self.state = state
-        header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
+        #header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
         
-        self.header = UILabel(relative_rect=header_rect,
-                              text='debug',
-                              manager=manager,
-                              object_id='header',
-                              anchors={
-                                  'centerx': 'centerx',
-                                  'top': 'top'
-                              })
+        # self.header = UILabel(relative_rect=header_rect,
+        #                       text='play',
+        #                       manager=manager,
+        #                       object_id='header',
+        #                       anchors={
+        #                           'centerx': 'centerx',
+        #                           'top': 'top'
+        #                       })
         
         stp_width = 500
         stp_height = 500
-        stppos = pygame.Rect((200, 300), (stp_width, stp_height))
+        stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
 
         self.setup = setupWindow(manager, stppos)
 
@@ -58,7 +58,7 @@ class debugScreen:
 
             pygame.display.update()
 
-            if (self.state != GameState.DEBUG):
+            if (self.state != GameState.START):
                 return self.state
     
     def delete(self, manager):

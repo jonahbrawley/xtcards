@@ -6,7 +6,7 @@ import ctypes # windows displays
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
-from screens.interface_debug import debugScreen
+from screens.play_screen import playScreen
 from screens.title_screen import titleScreen
 Colors = Scheme()
 
@@ -18,7 +18,7 @@ class xtcApp:
         print('OS: '+ os.name)
         if os.name == 'nt':
             print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
-            ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
+            #ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
             dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
             print(dimensions)
             #display = pygame.display.Info()
@@ -46,7 +46,7 @@ class xtcApp:
     def run(self):
         game_state = GameState.TITLE # set state to Title screen
         xtTitle = titleScreen(self.manager, self.window, game_state)
-        xtDebug = debugScreen(self.manager, self.window, game_state)
+        xtPlay = playScreen(self.manager, self.window, game_state)
 
         while True:
             if game_state == GameState.TITLE:
@@ -58,11 +58,11 @@ class xtcApp:
             #if game_state == GameState.START:
                 #game_state = play_game(window)
 
-            if game_state == GameState.DEBUG:
-                print('>> SET STATE DEBUG')
-                xtDebug.load(self.manager, game_state)
-                game_state = xtDebug.run(self.manager)
-                xtDebug.delete(self.manager)
+            if game_state == GameState.START:
+                print('>> SET STATE START')
+                xtPlay.load(self.manager, game_state)
+                game_state = xtPlay.run(self.manager)
+                xtPlay.delete(self.manager)
 
             if game_state == GameState.QUIT:
                 print('>> SET STATE QUIT')
@@ -70,9 +70,6 @@ class xtcApp:
                 return
             
 import os
-if __name__ == "__main__":
-	plat = os.name
-	print(plat)
 if __name__ == "__main__":
     app = xtcApp()
     app.run()
