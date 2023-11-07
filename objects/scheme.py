@@ -4,4 +4,4 @@ class Scheme:
         Scheme.window_header = (243, 243, 243) 
         Scheme.button_text = (243, 243, 243) 
         Scheme.button_bg = (105, 119, 118) 
-        Scheme.button_darken = (183, 191, 190) 
+        Scheme.button_darken = (183, 191, 190)
