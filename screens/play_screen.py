@@ -29,7 +29,7 @@ class playScreen:
 
         #pause button
         pause_button_rect = pygame.Rect(15, 15, 100, 50)
-        self.pause_button = UIButton(relative_rect=pause_button_rect,
+        self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                                 text='Pause',
                                                 manager=manager,
                                                 anchors={
