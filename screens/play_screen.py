@@ -17,6 +17,9 @@ class playScreen:
         self.window = window
         self.background = pygame.Surface((self.width, self.height))
         self.background.fill(Colors.window_bg)
+        #self.darken = pygame.Surface((self.width, self.height))
+        #self.darken.fill((0, 0, 0, 40)) # fill with black color alpha 40
+        self.darken_rect = pygame.Rect((0,0), (self.width, self.height))
 
         self.header = None
 
@@ -41,6 +44,8 @@ class playScreen:
 
     def run(self, manager):
         global homeswitch
+        darken = False
+        pauseClicked = False
 
         # pause set up
         pause_width = 350
@@ -54,9 +59,11 @@ class playScreen:
             for event in pygame.event.get():
                 #if pause button is clicked
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if (event.ui_element == self.pause_button):
+                    if (event.ui_element == self.pause_button and not pauseClicked):
                             print('TITLE: Drawing pause dialog')
-                            self.config = pauseWindow(manager=manager, pos=pausepos)
+                            pauseClicked = True
+                            darken = True
+                            self.pause = pauseWindow(manager=manager, pos=pausepos)
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -67,7 +74,19 @@ class playScreen:
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+
             manager.draw_ui(self.window)
+
+            if (pauseClicked):
+                if not self.pause.alive():
+                    darken = False
+                    pauseClicked = False
+
+            if (darken):
+                # self.window.blit(self.darken, (0,0)) # add dark overlay
+                # pygame.draw.rect(self.window, (0,0,0,40), self.darken_rect)
+                # self.pause.change_layer(3)
+                temp = 1
 
             pygame.display.update()
 
@@ -127,6 +146,6 @@ class pauseWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.quit_button):
                 homeswitch = True
             if (event.ui_element == self.resume_button):
-                self.hide()
+                self.kill()
             if (event.ui_element == self.save_button):
                 homeswitch = True

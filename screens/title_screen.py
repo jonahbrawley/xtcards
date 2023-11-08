@@ -50,12 +50,13 @@ class titleScreen:
         self.cards = []
         for filename in card_filenames:
             image = pygame.image.load(filename)
-            image_scaled = pygame.transform.smoothscale(image, (image.get_width()//5, image.get_height()//5))
+            # apply scale after to improve quality
+            image_scaled = pygame.transform.smoothscale(image, (image.get_width()//5.5, image.get_height()//5.5))
             self.cards.append(image_scaled)
         
         self.circle_radius = self.width//3.5
         self.circle_center = (self.width//2, self.height)
-        self.circle_surface = pygame.Surface((self.circle_radius*4, self.circle_radius*4))
+        self.circle_surface = pygame.Surface((self.circle_radius*2.5, self.circle_radius*2.5))
         self.angle_increment = 360 // num_cards
 
         self.cards_cache = {}
@@ -63,7 +64,7 @@ class titleScreen:
             current_card = self.cards[i]
             angle = i * self.angle_increment
             tilt_angle = -angle
-            rotated_card = pygame.transform.rotate(current_card, angle=tilt_angle - 90)
+            rotated_card = pygame.transform.rotozoom(current_card, angle=tilt_angle - 90, scale=1)
             self.cards_cache[angle] = rotated_card
 
     def load(self, manager, state):
@@ -180,7 +181,7 @@ class titleScreen:
             rc_rect = rotated_circle.get_rect(center=self.circle_center)
             self.window.blit(rotated_circle, rc_rect.topleft)
 
-            self.rotation_angle += 0.3 # update rotation
+            self.rotation_angle += 0.2 # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
