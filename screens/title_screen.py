@@ -51,12 +51,14 @@ class titleScreen:
         for filename in card_filenames:
             image = pygame.image.load(filename)
             # apply scale after to improve quality
-            image_scaled = pygame.transform.smoothscale(image, (image.get_width()//5.5, image.get_height()//5.5))
+            card_height = self.height * 0.236
+            card_width = card_height * 0.714
+            image_scaled = pygame.transform.smoothscale(image, (card_width, card_height))
             self.cards.append(image_scaled)
         
         self.circle_radius = self.width//3.5
         self.circle_center = (self.width//2, self.height)
-        self.circle_surface = pygame.Surface((self.circle_radius*2.5, self.circle_radius*2.5))
+        self.circle_surface = pygame.Surface(((self.height*1.25), (self.height*1.25)))
         self.angle_increment = 360 // num_cards
 
         self.cards_cache = {}
