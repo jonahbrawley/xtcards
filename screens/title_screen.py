@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+import random, os
 from pygame_gui.elements import UIButton, UILabel, UIWindow
 from objects.gamestate import GameState
 from objects.scheme import Scheme
@@ -26,11 +27,51 @@ class titleScreen:
         self.play_button = None
         self.config = None
 
+        # animation calculations
+        self.rotation_angle = 0.0 # animation rotation angle
+
+        suits = [
+            "assets/cards/clubs",
+            "assets/cards/diamonds",
+            "assets/cards/hearts",
+            "assets/cards/spades"
+        ]
+        card_filenames = []
+        num_cards = 10
+
+        for folder in suits:
+            images = [f for f in os.listdir(folder) if f.endswith('.png')]
+            image_paths = [os.path.join(folder, image_file) for image_file in images]
+            card_filenames.extend(image_paths)
+        if len(card_filenames) >= num_cards:
+            card_filenames = random.sample(card_filenames, num_cards)
+        
+        print(card_filenames)
+
+        self.cards = []
+        for filename in card_filenames:
+            image = pygame.image.load(filename)
+            image_scaled = pygame.transform.smoothscale(image, (image.get_width()//5, image.get_height()//5))
+            self.cards.append(image_scaled)
+        
+        self.circle_radius = self.width//3.5
+        self.circle_center = (self.width//2, self.height)
+        self.circle_surface = pygame.Surface((self.circle_radius*4, self.circle_radius*4))
+        self.angle_increment = 360 // num_cards
+
+        self.cards_cache = {}
+        for i in range(num_cards):
+            current_card = self.cards[i]
+            angle = i * self.angle_increment
+            tilt_angle = -angle
+            rotated_card = pygame.transform.rotate(current_card, angle=tilt_angle - 90)
+            self.cards_cache[angle] = rotated_card
+
     def load(self, manager, state):
         global debugswitch
         debugswitch = False
         self.state = state
-        header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
+        header_rect = pygame.Rect(0, self.height*.15, self.width//3, 150)
 
         self.header = UILabel(relative_rect=header_rect,
                               text='xtcards',
@@ -70,6 +111,20 @@ class titleScreen:
                                                      'bottom': 'bottom',
                                                      'bottom_target': self.settings_button
                                                  })
+        
+        self.place_animation() # draw ring
+
+    # places images in self.cards around circle
+    def place_animation(self):
+        self.circle_surface.fill(Colors.window_bg)
+        for i, card in enumerate(self.cards):
+            angle = i * self.angle_increment
+            rotated_card = self.cards_cache[angle]
+
+            x = int(self.circle_surface.get_width() // 2 + self.circle_radius * pygame.math.Vector2(1, 0).rotate(angle).x - rotated_card.get_width() // 2)
+            y = int(self.circle_surface.get_height() // 2 + self.circle_radius * pygame.math.Vector2(1, 0).rotate(angle).y - rotated_card.get_height() // 2)
+
+            self.circle_surface.blit(rotated_card, (x, y))
 
     def run(self, manager):
         self.isConfClicked = False
@@ -118,9 +173,15 @@ class titleScreen:
                     return GameState.QUIT
 
                 manager.process_events(event)
-            
+
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+
+            rotated_circle = pygame.transform.rotate(self.circle_surface, self.rotation_angle) # draw animation
+            rc_rect = rotated_circle.get_rect(center=self.circle_center)
+            self.window.blit(rotated_circle, rc_rect.topleft)
+
+            self.rotation_angle += 0.3 # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
@@ -134,11 +195,12 @@ class titleScreen:
 
             if (self.state != GameState.TITLE):
                 return self.state
-    
+
     def delete(self, manager):
         print('TITLE: Deleting objects')
         manager.clear_and_reset()
-            
+
+    
 class configWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         super().__init__((pos),
