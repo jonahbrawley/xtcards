@@ -9,7 +9,6 @@ from webcam import WebcamCapture
 
 cam = WebcamCapture(show_window=True)
 Colors = Scheme()
-debugswitch = False
 
 class titleScreen:
     def __init__(self, manager, window, state):
@@ -199,8 +198,7 @@ class titleScreen:
     def delete(self, manager):
         print('TITLE: Deleting objects')
         manager.clear_and_reset()
-
-    
+   
 class configWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         super().__init__((pos),
@@ -254,7 +252,6 @@ class configWindow(pygame_gui.elements.UIWindow):
         
     def process_event(self, event):
         global cam
-        global debugswitch
         handled = super().process_event(event)
 
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):

@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-from pygame_gui.elements import UIButton, UILabel, UIWindow
 from objects.gamestate import GameState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
@@ -21,16 +20,6 @@ class playScreen:
 
     def load(self, manager, state):
         self.state = state
-        #header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
-        
-        # self.header = UILabel(relative_rect=header_rect,
-        #                       text='play',
-        #                       manager=manager,
-        #                       object_id='header',
-        #                       anchors={
-        #                           'centerx': 'centerx',
-        #                           'top': 'top'
-        #                       })
         
         stp_width = 500
         stp_height = 500

@@ -76,4 +76,3 @@ class setupWindow(pygame_gui.elements.UIWindow):
         #                                                      "left": "left",
         #                                                       "top_target": self.numai_label
         #                                                 })
-        
