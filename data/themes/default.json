@@ -57,6 +57,20 @@
             "regular_path": "assets/jbm-semibold.ttf"
         }
     },
+    "header_game":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_text": "rgb(243, 243, 243)"
+        },
+        "font":
+        {
+            "name": "jb-header-game",
+            "size": "30",
+            "regular_path": "assets/jbm-semibold.ttf"
+        }
+    },
     "#config_window":
     {
         "colours":
