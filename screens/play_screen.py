@@ -191,7 +191,6 @@ class playScreen:
                 #show donation button
                 self.church_button.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
