@@ -1,4 +1,9 @@
+import sys
+sys.path.append('../')
+from webcam import WebcamCapture
+
 import random
+
 
 class Deck:
   UNKNOWN_CARD_SYMBOL = 'NA'
@@ -14,4 +19,13 @@ class Deck:
       return None
 
     res = self.cards.pop()
+    return res
+  
+  @staticmethod
+  def scan():
+    webcam = WebcamCapture(show_window=True)
+    webcam.start()
+    input("press enter to capture")
+    res = webcam.detect_card()
+    webcam.stop()
     return res
