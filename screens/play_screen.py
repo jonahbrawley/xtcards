@@ -76,6 +76,16 @@ class playScreen:
         bank_height = self.height*.5
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
+        #church icon set up
+        #church_width = self.width*.25
+        #church_height = self.height*.5
+        #churchpos = pygame.Rect(((self.width/2) - (church_width/2), (self.height/2) - (church_height/2)), (church_width, church_height))
+
+        #info icon set up
+        #info_width = self.width*.25
+        #info_height = self.height*.5
+        #infopos = pygame.Rect(((self.width/2) - (info_width/2), (self.height/2) - (info_height/2)), (info_width, info_height))
+
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
@@ -88,6 +98,8 @@ class playScreen:
                 self.pause_button.show()
                 self.header.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+                #self.church = churchIcon(manager=manager, pos=churchpos)
+                #self.info = infoIcon(manager=manager, pos=infopos)
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
