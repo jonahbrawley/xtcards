@@ -1,5 +1,4 @@
 import pygame
-from objects.button import Button
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 

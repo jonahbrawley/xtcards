@@ -1,5 +1,8 @@
 import cv2
 import threading
+import numpy as np
+import requests
+import base64
 
 class WebcamCapture:
     def __init__(self, show_window=False):
@@ -20,6 +23,7 @@ class WebcamCapture:
         while not self._exit_webcam_thread:
             # Read a frame from the webcam
             ret, frame = cap.read()
+            self.frame = frame
 
             if not ret:
                 print("Error: Could not read a frame.")
@@ -44,6 +48,14 @@ class WebcamCapture:
             self._webcam_thread.start()
         else:
             print("Webcam thread is already running.")
+    
+    def detect_card(self):
+        img = cv2.resize(self.frame, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        img = np.array(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        img_bytes = img.tobytes()
+        img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+        response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+        print(response.text)
 
     def stop(self):
         if self._webcam_thread:
@@ -52,10 +64,3 @@ class WebcamCapture:
             self._webcam_thread = None
         else:
             print("Webcam thread is not running.")
-
-# webcam = WebcamCapture(show_window=False)
-# webcam.start()
-# input("Press any button to end.")
-
-# webcam.stop()
-# print("Webcam has stopped.")

@@ -1,55 +1,66 @@
 import pygame
-import platform # detect system
-import ctypes # windows disp
+import pygame_gui # gui rewrite
+import os # detect system
+import ctypes # windows displays
 
-from objects.button import Button
 from objects.scheme import Scheme
 from objects.gamestate import GameState
 
-from screens.interface_debug import debug
+from screens.play_screen import playScreen
+from screens.title_screen import titleScreen
+Colors = Scheme()
 
-from webcam import WebcamCapture
+class xtcApp:
+    def __init__(self):
+        pygame.init()
+        pygame.display.set_caption('xtcards')
 
-if platform.uname().system == 'Windows':
-    ctypes.windll.user32.SetProcessDPIAware() # fix dpi for win
+        print('OS: '+ os.name)
+        if os.name == 'nt':
+            print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
+            #ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
+            dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+            print(dimensions)
+            self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
+        else:
+            display = pygame.display.Info()
+            dimensions = (display.current_w, display.current_h)
+            print(dimensions)   
+            self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
+        
+        self.background = pygame.Surface(dimensions)
 
-from screens.title_screen import title_screen
-from screens.config_screen import config_screen
+        self.manager = pygame_gui.UIManager(window_resolution=dimensions, theme_path='data/themes/default.json')
+        self.manager.add_font_paths('jb-button', 'assets/jbm-semibold.ttf')
+        self.manager.add_font_paths('jb-header', 'assets/jbm-semibold.ttf')
 
-pygame.init()
-dimensions = pygame.display.Info() # get screen dimensions
-window = pygame.display.set_mode((dimensions.current_w, dimensions.current_h), pygame.FULLSCREEN)
-pygame.display.set_caption('xtcards')
+        print('>> Initialize webcam')
 
-game_state = GameState.TITLE # set state to Title screen
-colors = Scheme() # colorscheme
+    def run(self):
+        game_state = GameState.TITLE # set state to Title screen
+        xtTitle = titleScreen(self.manager, self.window, game_state)
+        xtPlay = playScreen(self.manager, self.window, game_state)
 
-width = window.get_width()
-height = window.get_height()
+        while True:
+            if game_state == GameState.TITLE:
+                print('>> SET STATE TITLE')
+                xtTitle.load(self.manager, game_state)
+                game_state = xtTitle.run(self.manager)
+                xtTitle.delete(self.manager)
 
-# Webcam
-print('>> SETUP: Initialize webcam')
-cam = WebcamCapture(show_window=True)
+            if game_state == GameState.START:
+                print('>> SET STATE START')
+                xtPlay.load(self.manager, game_state)
+                game_state = xtPlay.run(self.manager)
+                xtPlay.delete(self.manager)
 
-def main():
-    global game_state
-    # main window loop
-    while True:
-        if game_state == GameState.TITLE:
-            print('>> SETUP: SET STATE TITLE')
-            game_state = title_screen(window, width, height)
-        #if game_state == GameState.START:
-            #game_state = play_game(window)
-        if game_state == GameState.CONFIG:
-            print('>> SETUP: SET STATE CONFIG')
-            game_state = config_screen(window, width, height, cam)
-        if game_state == GameState.DEBUG:
-            print('>> SETUP: SET STATE DEBUG')
-            game_state = debug.load(window, width, height)
-        if game_state == GameState.QUIT:
-            print('>> SETUP: SET STATE QUIT')
-            pygame.quit()
-            return
-
+            if game_state == GameState.QUIT:
+                print('>> SET STATE QUIT')
+                pygame.quit()
+                return
+            
+import os
 if __name__ == "__main__":
-    main()
+    app = xtcApp()
+    app.run()
+
