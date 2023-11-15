@@ -200,7 +200,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                     container=self,
                                                                     parent_element=self,
                                                                     anchors={
-                                                                        "left": "left"
+                                                                        "centerx": "centerx"
                                                                     })
         # for i in setupWindow.player_count:
         #     self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (180, 40)),
