@@ -1,6 +1,6 @@
 from enum import Enum
 
-class GameState(Enum):
+class ScreenState(Enum):
     QUIT = -1
     TITLE = 0
     START = 1
