@@ -1,7 +1,7 @@
 from deck import Deck
 from card_ranker import CardRanker
 from player import Player
-from pot import Pot, TempPot
+from pot import TempPot
 import random
 
 class GameState:
