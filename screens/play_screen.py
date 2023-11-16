@@ -55,12 +55,12 @@ class playScreen:
         self.pause_button.hide()
 
         #info button
-        info_button_rect = pygame.Rect(0, 0, 50, 50)
+        info_button_rect = pygame.Rect(self.width - 50, 0, 50, 50)
         self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
-                                                text='info',
+                                                text='Info',
                                                 manager=manager,
                                                 anchors={
-                                                'left': 'right',
+                                                'right': 'right',
                                                 'top': 'top'
                                                 })
         self.info_button.hide()
@@ -123,21 +123,20 @@ class playScreen:
                             darken = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
+
+                    #if info button clicked
+                    if (event.ui_element == self.info_button and not infoClicked):
+                            print('TITLE: Drawing info dialog')
+                            infoClicked = True
+                            darken = True
+                            self.info = infoWindow(manager=manager, pos=infopos)
+                            self.info.set_blocking(True)
+
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
                     self.state = GameState.TITLE
-
-            #for event in pygame.event.get():
-                #if info button clicked
-            #    if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            #        if (event.ui_element == self.info_button and not infoClicked):
-            #            print('TITLE: Drawing info dialog')
-            #            infoClicked = True
-            #            darken = True
-            #            self.info = infoWindow(manager=manager, pos=infopos)
-            #            self.info.set_blocking(True)
 
                 manager.process_events(event)
 
@@ -289,10 +288,19 @@ class bankWindow(pygame_gui.elements.UIWindow):
                                                                 "centerx": "centerx"
                                                             })
 
-#class infoWindow(pygame_gui.elements.UIWindow):
-#    def __init__(self, manager, pos):
-#        super().__init__((pos),
-#                         manager,
-#                         window_display_title='Poker SparkNotes',
-#                         object_id='#info_window',
-#                         draggable=True)
+class infoWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='Poker SparkNotes',
+                         object_id='#info_window',
+                         draggable=True)
+        self.test_button = pygame_gui.elements.UILabel(pygame.Rect((0, 400/4), (150, 40)),
+                                                       "Nothing",
+                                                       manager=manager,
+                                                       object_id="info_window",
+                                                       container=self,
+                                                       parent_element=self,
+                                                       anchors={
+                                                           "centerx": "centerx"
+                                                       })
