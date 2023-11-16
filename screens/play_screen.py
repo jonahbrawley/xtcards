@@ -54,12 +54,24 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
+        #info button
+        info_button_rect = pygame.Rect(0, 0, 50, 50)
+        self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
+                                                text='info',
+                                                manager=manager,
+                                                anchors={
+                                                'left': 'right',
+                                                'top': 'top'
+                                                })
+        self.info_button.hide()
+
         self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
         global homeswitch
         darken = False
         pauseClicked = False
+        infoClicked = False
 
         # pause set up
         pause_width = 350
@@ -77,14 +89,14 @@ class playScreen:
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
         #church icon set up
-        #church_width = self.width*.25
-        #church_height = self.height*.5
-        #churchpos = pygame.Rect(((self.width/2) - (church_width/2), (self.height/2) - (church_height/2)), (church_width, church_height))
+        #church_width = 175
+        #church_height = 400
+        #churchpos = pygame.Rect(((self.width/2)-(church_width/2), (self.height/2)-(church_height/2)), (church_width, church_height))
 
         #info icon set up
-        #info_width = self.width*.25
-        #info_height = self.height*.5
-        #infopos = pygame.Rect(((self.width/2) - (info_width/2), (self.height/2) - (info_height/2)), (info_width, info_height))
+        info_width = 175
+        info_height = 400
+        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -97,9 +109,9 @@ class playScreen:
                 # show pause button
                 self.pause_button.show()
                 self.header.show()
+                #show info button
+                self.info_button.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                #self.church = churchIcon(manager=manager, pos=churchpos)
-                #self.info = infoIcon(manager=manager, pos=infopos)
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -117,6 +129,16 @@ class playScreen:
                     print('DEBUG: Switching to TITLE')
                     self.state = GameState.TITLE
 
+            #for event in pygame.event.get():
+                #if info button clicked
+            #    if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            #        if (event.ui_element == self.info_button and not infoClicked):
+            #            print('TITLE: Drawing info dialog')
+            #            infoClicked = True
+            #            darken = True
+            #            self.info = infoWindow(manager=manager, pos=infopos)
+            #            self.info.set_blocking(True)
+
                 manager.process_events(event)
 
             manager.update(time_delta)
@@ -129,6 +151,11 @@ class playScreen:
                 if not self.pause.alive():
                     darken = False
                     pauseClicked = False
+            
+            if (infoClicked):
+                if not self.info.alive():
+                    darken = False
+                    infoClicked = False
 
             if (darken):
                 # self.window.blit(self.darken, (0,0)) # add dark overlay
@@ -261,3 +288,11 @@ class bankWindow(pygame_gui.elements.UIWindow):
                                                                 "bottom": "bottom",
                                                                 "centerx": "centerx"
                                                             })
+
+#class infoWindow(pygame_gui.elements.UIWindow):
+#    def __init__(self, manager, pos):
+#        super().__init__((pos),
+#                         manager,
+#                         window_display_title='Poker SparkNotes',
+#                         object_id='#info_window',
+#                         draggable=True)
