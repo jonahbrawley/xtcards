@@ -131,6 +131,7 @@ class playScreen:
                             darken = True
                             self.info = infoWindow(manager=manager, pos=infopos)
                             self.info.set_blocking(False)
+                            self.info.load_text("assets/poker_rules.txt")
 
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
@@ -144,7 +145,6 @@ class playScreen:
             self.window.blit(self.background, (0,0))
 
             manager.draw_ui(self.window)
-
             
             if (pauseClicked):
                 if not self.pause.alive():
@@ -295,12 +295,22 @@ class infoWindow(pygame_gui.elements.UIWindow):
                          window_display_title='How to Play Poker',
                          object_id='#info_window',
                          draggable=True)
-        self.test_button = pygame_gui.elements.UILabel(pygame.Rect((0, 400/4), (150, 40)),
-                                                       "holy bake",
-                                                       manager=manager,
-                                                       object_id="info_window",
-                                                       container=self,
-                                                       parent_element=self,
-                                                       anchors={
-                                                           "centerx": "centerx"
-                                                       })
+        self.scroll_box = pygame_gui.elements.UIScrollingContainer(pygame.Rect((0, 0), (200, 200)),
+                                                                                             manager=manager,
+                                                                                             container=self,
+                                                                                             object_id="scroll_container"
+        )
+        self.info_label = pygame_gui.elements.UILabel(pygame.Rect((0, 0), (200, 1)),
+                                                      "",
+                                                      manager=manager,
+                                                      container=self.scroll_box,
+                                                      object_id="info_label"
+        )
+    def load_text(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                text = file.read()
+                self.info_label.set_text(text)
+                self.scroll_box.set_dimensions((400, 400))
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
