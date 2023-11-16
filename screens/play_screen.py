@@ -248,16 +248,6 @@ class playScreen:
                     print('DEBUG: Switching to TITLE')
                     self.state = ScreenState.TITLE
 
-            #for event in pygame.event.get():
-                #if info button clicked
-            #    if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            #        if (event.ui_element == self.info_button and not infoClicked):
-            #            print('TITLE: Drawing info dialog')
-            #            infoClicked = True
-            #            darken = True
-            #            self.info = infoWindow(manager=manager, pos=infopos)
-            #            self.info.set_blocking(True)
-
                 manager.process_events(event)
 
             manager.update(time_delta)
