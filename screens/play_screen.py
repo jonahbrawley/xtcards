@@ -76,19 +76,31 @@ class playScreen:
         bank_height = self.height*.5
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
+        # player name set up
+        playerSetup_width = self.width*.26
+        playerSetup_height = self.height*.46
+        playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
+
+
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
             # if setup window is closed, open player window and pause button
             if(setupWindow.startClicked):
+                self.playerSetUp = playerNameSetUp(manager=manager, pos=playerSetuppos)
+                setupWindow.startClicked = False
+
+            if(playerNameSetUp.submitPlayerClicked):
                 #player widnow
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
+                # show header
                 self.header.show()
+                #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                setupWindow.startClicked = False
+                playerNameSetUp.submitPlayerClicked = False
 
             for event in pygame.event.get():
                 #if pause button is clicked
@@ -144,7 +156,7 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                         window_display_title='Pause',
                         object_id='#pause_window',
                         draggable=False)
-        self.resume_button = pygame_gui.elements.UIButton(pygame.Rect((0, 400/4), (150, 40)),
+        self.resume_button = pygame_gui.elements.UIButton(pygame.Rect((0, 400/4), (300, 40)),
                                                                 "Resume",
                                                                 manager=manager,
                                                                 object_id="pause_window_label",
@@ -188,12 +200,15 @@ class pauseWindow(pygame_gui.elements.UIWindow):
 
 class playerWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
+
+        v_pad = 30
+
         super().__init__((pos),
                         manager,
                         window_display_title='Players',
                         object_id='#setup_window',
                         draggable=False)
-        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (400, 40)),
+        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (300, 40)),
                                                                     "players | chips | action",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
@@ -202,16 +217,19 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                     anchors={
                                                                         "centerx": "centerx"
                                                                     })
-        # for i in setupWindow.player_count:
-        #     self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (180, 40)),
-        #                                                             "players "+str(i)+": ",
-        #                                                             manager=manager,
-        #                                                             object_id="config_window_label",
-        #                                                             container=self,
-        #                                                             parent_element=self,
-        #                                                             anchors={
-        #                                                                 "left": "left"
-        #                                                             })
+        self.player_labels_list = []
+        for i in range(len(playerNameSetUp.playerNames)):
+            self.players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
+                                                                    playerNameSetUp.playerNames.index(i)+ "shbf",
+                                                                    manager=manager,
+                                                                    object_id="config_window_label",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "left": "left"
+                                                                    })
+            self.player_labels_list.append(self.players_label)
+            v_pad += 50
 
 class bankWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
@@ -249,3 +267,53 @@ class bankWindow(pygame_gui.elements.UIWindow):
                                                                 "bottom": "bottom",
                                                                 "centerx": "centerx"
                                                             })
+        
+class playerNameSetUp(pygame_gui.elements.UIWindow):
+    submitPlayerClicked = False
+    ai_player_count = 1
+    playerNames = []
+
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='Player Names',
+                        object_id='#setup_window',
+                        draggable=False)
+        v_pad = 30
+        h_pad = 30
+
+        self.player_name = []
+        self.player_name_labels = []
+        for i in range(setupWindow.player_count):
+            player_name_label = pygame_gui.elements.UITextEntryLine(
+            pygame.Rect((h_pad, v_pad), (180, 40)),
+            initial_text=f"player{i+1}",  # Use f-string to include the player number in the initial text
+            placeholder_text="Player Name",
+            container=self,
+            parent_element=self,
+            anchors={"left": "left"}
+            )
+            self.player_name_labels.append(player_name_label)  # Add the label to the list
+            v_pad += 50
+        self.submit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, -60), ((160), 40)),
+                                                            text='Submit',
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "bottom": "bottom",
+                                                                "centerx": "centerx"
+                                                            })
+            
+    def process_event(self, event):
+        global playerNames
+
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
+            if (event.ui_element == self.submit_button):
+                self.player_name = [label.get_text() for label in self.player_name_labels]
+                playerNames = self.player_name
+                playerNameSetUp.submitPlayerClicked = True
+                self.kill()
+                print(self.player_name)
