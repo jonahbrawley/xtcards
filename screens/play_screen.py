@@ -55,14 +55,14 @@ class playScreen:
         self.pause_button.hide()
 
         #info button
-        info_button_rect = pygame.Rect(self.width - 50, 0, 50, 50)
+        info_button_rect = pygame.Rect(-55, 15, 40, 50)
         self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
-                                                text='Info',
+                                                text='i',
                                                 manager=manager,
                                                 anchors={
-                                                'right': 'right',
-                                                'top': 'top'
-                                                })
+                                                'right': 'right'
+                                                }
+                                                )
         self.info_button.hide()
 
         self.setup = setupWindow(manager, stppos)
@@ -88,15 +88,15 @@ class playScreen:
         bank_height = self.height*.5
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
+        #info icon set up
+        info_width = self.width*.20
+        info_height = self.height*.4
+        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2)-(info_height)), (info_width, info_height))
+
         #church icon set up
         #church_width = 175
         #church_height = 400
         #churchpos = pygame.Rect(((self.width/2)-(church_width/2), (self.height/2)-(church_height/2)), (church_width, church_height))
-
-        #info icon set up
-        info_width = 175
-        info_height = 400
-        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -130,7 +130,7 @@ class playScreen:
                             infoClicked = True
                             darken = True
                             self.info = infoWindow(manager=manager, pos=infopos)
-                            self.info.set_blocking(True)
+                            self.info.set_blocking(False)
 
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
@@ -292,11 +292,11 @@ class infoWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         super().__init__((pos),
                          manager,
-                         window_display_title='Poker SparkNotes',
+                         window_display_title='How to Play Poker',
                          object_id='#info_window',
                          draggable=True)
         self.test_button = pygame_gui.elements.UILabel(pygame.Rect((0, 400/4), (150, 40)),
-                                                       "Nothing",
+                                                       "holy bake",
                                                        manager=manager,
                                                        object_id="info_window",
                                                        container=self,
