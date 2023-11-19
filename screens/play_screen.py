@@ -87,13 +87,15 @@ class playScreen:
 
             # if setup window is closed, open player window and pause button
             if(setupWindow.startClicked):
-                #player widnow
+                # player widnow
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
                 self.header.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                self.betwindow = betWindow(manager, betpos)
+                #self.betwindow = betWindow(manager, betpos)
+
+                
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -324,3 +326,11 @@ class betWindow(pygame_gui.elements.UIWindow):
                 self.dynamic_button.set_text("Check")
             elif (not self.bet_input_box.get_text() == "0"):
                 self.dynamic_button.set_text("Bet")
+
+class camWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='CAMERA_WINDOW',
+                        object_id='#setup_window',
+                        draggable=False)
