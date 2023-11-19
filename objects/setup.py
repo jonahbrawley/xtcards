@@ -6,6 +6,7 @@ class setupWindow(pygame_gui.elements.UIWindow):
     startClicked = False
     player_count = 1
     ai_player_count = 1
+    chip_count = 200
     def __init__(self, manager, pos):
         super().__init__((pos),
                          manager,
@@ -144,5 +145,6 @@ class setupWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.start_button):
                 setupWindow.player_count = int(self.players_dropdown.selected_option)
                 setupWindow.ai_player_count = int(self.ai_dropdown.selected_option)
+                setupWindow.chip_count = int(self.player_money_dropdown.selected_option)
                 setupWindow.startClicked = True
                 self.kill()

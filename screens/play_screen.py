@@ -7,11 +7,13 @@ from objects.setup import setupWindow
 
 homeswitch = False
 
+
 class playScreen:
+    playerNames = []
     def __init__(self, manager, window, state):
         Colors = Scheme()
         self.state = state
-
+        
         self.width = manager.window_resolution[0]
         self.height = manager.window_resolution[1]
         self.clock = pygame.time.Clock()
@@ -81,23 +83,25 @@ class playScreen:
         playerSetup_height = self.height*.46
         playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
 
-
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
             # if setup window is closed, open player window and pause button
             if(setupWindow.startClicked):
+                # show header
+                self.header.show()
                 self.playerSetUp = playerNameSetUp(manager=manager, pos=playerSetuppos)
                 setupWindow.startClicked = False
 
             if(playerNameSetUp.submitPlayerClicked):
+                print("BEFORE: -----------" + str(len(playScreen.playerNames)) + "-----------")
                 #player widnow
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
-                # show header
-                self.header.show()
+                # hide header
+                self.header.hide()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 playerNameSetUp.submitPlayerClicked = False
@@ -185,7 +189,7 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                                                                 "top_target": self.save_button,
                                                                 "centerx": "centerx"
                                                             })
-        
+    
     def process_event(self, event):
         global homeswitch
         handled = super().process_event(event)
@@ -209,7 +213,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                         object_id='#setup_window',
                         draggable=False)
         self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (300, 40)),
-                                                                    "players | chips | action",
+                                                                    "players : chips | action",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
                                                                     container=self,
@@ -218,15 +222,16 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "centerx": "centerx"
                                                                     })
         self.player_labels_list = []
-        for i in range(len(playerNameSetUp.playerNames)):
+        for i in range(len(playScreen.playerNames)):
             self.players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
-                                                                    playerNameSetUp.playerNames.index(i)+ "shbf",
+                                                                    playScreen.playerNames[i]+ ":  " + str(setupWindow.chip_count) + "  |  ",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
                                                                     container=self,
                                                                     parent_element=self,
                                                                     anchors={
-                                                                        "left": "left"
+                                                                        "left": "left",
+                                                                        "top_target": self.numplayer_label
                                                                     })
             self.player_labels_list.append(self.players_label)
             v_pad += 50
@@ -306,7 +311,6 @@ class playerNameSetUp(pygame_gui.elements.UIWindow):
                                                             })
             
     def process_event(self, event):
-        global playerNames
 
         handled = super().process_event(event)
 
@@ -314,6 +318,9 @@ class playerNameSetUp(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.submit_button):
                 self.player_name = [label.get_text() for label in self.player_name_labels]
                 playerNames = self.player_name
+                playScreen.playerNames = self.player_name
                 playerNameSetUp.submitPlayerClicked = True
                 self.kill()
                 print(self.player_name)
+                print(playerNames)
+        playerNames = self.player_name
