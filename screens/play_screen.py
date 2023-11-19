@@ -6,7 +6,6 @@ from objects.scheme import Scheme
 from objects.setup import setupWindow
 
 homeswitch = False
-bet_button_state = "Check"
 
 class playScreen:
     def __init__(self, manager, window, state):
@@ -272,8 +271,6 @@ class betWindow(pygame_gui.elements.UIWindow):
         #self.dynamic_button_width = pos.width-((self.h_pad*4)+self.fold_button_width)
         self.dynamic_button_width = pos.width*.666-self.h_pad*3
 
-        global bet_button_state
-
         self.yourmoney_label = pygame_gui.elements.UILabel(pygame.Rect((self.v_pad, self.h_pad), (pos.width, 40)),
                                                            "You have $CHIP_AMOUNT_HERE",
                                                            object_id="config_window_label",
@@ -309,7 +306,7 @@ class betWindow(pygame_gui.elements.UIWindow):
                                                             "left": "left"
                                                         })
         self.dynamic_button = pygame_gui.elements.UIButton(pygame.Rect((self.h_pad, -(self.v_pad+self.button_height)), (self.dynamic_button_width, self.button_height)),
-                                                           bet_button_state, # DYNAMIC TEXT!
+                                                           "Check",
                                                            manager=manager,
                                                            container=self,
                                                            parent_element=self,
@@ -318,3 +315,12 @@ class betWindow(pygame_gui.elements.UIWindow):
                                                                "left": "left",
                                                                "left_target": self.fold_button
                                                            })
+        
+    def process_event(self, event):
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED):
+            if (event.ui_element == self.bet_input_box and self.bet_input_box.get_text() == "0"):
+                self.dynamic_button.set_text("Check")
+            elif (not self.bet_input_box.get_text() == "0"):
+                self.dynamic_button.set_text("Bet")
