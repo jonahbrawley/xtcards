@@ -61,9 +61,18 @@ class playScreen:
                                                 manager=manager,
                                                 anchors={
                                                 'right': 'right'
-                                                }
-                                                )
+                                                })
         self.info_button.hide()
+
+        #donation button
+        church_button_rect = pygame.Rect(-110, 15, 40, 50)
+        self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
+                                                          text='$',
+                                                          manager=manager,
+                                                          anchors={
+                                                          'right': 'right'
+                                                          })
+        self.church_button.hide()
 
         self.setup = setupWindow(manager, stppos)
 
@@ -72,6 +81,7 @@ class playScreen:
         darken = False
         pauseClicked = False
         infoClicked = False
+        churchClicked = False
 
         # pause set up
         pause_width = 350
@@ -94,9 +104,9 @@ class playScreen:
         infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2)-(info_height)), (info_width, info_height))
 
         #church icon set up
-        #church_width = 175
-        #church_height = 400
-        #churchpos = pygame.Rect(((self.width/2)-(church_width/2), (self.height/2)-(church_height/2)), (church_width, church_height))
+        church_width = self.width*.20
+        church_height = self.height*.4
+        churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -111,6 +121,8 @@ class playScreen:
                 self.header.show()
                 #show info button
                 self.info_button.show()
+                #show donation button
+                self.church_button.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 setupWindow.startClicked = False
 
@@ -132,6 +144,14 @@ class playScreen:
                             self.info = infoWindow(manager=manager, pos=infopos)
                             self.info.set_blocking(False)
                             self.info.load_text("assets/poker_rules.txt")
+
+                    #if donation button clicked
+                    if (event.ui_element == self.church_button and not churchClicked):
+                        print('TITLE: Drawing donation dialog')
+                        churchClicked = True
+                        darken = True
+                        self.church = churchWindow(manager=manager, pos=churchpos)
+                        self.church.set_blocking(False)
 
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
@@ -155,6 +175,11 @@ class playScreen:
                 if not self.info.alive():
                     darken = False
                     infoClicked = False
+
+            if (churchClicked):
+                if not self.church.alive():
+                    darken = False
+                    churchClicked = False
 
             if (darken):
                 # self.window.blit(self.darken, (0,0)) # add dark overlay
@@ -314,3 +339,28 @@ class infoWindow(pygame_gui.elements.UIWindow):
                 self.scroll_box.set_dimensions((400, 400))
         except FileNotFoundError:
             print(f"File not found: {file_path}")
+
+class churchWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='How to Donate!',
+                         object_id='#church_window',
+                         draggable=True)
+        self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate to our local church! We hope you enjoyed using xtcards :)",
+                                                            relative_rect=pygame.Rect((0, 10), (300, 200)),
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                            "centerx": "centerx"
+                                                            })
+        self.donate_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((125, 300), ((100), 40)),
+                                                          text='Donate',
+                                                          manager=manager,
+                                                          container=self,
+                                                          parent_element=self,
+                                                          anchors={
+                                                              "bottom': 'bottom",
+                                                              "centerx': 'centerx"
+                                                          })
