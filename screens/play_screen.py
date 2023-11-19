@@ -1,7 +1,7 @@
 import pygame
 import pygame_gui
 from pygame_gui.elements import UILabel
-from objects.gamestate import GameState
+from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
 
@@ -76,6 +76,11 @@ class playScreen:
         bank_height = self.height*.5
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
+        # bet set up TEMP
+        bet_width = self.width*.25
+        bet_height = self.height*.50
+        betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
+
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
@@ -88,6 +93,7 @@ class playScreen:
                 self.pause_button.show()
                 self.header.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+                self.betwindow = betWindow(manager, betpos)
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -100,10 +106,10 @@ class playScreen:
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
                 if event.type == pygame.QUIT:
-                    return GameState.QUIT
+                    return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
-                    self.state = GameState.TITLE
+                    self.state = ScreenState.TITLE
 
                 manager.process_events(event)
 
@@ -112,7 +118,6 @@ class playScreen:
 
             manager.draw_ui(self.window)
 
-            
             if (pauseClicked):
                 if not self.pause.alive():
                     darken = False
@@ -127,10 +132,10 @@ class playScreen:
             pygame.display.update()
 
             if (homeswitch):
-                self.state = GameState.TITLE
+                self.state = ScreenState.TITLE
                 homeswitch = False
 
-            if (self.state != GameState.START):
+            if (self.state != ScreenState.START):
                 return self.state
     
     def delete(self, manager):
@@ -193,7 +198,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                         window_display_title='Players',
                         object_id='#setup_window',
                         draggable=False)
-        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (400, 40)),
+        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (300, 40)),
                                                                     "players | chips | action",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
@@ -249,3 +254,73 @@ class bankWindow(pygame_gui.elements.UIWindow):
                                                                 "bottom": "bottom",
                                                                 "centerx": "centerx"
                                                             })
+        
+class betWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='BETTING_PLACEHOLDER',
+                        object_id='#setup_window',
+                        draggable=False)
+        self.v_pad = 30
+        self.h_pad = 30
+
+        self.button_height = 40
+
+        self.fold_button_width = (pos.width*.333)-self.h_pad
+        #self.dynamic_button_width = pos.width-((self.h_pad*4)+self.fold_button_width)
+        self.dynamic_button_width = pos.width*.666-self.h_pad*3
+
+        self.yourmoney_label = pygame_gui.elements.UILabel(pygame.Rect((self.v_pad, self.h_pad), (pos.width, 40)),
+                                                           "You have $CHIP_AMOUNT_HERE",
+                                                           object_id="config_window_label",
+                                                           container=self,
+                                                           parent_element=self,
+                                                           anchors={
+                                                               "left": "left"
+                                                           })
+        self.bet_label = pygame_gui.elements.UILabel(pygame.Rect((self.v_pad, self.h_pad), (40, 40)),
+                                                           "Bet:",
+                                                           object_id="config_window_label",
+                                                           container=self,
+                                                           parent_element=self,
+                                                           anchors={
+                                                               "top_target": self.yourmoney_label,
+                                                               "left": "left"
+                                                           })
+        self.bet_input_box = pygame_gui.elements.UITextEntryLine(pygame.Rect((self.h_pad, self.v_pad), (90, 40)),
+                                                           placeholder_text="0",
+                                                           container=self,
+                                                           parent_element=self,
+                                                           anchors={
+                                                               "left_target": self.bet_label,
+                                                               "top_target": self.yourmoney_label
+                                                           })
+        self.fold_button = pygame_gui.elements.UIButton(pygame.Rect((self.h_pad, -(self.v_pad+self.button_height)), (self.fold_button_width, self.button_height)),
+                                                        "Fold",
+                                                        manager=manager,
+                                                        container=self,
+                                                        parent_element=self,
+                                                        anchors={
+                                                            "bottom": "bottom",
+                                                            "left": "left"
+                                                        })
+        self.dynamic_button = pygame_gui.elements.UIButton(pygame.Rect((self.h_pad, -(self.v_pad+self.button_height)), (self.dynamic_button_width, self.button_height)),
+                                                           "Check",
+                                                           manager=manager,
+                                                           container=self,
+                                                           parent_element=self,
+                                                           anchors={
+                                                               "bottom": "bottom",
+                                                               "left": "left",
+                                                               "left_target": self.fold_button
+                                                           })
+        
+    def process_event(self, event):
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED):
+            if (event.ui_element == self.bet_input_box and self.bet_input_box.get_text() == "0"):
+                self.dynamic_button.set_text("Check")
+            elif (not self.bet_input_box.get_text() == "0"):
+                self.dynamic_button.set_text("Bet")
