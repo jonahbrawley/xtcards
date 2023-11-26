@@ -1,3 +1,4 @@
+from random import shuffle
 import pygame
 import pygame_gui
 from pygame_gui.elements import UILabel
@@ -70,12 +71,12 @@ class playScreen:
         
         # player set up
         players_width = self.width*.25
-        players_height = self.height*.5
+        players_height = self.height*.55
         playerspos = pygame.Rect((10, self.height-(players_height+10)), (players_width, players_height))
 
         # bank set up
         bank_width = self.width*.25
-        bank_height = self.height*.5
+        bank_height = self.height*.55
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
         # player name set up
@@ -203,9 +204,11 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                 homeswitch = True
 
 class playerWindow(pygame_gui.elements.UIWindow):
+    aiPlayerNames = ["HolyBot", "AngelAI", "GodBot, NoahsAI"]
+    shuffle(aiPlayerNames)
     def __init__(self, manager, pos):
 
-        v_pad = 30
+        v_pad = 10
 
         super().__init__((pos),
                         manager,
@@ -225,6 +228,19 @@ class playerWindow(pygame_gui.elements.UIWindow):
         for i in range(len(playScreen.playerNames)):
             self.players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
                                                                     playScreen.playerNames[i]+ ":  " + str(setupWindow.chip_count) + "  |  ",
+                                                                    manager=manager,
+                                                                    object_id="config_window_label",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "left": "left",
+                                                                        "top_target": self.numplayer_label
+                                                                    })
+            self.player_labels_list.append(self.players_label)
+            v_pad += 50
+        for i in range(setupWindow.ai_player_count):
+            self.ai_players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
+                                                                    playerWindow.aiPlayerNames[i] + ":  " + str(setupWindow.chip_count) + "  |  ",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
                                                                     container=self,
@@ -291,13 +307,14 @@ class playerNameSetUp(pygame_gui.elements.UIWindow):
         self.player_name_labels = []
         for i in range(setupWindow.player_count):
             player_name_label = pygame_gui.elements.UITextEntryLine(
-            pygame.Rect((h_pad, v_pad), (180, 40)),
+            pygame.Rect((h_pad, v_pad), (200, 40)),
             initial_text=f"player{i+1}",  # Use f-string to include the player number in the initial text
             placeholder_text="Player Name",
             container=self,
             parent_element=self,
             anchors={"left": "left"}
             )
+            player_name_label.set_text_length_limit(9),
             self.player_name_labels.append(player_name_label)  # Add the label to the list
             v_pad += 50
         self.submit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, -60), ((160), 40)),
