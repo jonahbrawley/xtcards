@@ -161,7 +161,7 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                         window_display_title='Pause',
                         object_id='#pause_window',
                         draggable=False)
-        self.resume_button = pygame_gui.elements.UIButton(pygame.Rect((0, 400/4), (300, 40)),
+        self.resume_button = pygame_gui.elements.UIButton(pygame.Rect((0, 400/4), (200, 40)),
                                                                 "Resume",
                                                                 manager=manager,
                                                                 object_id="pause_window_label",
