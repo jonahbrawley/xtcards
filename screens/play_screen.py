@@ -5,6 +5,8 @@ from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
 
+import pygame.camera
+
 homeswitch = False
 
 class playScreen:
@@ -81,6 +83,13 @@ class playScreen:
         bet_height = self.height*.50
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
 
+        # cam set up TEMP
+        cam_width = self.width*.50
+        cam_height = self.height*.75
+        campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
+
+        pygame.camera.init()
+
         while True:
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
@@ -94,7 +103,7 @@ class playScreen:
                 self.header.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 #self.betwindow = betWindow(manager, betpos)
-
+                self.camwindow = camWindow(manager, campos)
                 
                 setupWindow.startClicked = False
 
@@ -334,3 +343,23 @@ class camWindow(pygame_gui.elements.UIWindow):
                         window_display_title='CAMERA_WINDOW',
                         object_id='#setup_window',
                         draggable=False)
+        
+        imgsurf = pygame.Surface(size=(pos.width, pos.height))
+        imgsurf.fill((0, 0, 0)) # black
+        
+        self.camera_display = pygame_gui.elements.UIImage(pygame.Rect((0, 0), (pos.width, pos.height)),
+                                                          image_surface=imgsurf,
+                                                          manager=manager,
+                                                          container=self,
+                                                          parent_element=self
+                                                          )
+        
+        cameras = pygame.camera.list_cameras()
+        webcam = pygame.camera.Camera(cameras[0])
+        webcam.start()
+        img = webcam.get_image()
+
+        self.camera_display.set_image(img)
+        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        #self.camsurf = pygame.surfarray.make_surface(frame)
+        #surface.blit(self.camsurf, (0,0))
