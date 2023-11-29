@@ -12,6 +12,7 @@ class Deck:
   def __init__(self):
     self.cards = Deck.FULL_DECK[:]
     random.shuffle(self.cards)
+    self.scanning_active = False
 
   def pull(self):
     if len(self.cards) == 0:
@@ -20,12 +21,24 @@ class Deck:
 
     res = self.cards.pop()
     return res
+
+  def set_scanning_status(self, status=True):
+    if self.scanning_active == status:
+      print(f"status already set to: {status}")
+      return
+
+    self.scanning_active = status
+
+    if status:
+      self.webcam = WebcamCapture(show_window=True)
+      self.webcam.start()
+    else:
+      self.webcam.stop()
+      self.webcam = None
   
-  @staticmethod
-  def scan():
-    webcam = WebcamCapture(show_window=True)
-    webcam.start()
-    input("press enter to capture")
-    res = webcam.detect_card()
-    webcam.stop()
-    return res
+  def scan(self):
+    if self.webcam is not None and self.webcam.is_frame_not_null():
+      res = self.webcam.detect_card()
+      return res
+    else:
+      return None
