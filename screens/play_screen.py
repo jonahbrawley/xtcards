@@ -64,6 +64,17 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
+        #Finished dealing button
+        dealing_button_rect = pygame.Rect(15, 20, 250, 50)
+        self.dealing_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                            text='Finished Dealing',
+                                            manager=manager,
+                                            anchors={
+                                            'centerx': 'centerx',
+                                            'top_target': self.header
+                                            })
+        self.dealing_button.hide()
+
         self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='camwin',
                                             manager=manager,
@@ -140,8 +151,9 @@ class playScreen:
                 self.pause_button.show()
                 self.showcam_button.show()
                 self.showbet_button.show()
-                # hide header
-                self.header.hide()
+                # change header text
+                self.header.set_text('Start Dealing Cards')
+                self.dealing_button.show()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 
@@ -158,11 +170,13 @@ class playScreen:
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
                     
-                    if (event.ui_element == self.showcam_button):
+                    if (event.ui_element == self.dealing_button):
                         if (not self.camClicked):
                             print('OPENING CAM')
                             self.camwindow = camWindow(manager, campos)
                             self.camClicked = True
+                            # change header text
+                            self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
                             drawcam = False
