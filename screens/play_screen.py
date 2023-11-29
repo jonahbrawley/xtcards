@@ -209,7 +209,7 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                 homeswitch = True
 
 class playerWindow(pygame_gui.elements.UIWindow):
-    aiPlayerNames = ["HolyBot", "AngelAI", "GodBot, NoahsAI"]
+    aiPlayerNames = ["HolyBot", "AngelAI", "GodBot", "NoahsAI"]
     shuffle(aiPlayerNames)
     def __init__(self, manager, pos):
 
