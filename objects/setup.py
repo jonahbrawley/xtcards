@@ -1,11 +1,7 @@
 import pygame
 import pygame_gui
 
-
 class setupWindow(pygame_gui.elements.UIWindow):
-    startClicked = False
-    player_count = 1
-    ai_player_count = 1
     def __init__(self, manager, pos):
         super().__init__((pos),
                          manager,
@@ -135,14 +131,3 @@ class setupWindow(pygame_gui.elements.UIWindow):
         #                                                      "left": "left",
         #                                                       "top_target": self.numai_label
         #                                                 })
-
-    def process_event(self, event):
-
-        handled = super().process_event(event)
-
-        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
-            if (event.ui_element == self.start_button):
-                setupWindow.player_count = int(self.players_dropdown.selected_option)
-                setupWindow.ai_player_count = int(self.ai_dropdown.selected_option)
-                setupWindow.startClicked = True
-                self.kill()
