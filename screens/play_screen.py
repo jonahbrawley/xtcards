@@ -27,6 +27,12 @@ class playScreen:
 
         self.header = None
 
+        self.camwindow = None
+        self.betwindow = None
+
+        self.camClicked = False # TEMP
+        self.betClicked = False # TEMP
+
     def load(self, manager, state):
         self.state = state
         
@@ -56,6 +62,26 @@ class playScreen:
                                             'top': 'top'
                                             })
         self.pause_button.hide()
+
+        self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                            text='camwin',
+                                            manager=manager,
+                                            anchors={
+                                            'left': 'left',
+                                            'top': 'top',
+                                            'left_target': self.pause_button
+                                            })
+        self.showcam_button.hide()
+
+        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                            text='betwin',
+                                            manager=manager,
+                                            anchors={
+                                            'left': 'left',
+                                            'top': 'top',
+                                            'left_target': self.showcam_button
+                                            })
+        self.showbet_button.hide()
 
         self.setup = setupWindow(manager, stppos)
 
@@ -105,12 +131,14 @@ class playScreen:
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
+                self.showcam_button.show()
+                self.showbet_button.show()
                 # hide header
                 self.header.hide()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+
                 playerNameSetUp.submitPlayerClicked = False
-                self.betwindow = betWindow(manager, betpos)
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -122,6 +150,31 @@ class playScreen:
                             darken = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
+                    
+                    if (event.ui_element == self.showcam_button):
+                        if (not self.camClicked):
+                            print('OPENING CAM')
+                            self.camwindow = camWindow(manager, campos)
+                            self.camClicked = True
+                        elif (self.camClicked):
+                            print('KILLING CAM')
+                            drawcam = False
+                            self.camClicked = False
+                            self.camwindow.webcam.stop()
+                            self.camwindow.kill()
+                            self.camwindow = None
+                    
+                    if (event.ui_element == self.showbet_button):
+                        if (not self.betClicked):
+                            print('OPENING BET')
+                            self.betwindow = betWindow(manager, betpos)
+                            self.betClicked = True
+                        elif (self.betClicked):
+                            print('KILLING BET')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.betClicked = False
+                    
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
