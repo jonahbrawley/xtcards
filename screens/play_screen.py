@@ -106,9 +106,6 @@ class playScreen:
 
             # if setup window is closed, open player window and pause button
             if(setupWindow.startClicked):
-<<<<<<< HEAD
-                # player widnow
-=======
                 # show header
                 self.header.show()
                 self.playerSetUp = playerNameSetUp(manager=manager, pos=playerSetuppos)
@@ -117,7 +114,6 @@ class playScreen:
             if(playerNameSetUp.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(playScreen.playerNames)) + "-----------")
                 #player widnow
->>>>>>> testing
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
@@ -125,14 +121,11 @@ class playScreen:
                 self.header.hide()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-<<<<<<< HEAD
                 #self.betwindow = betWindow(manager, betpos)
                 self.camwindow = camWindow(manager, campos)
                 
-=======
                 playerNameSetUp.submitPlayerClicked = False
                 self.betwindow = betWindow(manager, betpos)
->>>>>>> testing
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -441,7 +434,6 @@ class betWindow(pygame_gui.elements.UIWindow):
                 self.dynamic_button.set_text("Check")
             elif (not self.bet_input_box.get_text() == "0"):
                 self.dynamic_button.set_text("Bet")
-<<<<<<< HEAD
 
 class camWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
@@ -474,5 +466,3 @@ class camWindow(pygame_gui.elements.UIWindow):
             img = self.webcam.get_image()
             img = pygame.transform.flip(img, True, False) # fix horizontal flip
             self.camera_display.set_image(img)
-=======
->>>>>>> testing
