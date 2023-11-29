@@ -8,6 +8,7 @@ from objects.setup import setupWindow
 import pygame.camera
 
 homeswitch = False
+drawcam = False
 
 class playScreen:
     def __init__(self, manager, window, state):
@@ -25,6 +26,7 @@ class playScreen:
         self.darken_rect = pygame.Rect((0,0), (self.width, self.height))
 
         self.header = None
+        self.camwindow = None
 
     def load(self, manager, state):
         self.state = state
@@ -91,6 +93,7 @@ class playScreen:
         pygame.camera.init()
 
         while True:
+            global drawcam
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
@@ -126,6 +129,10 @@ class playScreen:
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+            if self.camwindow != None:
+                print('drawing')
+                drawcam = True
+                self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
 
@@ -344,6 +351,8 @@ class camWindow(pygame_gui.elements.UIWindow):
                         object_id='#setup_window',
                         draggable=False)
         
+        global drawcam
+        
         imgsurf = pygame.Surface(size=(pos.width, pos.height))
         imgsurf.fill((0, 0, 0)) # black
         
@@ -355,11 +364,13 @@ class camWindow(pygame_gui.elements.UIWindow):
                                                           )
         
         cameras = pygame.camera.list_cameras()
-        webcam = pygame.camera.Camera(cameras[0])
-        webcam.start()
-        img = webcam.get_image()
+        self.webcam = pygame.camera.Camera(cameras[0])
+        self.webcam.start()
+    
+    def draw_camera(self):
+        global drawcam
 
-        self.camera_display.set_image(img)
-        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        #self.camsurf = pygame.surfarray.make_surface(frame)
-        #surface.blit(self.camsurf, (0,0))
+        if drawcam and self.webcam.query_image():
+            img = self.webcam.get_image()
+            img = pygame.transform.flip(img, True, False) # fix horizontal flip
+            self.camera_display.set_image(img)
