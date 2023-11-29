@@ -1,7 +1,7 @@
 from deck import Deck
 from card_ranker import CardRanker
 from player import Player
-from pot import Pot, TempPot
+from pot import TempPot
 import random
 
 class GameState:
@@ -144,8 +144,6 @@ class GameState:
 
       # Detect start of game: round == preflop, pot == 0
       if self.round == "preflop" and self.tmp_pot.sum_bets() == 0:
-        for player in self.players_that_can_do_action():
-          player.pull_cards(self.deck)
         # if there are only 2 players, player with dealer chip is also small blind
         # otherwise small blind is the player after the dealer chip
         if len(self.players_that_can_do_action()) > 2:
@@ -226,17 +224,17 @@ class GameState:
         self.round = "flop"
         print("Flop")
         for i in range(3):
-          self.community_cards[i] = self.deck.pull()
+          self.community_cards[i] = Deck.scan()
 
       elif self.round == "flop":
         print("Turn")
         self.round = "turn"
-        self.community_cards[3] = self.deck.pull()
+        self.community_cards[3] = Deck.scan()
 
       elif self.round == "turn":
         print("River")
         self.round = "river"
-        self.community_cards[4] = self.deck.pull()
+        self.community_cards[4] = Deck.scan()
 
       elif self.round == "river":
         print("End")
@@ -260,6 +258,9 @@ class GameState:
 
   # Called after river betting & cards are revealed
   def end_game(self):
+    for player in self.players:
+      player.cards = [Deck.scan(), Deck.scan()]
+
     # split into pots one last time
     self.side_pots += self.tmp_pot.to_sidepots()
 
@@ -301,7 +302,6 @@ class GameState:
     res += f"Community Cards: {self.community_cards}\n"
     res += f"Dealer Position: {self.dealer_pos}\n"
     res += f"Current Position: {self.curr_pos}\n"
-    # res += f"Game Ended: {self.game_ended}\n"
 
     res += GameState.divider(f"Players ({len(self.players)})")
     for player in self.players:
@@ -318,13 +318,21 @@ class GameState:
     return res
 
 
-players = [Player("Bill", 100), Player("John", 200), Player("Sam", 300)]
+players = [
+  Player("Bill", 100, cards=["AH", "AS"]), 
+  Player("John", 200, cards=["KC", "8H"]), 
+  Player("Sam", 300, cards=["2D", "2C"])
+  ]
+
 state = GameState(players)
 state.start_game()
+
 
 while state.game_active:
   p_action = input("Action:\n")
   p_bet = int(input("Bet:\n"))
   state.step(p_action, p_bet)
+  print(state.players[state.curr_pos], state.curr_pos)
   if state.game_active:
    print(state)
+
