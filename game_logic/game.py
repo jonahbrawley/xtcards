@@ -3,8 +3,17 @@ from card_ranker import CardRanker
 from player import Player
 from pot import TempPot
 import random
+from enum import Enum
+
+
 
 class GameState:
+  class StartResponse(Enum):
+    successful = 0
+    not_enough_players = 1
+    game_in_progress = 2
+  
+  USE_PHYSICAL_DECK = False
   SMALL_BLIND = 5
   BIG_BLIND = 10
 
@@ -12,6 +21,7 @@ class GameState:
     self.players = players
     self.game_active = False
     self.dealer_pos = random.randint(0, len(self.players))
+    self.curr_pos = 0
 
   # Check which players can start a new game and return that number
   def ready_up_players(self):
@@ -44,17 +54,20 @@ class GameState:
     self.dealer_pos = self.get_next_pos(self.dealer_pos)
     return self.dealer_pos
 
+  def is_curr_pos_at_ai(self):
+    return self.players[self.curr_pos].is_ai
+
   # setup all variables for a new game state
   def start_game(self):
     # Don't start a new game if one is in progress already
     if self.game_active:
       print("Error: Cannot start a new game because a game is in progress.")
-      return
+      return self.StartResponse.game_in_progress
 
     # Check if enough players have chips to start a new gme
     if self.ready_up_players() < 2:
       print("Error: Cannot start a new game because not enough players have chips.")
-      return
+      return self.StartResponse.not_enough_players
 
     # Setup all variables
     self.deck = Deck()
@@ -74,11 +87,17 @@ class GameState:
     self.curr_pos = self.dealer_pos # game starts from dealer position
     self.game_active = True
 
+    # If a physical deck is not being used, deal all the cards to the players
+    if not GameState.USE_PHYSICAL_DECK:
+      for player in self.players:
+        if player.cards is None:
+          player.pull_cards(self.deck)
+    
+    return self.StartResponse.successful
+
   def await_player_action(self, player):
     print(GameState.divider("Player Action"))
     print(player)
-
-    highest_bet = self.tmp_pot.highest_bet()
 
     p_action = None
 
@@ -104,7 +123,8 @@ class GameState:
     return p_action, p_bet
 
   def execute_player_action(self, player, action, bet_amount):
-    min_required_bid = self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+    min_required_bet = self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+    print(f"min_required_bet = {min_required_bet}")
 
     if action == "fold":
       bet_amount = 0
@@ -113,19 +133,24 @@ class GameState:
       bet_amount = player.chips
 
     elif action == "call":
-      bet_amount = min(min_required_bid, player.chips)
+      bet_amount = min(min_required_bet, player.chips)
       if bet_amount == player.chips:
         action = "all_in"
-      elif bet_amount < min_required_bid:
+      elif bet_amount < min_required_bet:
         return False
 
     elif action == "raise":
       if bet_amount == player.chips:
         action = "all_in"
+      elif bet_amount == min_required_bet:
+        action = "call"
       elif bet_amount > player.chips:
         return False
-      elif bet_amount < min_required_bid:
+      elif bet_amount < min_required_bet:
         return False
+    
+    else:
+      return False
 
     player.last_action = action
     self.tmp_pot.add_to_pot(player.id, bet_amount)
@@ -134,16 +159,18 @@ class GameState:
 
     return True
 
+  def is_awaiting_preflop(self):
+    return self.round == "preflop" and self.tmp_pot.sum_bets() == 0
 
   # Initiate the next game step
   # E.g. start round, reveal community card, next player move, etc.
-  def step(self, p_action, p_bet=None):
+  def step(self, p_action=None, p_bet=None):
       if not self.game_active:
         print("Error: Cannot step to next game move because game is not in progress.")
         return
 
       # Detect start of game: round == preflop, pot == 0
-      if self.round == "preflop" and self.tmp_pot.sum_bets() == 0:
+      if self.is_awaiting_preflop():
         # if there are only 2 players, player with dealer chip is also small blind
         # otherwise small blind is the player after the dealer chip
         if len(self.players_that_can_do_action()) > 2:
@@ -164,7 +191,10 @@ class GameState:
         # individual player move
         curr_player = self.players[self.curr_pos]
 
-        self.execute_player_action(curr_player, p_action, p_bet)
+        valid_bet = self.execute_player_action(curr_player, p_action, p_bet)
+        if not valid_bet:
+          print("Error: Bet amount was not valid")
+          return
 
 
       # Check and handle if the round shound be over
@@ -223,18 +253,31 @@ class GameState:
       if self.round == "preflop":
         self.round = "flop"
         print("Flop")
-        for i in range(3):
-          self.community_cards[i] = Deck.scan()
+        if GameState.USE_PHYSICAL_DECK:
+          self.deck.set_scanning_status(True)
+          for i in range(3):
+            self.community_cards[i] = self.scan_card_until_valid()
+        else:
+          for i in range(3):
+            self.community_cards[i] = self.deck.pull()
 
       elif self.round == "flop":
         print("Turn")
         self.round = "turn"
-        self.community_cards[3] = Deck.scan()
+        if GameState.USE_PHYSICAL_DECK:
+          self.deck.set_scanning_status(True)
+          self.community_cards[3] = self.scan_card_until_valid()
+        else:
+          self.community_cards[3] = self.deck.pull()
 
       elif self.round == "turn":
         print("River")
         self.round = "river"
-        self.community_cards[4] = Deck.scan()
+        if GameState.USE_PHYSICAL_DECK:
+          self.deck.set_scanning_status(True)
+          self.community_cards[4] = self.scan_card_until_valid()
+        else:
+          self.community_cards[4] = self.deck.pull()
 
       elif self.round == "river":
         print("End")
@@ -243,6 +286,7 @@ class GameState:
 
       else:
         print(f"Error: could not proceed to next round from '{self.round}'")
+        self.deck.set_scanning_status(False)
         return
 
       # split out sidepots
@@ -255,11 +299,19 @@ class GameState:
 
     # Move curr_pos to next active player after dealer if
     self.curr_pos = self.get_next_pos(self.dealer_pos)
+    self.deck.set_scanning_status(False)
 
   # Called after river betting & cards are revealed
   def end_game(self):
-    for player in self.players:
-      player.cards = [Deck.scan(), Deck.scan()]
+
+    # if using a physical deck, get player cards here
+    # if not, cards are dealt in start_game() method
+    if GameState.USE_PHYSICAL_DECK:
+      self.deck.set_scanning_status(True)
+      for player in self.players:
+        if not player.is_ai:
+          player.cards = [self.scan_card_until_valid(), self.scan_card_until_valid()]
+      self.deck.set_scanning_status(False)
 
     # split into pots one last time
     self.side_pots += self.tmp_pot.to_sidepots()
@@ -288,6 +340,17 @@ class GameState:
       if player.can_do_action():
         res.append(player)
     return res
+
+  # temporary method used to get captured card value until button exists
+  def scan_card_until_valid(self):
+    print("RUNNING TEMPORARY METHOD: scan_card_until_valid()\nREPLACE THIS WITH SOME BUTTON UI INTERACTION ASAP")
+    card_value = None
+    while not card_value:
+      card_value = self.deck.scan()
+    return card_value
+
+  def state_to_json_for_ai_at_curr_pos(self):
+    print("TODO: generate a json object for the AI model at curr_pos")
 
   def divider(s):
     return "\n-------------------- " + s + " --------------------\n\n"
@@ -319,20 +382,41 @@ class GameState:
 
 
 players = [
-  Player("Bill", 100, cards=["AH", "AS"]), 
-  Player("John", 200, cards=["KC", "8H"]), 
-  Player("Sam", 300, cards=["2D", "2C"])
+  Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
+  Player("John", is_ai=True, chips=200, cards=["KC", "8H"]), 
+  Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
   ]
 
 state = GameState(players)
 state.start_game()
 
+while True:
+  while state.game_active:
+    # send out small and big blind
+    if state.is_awaiting_preflop():
+      state.step()
+    # execute a player turn & update round/cards if necessary
+    else:
+      if state.is_curr_pos_at_ai():
+        print("AI response")
+        p_action = "fold"
+        state.step(p_action)
+      else:
+        print("Not AI response")
+        p_action = input("Action:\n")
+        p_bet = None
+        if p_action.lower() == "raise":
+          p_bet = int(input("Bet:\n"))
+        state.step(p_action, p_bet)
 
-while state.game_active:
-  p_action = input("Action:\n")
-  p_bet = int(input("Bet:\n"))
-  state.step(p_action, p_bet)
-  print(state.players[state.curr_pos], state.curr_pos)
-  if state.game_active:
-   print(state)
+    print(state.players[state.curr_pos], state.curr_pos)
+    if state.game_active:
+      print(state)
 
+
+  response = state.start_game()
+  if response == GameState.StartResponse.not_enough_players:
+    break
+
+for player in players:
+  print(player)
