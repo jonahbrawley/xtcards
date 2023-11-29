@@ -1,6 +1,6 @@
 class Player:
   __ids = [] # store all player ids privately
-  def __init__(self, name, chips=1000, id=None, cards=None):
+  def __init__(self, name, is_ai, chips=1000, id=None, cards=None):
     if id:
       self.id = id
     else:
@@ -10,6 +10,7 @@ class Player:
     self.last_action = None
     self.curr_bet = 0
     self.cards = cards
+    self.is_ai = is_ai
 
   def __generate_id(self):
     if len(self.__ids) == 0:
