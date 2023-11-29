@@ -4,7 +4,7 @@ import os # detect system
 import ctypes # windows displays
 
 from objects.scheme import Scheme
-from objects.screenstate import ScreenState
+from objects.gamestate import GameState
 
 from screens.play_screen import playScreen
 from screens.title_screen import titleScreen
@@ -37,24 +37,24 @@ class xtcApp:
         print('>> Initialize webcam')
 
     def run(self):
-        game_state = ScreenState.TITLE # set state to Title screen
+        game_state = GameState.TITLE # set state to Title screen
         xtTitle = titleScreen(self.manager, self.window, game_state)
         xtPlay = playScreen(self.manager, self.window, game_state)
 
         while True:
-            if game_state == ScreenState.TITLE:
+            if game_state == GameState.TITLE:
                 print('>> SET STATE TITLE')
                 xtTitle.load(self.manager, game_state)
                 game_state = xtTitle.run(self.manager)
                 xtTitle.delete(self.manager)
 
-            if game_state == ScreenState.START:
+            if game_state == GameState.START:
                 print('>> SET STATE START')
                 xtPlay.load(self.manager, game_state)
                 game_state = xtPlay.run(self.manager)
                 xtPlay.delete(self.manager)
 
-            if game_state == ScreenState.QUIT:
+            if game_state == GameState.QUIT:
                 print('>> SET STATE QUIT')
                 pygame.quit()
                 return
