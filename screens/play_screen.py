@@ -6,8 +6,10 @@ from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
 
-homeswitch = False
+import pygame.camera
 
+homeswitch = False
+drawcam = False
 
 class playScreen:
     playerNames = []
@@ -26,6 +28,11 @@ class playScreen:
         self.darken_rect = pygame.Rect((0,0), (self.width, self.height))
 
         self.header = None
+        self.camwindow = None
+        self.betwindow = None
+
+        self.camClicked = False # TEMP
+        self.betClicked = False # TEMP
 
     def load(self, manager, state):
         self.state = state
@@ -57,6 +64,26 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
+        self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                            text='camwin',
+                                            manager=manager,
+                                            anchors={
+                                            'left': 'left',
+                                            'top': 'top',
+                                            'left_target': self.pause_button
+                                            })
+        self.showcam_button.hide()
+
+        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                            text='betwin',
+                                            manager=manager,
+                                            anchors={
+                                            'left': 'left',
+                                            'top': 'top',
+                                            'left_target': self.showcam_button
+                                            })
+        self.showbet_button.hide()
+
         self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
@@ -87,6 +114,12 @@ class playScreen:
         bet_width = self.width*.25
         bet_height = self.height*.50
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
+        # cam set up TEMP
+        cam_width = self.width*.50
+        cam_height = self.height*.75
+        campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
+
+        pygame.camera.init()
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -105,12 +138,14 @@ class playScreen:
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
+                self.showcam_button.show()
+                self.showbet_button.show()
                 # hide header
                 self.header.hide()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+                
                 playerNameSetUp.submitPlayerClicked = False
-                self.betwindow = betWindow(manager, betpos)
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -122,6 +157,31 @@ class playScreen:
                             darken = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
+                    
+                    if (event.ui_element == self.showcam_button):
+                        if (not self.camClicked):
+                            print('OPENING CAM')
+                            self.camwindow = camWindow(manager, campos)
+                            self.camClicked = True
+                        elif (self.camClicked):
+                            print('KILLING CAM')
+                            drawcam = False
+                            self.camClicked = False
+                            self.camwindow.webcam.stop()
+                            self.camwindow.kill()
+                            self.camwindow = None
+                    
+                    if (event.ui_element == self.showbet_button):
+                        if (not self.betClicked):
+                            print('OPENING BET')
+                            self.betwindow = betWindow(manager, betpos)
+                            self.betClicked = True
+                        elif (self.betClicked):
+                            print('KILLING BET')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.betClicked = False
+                    
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -415,3 +475,34 @@ class betWindow(pygame_gui.elements.UIWindow):
                 self.dynamic_button.set_text("Check")
             elif (not self.bet_input_box.get_text() == "0"):
                 self.dynamic_button.set_text("Bet")
+class camWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='CAMERA_WINDOW',
+                        object_id='#setup_window',
+                        draggable=False)
+        
+        global drawcam
+        
+        imgsurf = pygame.Surface(size=(pos.width, pos.height))
+        imgsurf.fill((0, 0, 0)) # black
+        
+        self.camera_display = pygame_gui.elements.UIImage(pygame.Rect((0, 0), (pos.width, pos.height)),
+                                                          image_surface=imgsurf,
+                                                          manager=manager,
+                                                          container=self,
+                                                          parent_element=self
+                                                          )
+        
+        cameras = pygame.camera.list_cameras()
+        self.webcam = pygame.camera.Camera(cameras[0])
+        self.webcam.start()
+    
+    def draw_camera(self):
+        global drawcam
+
+        if drawcam and self.webcam.query_image():
+            img = self.webcam.get_image()
+            img = pygame.transform.flip(img, True, False) # fix horizontal flip
+            self.camera_display.set_image(img)
