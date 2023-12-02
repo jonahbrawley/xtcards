@@ -3,17 +3,12 @@ import threading
 import numpy as np
 import requests
 import base64
-import json
 
 class WebcamCapture:
     def __init__(self, show_window=False):
         self._exit_webcam_thread = False
         self._webcam_thread = None
         self._show_window = show_window
-        self.frame = None
-
-    def is_frame_not_null(self):
-        return self.frame is not None
 
     def _webcam_thread_function(self):
         # Open a connection to the webcam (0 or 1 for the default built-in webcam)
@@ -60,10 +55,7 @@ class WebcamCapture:
         img_bytes = img.tobytes()
         img_b64 = base64.b64encode(img_bytes).decode('utf-8')
         response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
-        response = json.loads(response.text)
-        response = response["class"]
-        print(response)
-        return response
+        print(response.text)
 
     def stop(self):
         if self._webcam_thread:

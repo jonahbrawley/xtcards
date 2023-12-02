@@ -9,8 +9,8 @@ class setupWindow(pygame_gui.elements.UIWindow):
                          object_id='#setup_window',
                          draggable=False)
         
-        player_selection = ["1", "2", "3", "4"]
-        ai_selection = ["1", "2"]
+        player_selection = ["1", "2", "3"]
+        ai_selection = ["1", "2", "3"]
         money_selection = ["100", "200", "300", "400", "500"]
 
         v_pad = 30
@@ -89,27 +89,27 @@ class setupWindow(pygame_gui.elements.UIWindow):
                                                                        "top_target": self.divider
                                                                    })
         
-        # self.small_blind_label = pygame_gui.elements.UILabel(pygame.Rect((h_pad, 10), (180, 40)),
-        #                                                         ("Small blind:"),
-        #                                                         manager=manager,
-        #                                                         object_id="config_window_label",
-        #                                                         container=self,
-        #                                                         parent_element=self,
-        #                                                         anchors={
-        #                                                             "left": "left",
-        #                                                             "top_target": self.player_money_dropdown
-        #                                                         })
+        self.small_blind_label = pygame_gui.elements.UILabel(pygame.Rect((h_pad, 10), (180, 40)),
+                                                                ("Small blind:"),
+                                                                manager=manager,
+                                                                object_id="config_window_label",
+                                                                container=self,
+                                                                parent_element=self,
+                                                                anchors={
+                                                                    "left": "left",
+                                                                    "top_target": self.player_money_dropdown
+                                                                })
         
-        # self.big_blind_label = pygame_gui.elements.UILabel(pygame.Rect((h_pad, 10), (180, 40)),
-        #                                                         ("Big blind:"),
-        #                                                         manager=manager,
-        #                                                         object_id="config_window_label",
-        #                                                         container=self,
-        #                                                         parent_element=self,
-        #                                                         anchors={
-        #                                                             "left": "left",
-        #                                                             "top_target": self.small_blind_label
-        #                                                         })
+        self.big_blind_label = pygame_gui.elements.UILabel(pygame.Rect((h_pad, 10), (180, 40)),
+                                                                ("Big blind:"),
+                                                                manager=manager,
+                                                                object_id="config_window_label",
+                                                                container=self,
+                                                                parent_element=self,
+                                                                anchors={
+                                                                    "left": "left",
+                                                                    "top_target": self.small_blind_label
+                                                                })
 
         self.start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, -60), ((160), 40)),
                                                              text='Start game',
