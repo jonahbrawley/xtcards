@@ -183,7 +183,7 @@ class titleScreen:
             rc_rect = rotated_circle.get_rect(center=self.circle_center)
             self.window.blit(rotated_circle, rc_rect.topleft)
 
-            self.rotation_angle += 0.2 # update rotation
+            self.rotation_angle += 13 * time_delta # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
