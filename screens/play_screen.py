@@ -84,12 +84,34 @@ class playScreen:
                                             })
         self.showbet_button.hide()
 
+        #info button
+        info_button_rect = pygame.Rect(-55, 15, 40, 50)
+        self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
+                                                text='i',
+                                                manager=manager,
+                                                anchors={
+                                                'right': 'right'
+                                                })
+        self.info_button.hide()
+
+        #donation button
+        church_button_rect = pygame.Rect(-110, 15, 40, 50)
+        self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
+                                                          text='$',
+                                                          manager=manager,
+                                                          anchors={
+                                                          'right': 'right'
+                                                          })
+        self.church_button.hide()
+
         self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
         global homeswitch
         darken = False
         pauseClicked = False
+        infoClicked = False
+        churchClicked = False
 
         # pause set up
         pause_width = 350
@@ -120,8 +142,22 @@ class playScreen:
         campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
 
         pygame.camera.init()
+        info_width = 175
+        info_height = 400
+        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
+
+        #info icon set up
+        info_width = self.width*.20
+        info_height = self.height*.4
+        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2)-(info_height)), (info_width, info_height))
+
+        #church icon set up
+        church_width = self.width*.20
+        church_height = self.height*.4
+        churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
 
         while True:
+            global drawcam
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
@@ -138,14 +174,21 @@ class playScreen:
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
+
                 self.showcam_button.show()
                 self.showbet_button.show()
                 # hide header
                 self.header.hide()
                 #build bank
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                
                 playerNameSetUp.submitPlayerClicked = False
+                self.header.show()
+                #show info button
+                self.info_button.show()
+                #show donation button
+                self.church_button.show()
+                self.bank = bankWindow(manager=manager, pos=bankpos)
+
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
@@ -182,6 +225,24 @@ class playScreen:
                             self.betwindow = None
                             self.betClicked = False
                     
+
+                    #if info button clicked
+                    if (event.ui_element == self.info_button and not infoClicked):
+                            print('TITLE: Drawing info dialog')
+                            infoClicked = True
+                            darken = True
+                            self.info = infoWindow(manager=manager, pos=infopos)
+                            self.info.set_blocking(False)
+                            self.info.load_text("assets/poker_rules.txt")
+
+                    #if donation button clicked
+                    if (event.ui_element == self.church_button and not churchClicked):
+                        print('TITLE: Drawing donation dialog')
+                        churchClicked = True
+                        darken = True
+                        self.church = churchWindow(manager=manager, pos=churchpos)
+                        self.church.set_blocking(False)
+
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
@@ -192,13 +253,27 @@ class playScreen:
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+            if self.camwindow != None:
+                print('drawing')
+                drawcam = True
+                self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
-
+            
             if (pauseClicked):
                 if not self.pause.alive():
                     darken = False
                     pauseClicked = False
+            
+            if (infoClicked):
+                if not self.info.alive():
+                    darken = False
+                    infoClicked = False
+
+            if (churchClicked):
+                if not self.church.alive():
+                    darken = False
+                    churchClicked = False
 
             if (darken):
                 # self.window.blit(self.darken, (0,0)) # add dark overlay
@@ -406,6 +481,7 @@ class playerNameSetUp(pygame_gui.elements.UIWindow):
                 print(self.player_name)
                 print(playerNames)
         playerNames = self.player_name
+
 class betWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         super().__init__((pos),
@@ -475,6 +551,7 @@ class betWindow(pygame_gui.elements.UIWindow):
                 self.dynamic_button.set_text("Check")
             elif (not self.bet_input_box.get_text() == "0"):
                 self.dynamic_button.set_text("Bet")
+
 class camWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         super().__init__((pos),
@@ -506,3 +583,55 @@ class camWindow(pygame_gui.elements.UIWindow):
             img = self.webcam.get_image()
             img = pygame.transform.flip(img, True, False) # fix horizontal flip
             self.camera_display.set_image(img)
+            
+class infoWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='How to Play Poker',
+                         object_id='#info_window',
+                         draggable=True)
+        self.scroll_box = pygame_gui.elements.UIScrollingContainer(pygame.Rect((0, 0), (200, 200)),
+                                                                                             manager=manager,
+                                                                                             container=self,
+                                                                                             object_id="scroll_container"
+        )
+        self.info_label = pygame_gui.elements.UILabel(pygame.Rect((0, 0), (200, 1)),
+                                                      "",
+                                                      manager=manager,
+                                                      container=self.scroll_box,
+                                                      object_id="info_label"
+        )
+    def load_text(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                text = file.read()
+                self.info_label.set_text(text)
+                self.scroll_box.set_dimensions((400, 400))
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
+
+class churchWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='How to Donate!',
+                         object_id='#church_window',
+                         draggable=True)
+        self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate to our local church! We hope you enjoyed using xtcards :)",
+                                                            relative_rect=pygame.Rect((0, 10), (300, 200)),
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                            "centerx": "centerx"
+                                                            })
+        self.donate_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((125, 300), ((100), 40)),
+                                                          text='Donate',
+                                                          manager=manager,
+                                                          container=self,
+                                                          parent_element=self,
+                                                          anchors={
+                                                              "bottom': 'bottom",
+                                                              "centerx': 'centerx"
+                                                          })
