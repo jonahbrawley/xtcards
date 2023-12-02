@@ -2,7 +2,7 @@ import pygame
 import pygame_gui
 import random, os
 from pygame_gui.elements import UIButton, UILabel, UIWindow
-from objects.screenstate import ScreenState
+from objects.gamestate import GameState
 from objects.scheme import Scheme
 
 from webcam import WebcamCapture
@@ -143,10 +143,10 @@ class titleScreen:
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.play_button:
                         print('TITLE: Starting game')
-                        self.state = ScreenState.START
+                        self.state = GameState.START
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
-                        return ScreenState.QUIT
+                        return GameState.QUIT
                     if (event.ui_element == self.settings_button and not self.isConfClicked):
                         print('TITLE: Drawing config dialog')
                         self.config = configWindow(manager=manager, pos=cfgpos)
@@ -169,10 +169,10 @@ class titleScreen:
                 
                 # quit program handling
                 if event.type == pygame.QUIT:
-                    return ScreenState.QUIT
+                    return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('TITLE: I should really be going!')
-                    return ScreenState.QUIT
+                    return GameState.QUIT
 
                 manager.process_events(event)
 
@@ -189,13 +189,13 @@ class titleScreen:
             pygame.display.flip()
 
             if (debugswitch):
-                self.state = ScreenState.DEBUG
+                self.state = GameState.DEBUG
 
             if (self.isConfClicked):
                 if not self.config.alive():
                     self.isConfClicked = False
 
-            if (self.state != ScreenState.TITLE):
+            if (self.state != GameState.TITLE):
                 return self.state
 
     def delete(self, manager):

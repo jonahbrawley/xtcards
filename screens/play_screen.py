@@ -1,15 +1,11 @@
 from random import shuffle
 import pygame
 import pygame_gui
-from pygame_gui.elements import UILabel
-from objects.screenstate import ScreenState
+from objects.gamestate import GameState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
 
-import pygame.camera
-
 homeswitch = False
-drawcam = False
 
 class playScreen:
     playerNames = []
@@ -37,18 +33,6 @@ class playScreen:
     def load(self, manager, state):
         self.state = state
         
-        header_rect = pygame.Rect(0, self.height*.01, self.width//3, 150)
-
-        self.header = UILabel(relative_rect=header_rect,
-                            text='Set Up Names...',
-                            manager=manager,
-                            object_id='header_game',
-                            anchors={
-                                'centerx': 'centerx',
-                                'top': 'top'
-                            })
-        self.header.hide()
-
         stp_width = 500
         stp_height = 500
         stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
@@ -56,13 +40,12 @@ class playScreen:
         #pause button
         pause_button_rect = pygame.Rect(15, 15, 100, 50)
         self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='Pause',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top'
-                                            })
-        self.pause_button.hide()
+                                                text='Pause',
+                                                manager=manager,
+                                                anchors={
+                                                    'left': 'left',
+                                                    'top': 'top'
+                                                })
 
         self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='camwin',
@@ -157,7 +140,6 @@ class playScreen:
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
 
         while True:
-            global drawcam
             time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
@@ -244,19 +226,15 @@ class playScreen:
                         self.church.set_blocking(False)
 
                 if event.type == pygame.QUIT:
-                    return ScreenState.QUIT
+                    return GameState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
-                    self.state = ScreenState.TITLE
+                    self.state = GameState.TITLE
 
                 manager.process_events(event)
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
-            if self.camwindow != None:
-                print('drawing')
-                drawcam = True
-                self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
             
@@ -284,10 +262,10 @@ class playScreen:
             pygame.display.update()
 
             if (homeswitch):
-                self.state = ScreenState.TITLE
+                self.state = GameState.TITLE
                 homeswitch = False
 
-            if (self.state != ScreenState.START):
+            if (self.state != GameState.START):
                 return self.state
     
     def delete(self, manager):
