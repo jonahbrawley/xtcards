@@ -2,7 +2,7 @@ import pygame
 import pygame_gui
 import random, os
 from pygame_gui.elements import UIButton, UILabel, UIWindow
-from objects.gamestate import GameState
+from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 
 from webcam import WebcamCapture
@@ -143,10 +143,10 @@ class titleScreen:
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.play_button:
                         print('TITLE: Starting game')
-                        self.state = GameState.START
+                        self.state = ScreenState.START
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
-                        return GameState.QUIT
+                        return ScreenState.QUIT
                     if (event.ui_element == self.settings_button and not self.isConfClicked):
                         print('TITLE: Drawing config dialog')
                         self.config = configWindow(manager=manager, pos=cfgpos)
@@ -169,10 +169,10 @@ class titleScreen:
                 
                 # quit program handling
                 if event.type == pygame.QUIT:
-                    return GameState.QUIT
+                    return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('TITLE: I should really be going!')
-                    return GameState.QUIT
+                    return ScreenState.QUIT
 
                 manager.process_events(event)
 
@@ -183,19 +183,19 @@ class titleScreen:
             rc_rect = rotated_circle.get_rect(center=self.circle_center)
             self.window.blit(rotated_circle, rc_rect.topleft)
 
-            self.rotation_angle += 0.2 # update rotation
+            self.rotation_angle += 13 * time_delta # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
 
             if (debugswitch):
-                self.state = GameState.DEBUG
+                self.state = ScreenState.DEBUG
 
             if (self.isConfClicked):
                 if not self.config.alive():
                     self.isConfClicked = False
 
-            if (self.state != GameState.TITLE):
+            if (self.state != ScreenState.TITLE):
                 return self.state
 
     def delete(self, manager):
