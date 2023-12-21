@@ -108,7 +108,6 @@ class playScreen:
 
     def run(self, manager):
         global homeswitch
-        darken = False
         pauseClicked = False
         infoClicked = False
         churchClicked = False
@@ -192,8 +191,8 @@ class playScreen:
                 setupWindow.startClicked = False
 
             for event in pygame.event.get():
-                #if pause button is clicked
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    # PAUSE BUTTON
                     if (event.ui_element == self.pause_button and not pauseClicked):
                             print('TITLE: Drawing pause dialog')
                             pauseClicked = True
@@ -201,6 +200,7 @@ class playScreen:
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
                     
+                    # TEMP CAMERA TESTS
                     if (event.ui_element == self.showcam_button):
                         if (not self.camClicked):
                             print('OPENING CAM')
@@ -214,6 +214,7 @@ class playScreen:
                             self.camwindow.kill()
                             self.camwindow = None
                     
+                    # TEMP BET TESTS
                     if (event.ui_element == self.showbet_button):
                         if (not self.betClicked):
                             print('OPENING BET')
@@ -224,9 +225,8 @@ class playScreen:
                             self.betwindow.kill()
                             self.betwindow = None
                             self.betClicked = False
-                    
 
-                    #if info button clicked
+                    # INFO BUTTON
                     if (event.ui_element == self.info_button and not infoClicked):
                             print('TITLE: Drawing info dialog')
                             infoClicked = True
@@ -235,7 +235,7 @@ class playScreen:
                             self.info.set_blocking(False)
                             self.info.load_text("assets/poker_rules.txt")
 
-                    #if donation button clicked
+                    # DONATION BUTTON
                     if (event.ui_element == self.church_button and not churchClicked):
                         print('TITLE: Drawing donation dialog')
                         churchClicked = True
@@ -259,34 +259,23 @@ class playScreen:
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
-            
+
+            # Check and reset flags
             if (pauseClicked):
                 if not self.pause.alive():
-                    darken = False
                     pauseClicked = False
-            
             if (infoClicked):
                 if not self.info.alive():
-                    darken = False
                     infoClicked = False
-
             if (churchClicked):
                 if not self.church.alive():
-                    darken = False
                     churchClicked = False
-
-            if (darken):
-                # self.window.blit(self.darken, (0,0)) # add dark overlay
-                # pygame.draw.rect(self.window, (0,0,0,40), self.darken_rect)
-                # self.pause.change_layer(3)
-                temp = 1
 
             pygame.display.update()
 
             if (homeswitch):
                 self.state = ScreenState.TITLE
                 homeswitch = False
-
             if (self.state != ScreenState.START):
                 return self.state
     
