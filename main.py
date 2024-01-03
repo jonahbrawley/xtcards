@@ -9,8 +9,6 @@ from objects.screenstate import ScreenState
 from screens.play_screen import playScreen
 from screens.title_screen import titleScreen
 
-from game_logic.game import GameState
-
 Colors = Scheme()
 class xtcApp:
     def __init__(self):

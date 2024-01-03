@@ -1,7 +1,7 @@
-from deck import Deck
-from card_ranker import CardRanker
-from player import Player
-from pot import TempPot
+from game_logic.deck import Deck
+from game_logic.card_ranker import CardRanker
+from game_logic.player import Player
+from game_logic.pot import TempPot
 import random
 from enum import Enum
 

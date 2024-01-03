@@ -6,7 +6,7 @@ from pygame_gui.elements import UILabel
 from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
-from game_logic.game import GameState
+#from game_logic.game import GameState
 
 import pygame.camera
 
@@ -33,6 +33,14 @@ class playScreen:
 
         self.camClicked = False # TEMP
         self.betClicked = False # TEMP
+
+        # Class variable for a new GameState from game_logic/game.py.
+        # This variable is updated after number of players/AI is selected.
+
+        # For future save game functions, this class variable should be loaded
+        # from the saved game's GameState object.
+        # (more on this functionality later)
+        self.game_state = None
 
     def load(self, manager, state):
         self.state = state
@@ -166,7 +174,7 @@ class playScreen:
             if(setupWindow.startClicked):
                 # show header
                 self.header.show()
-                self.playerSetUp = playerNameSetUp(manager=manager, pos=playerSetuppos)
+                self.playerSetUp = playerNameSetUp(manager=manager, pos=playerSetuppos) # loads player name setup
                 setupWindow.startClicked = False
 
             if(playerNameSetUp.submitPlayerClicked):
@@ -259,6 +267,8 @@ class playScreen:
                 print('drawing')
                 drawcam = True
                 self.camwindow.draw_camera()
+
+            
 
             manager.draw_ui(self.window)
 
