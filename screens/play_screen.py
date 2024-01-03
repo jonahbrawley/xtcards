@@ -1,10 +1,12 @@
 from random import shuffle
 import pygame
 import pygame_gui
+
 from pygame_gui.elements import UILabel
 from objects.screenstate import ScreenState
 from objects.scheme import Scheme
 from objects.setup import setupWindow
+from game_logic.game import GameState
 
 import pygame.camera
 
@@ -23,8 +25,6 @@ class playScreen:
         self.window = window
         self.background = pygame.Surface((self.width, self.height))
         self.background.fill(Colors.window_bg)
-        #self.darken = pygame.Surface((self.width, self.height))
-        #self.darken.fill((0, 0, 0, 40)) # fill with black color alpha 40
         self.darken_rect = pygame.Rect((0,0), (self.width, self.height))
 
         self.header = None
@@ -131,10 +131,12 @@ class playScreen:
         playerSetup_width = self.width*.26
         playerSetup_height = self.height*.46
         playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
+
         # bet set up TEMP
         bet_width = self.width*.25
         bet_height = self.height*.50
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
+
         # cam set up TEMP
         cam_width = self.width*.50
         cam_height = self.height*.75
@@ -169,7 +171,7 @@ class playScreen:
 
             if(playerNameSetUp.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(playScreen.playerNames)) + "-----------")
-                #player widnow
+                #player window
                 self.players = playerWindow(manager=manager, pos=playerspos)
                 # show pause button
                 self.pause_button.show()
@@ -188,7 +190,7 @@ class playScreen:
                 self.church_button.show()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
 
-                setupWindow.startClicked = False
+                setupWindow.startClicked = False # why is this here?
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
