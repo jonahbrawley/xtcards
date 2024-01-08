@@ -79,6 +79,17 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
+        #Finished dealing button
+        dealing_button_rect = pygame.Rect(15, -100, 250, 50)
+        self.dealing_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                            text='Finished Dealing',
+                                            manager=manager,
+                                            anchors={
+                                            'centerx': 'centerx',
+                                            'bottom': 'bottom'
+                                            })
+        self.dealing_button.hide()
+
         self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='camwin',
                                             manager=manager,
@@ -192,7 +203,8 @@ class playScreen:
                 self.showcam_button.show()
                 self.showbet_button.show()
                 
-                self.header.hide()
+                self.header.set_text('Start Dealing Cards')
+                self.dealing_button.show()
                 playerNameSetupWindow.submitPlayerClicked = False
 
                 self.header.show()
@@ -231,11 +243,12 @@ class playScreen:
                             self.pause.set_blocking(True)
                     
                     # TEMP CAMERA TESTS
-                    if (event.ui_element == self.showcam_button):
+                    if (event.ui_element == self.dealing_button):
                         if (not self.camClicked):
                             print('OPENING CAM')
                             self.camwindow = camWindow(manager, campos)
                             self.camClicked = True
+                            self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
                             self.camwindow.drawcam = False
