@@ -8,8 +8,8 @@ from objects.screenstate import ScreenState
 
 from screens.play_screen import playScreen
 from screens.title_screen import titleScreen
-Colors = Scheme()
 
+Colors = Scheme()
 class xtcApp:
     def __init__(self):
         pygame.init()
@@ -37,24 +37,24 @@ class xtcApp:
         print('>> Initialize webcam')
 
     def run(self):
-        game_state = ScreenState.TITLE # set state to Title screen
-        xtTitle = titleScreen(self.manager, self.window, game_state)
-        xtPlay = playScreen(self.manager, self.window, game_state)
+        screen_state = ScreenState.TITLE # set state to Title screen
+        xtTitle = titleScreen(self.manager, self.window, screen_state)
+        xtPlay = playScreen(self.manager, self.window, screen_state)
 
         while True:
-            if game_state == ScreenState.TITLE:
+            if screen_state == ScreenState.TITLE:
                 print('>> SET STATE TITLE')
-                xtTitle.load(self.manager, game_state)
-                game_state = xtTitle.run(self.manager)
+                xtTitle.load(self.manager, screen_state)
+                screen_state = xtTitle.run(self.manager)
                 xtTitle.delete(self.manager)
 
-            if game_state == ScreenState.START:
+            if screen_state == ScreenState.START:
                 print('>> SET STATE START')
-                xtPlay.load(self.manager, game_state)
-                game_state = xtPlay.run(self.manager)
+                xtPlay.load(self.manager, screen_state)
+                screen_state = xtPlay.run(self.manager)
                 xtPlay.delete(self.manager)
 
-            if game_state == ScreenState.QUIT:
+            if screen_state == ScreenState.QUIT:
                 print('>> SET STATE QUIT')
                 pygame.quit()
                 return

@@ -153,6 +153,7 @@ class titleScreen:
                         self.isConfClicked = True
 
                 # cfg window position
+                # TODO: CHANGE WINDOW HAS TO BE CONFIG
                 if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT):
                     cfgpos = self.config.rect
                 
@@ -183,7 +184,7 @@ class titleScreen:
             rc_rect = rotated_circle.get_rect(center=self.circle_center)
             self.window.blit(rotated_circle, rc_rect.topleft)
 
-            self.rotation_angle += 0.2 # update rotation
+            self.rotation_angle += 13 * time_delta # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
