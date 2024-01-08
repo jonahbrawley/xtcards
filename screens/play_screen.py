@@ -90,23 +90,13 @@ class playScreen:
                                             })
         self.dealing_button.hide()
 
-        self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='camwin',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.pause_button
-                                            })
-        self.showcam_button.hide()
-
         self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='betwin',
                                             manager=manager,
                                             anchors={
                                             'left': 'left',
                                             'top': 'top',
-                                            'left_target': self.showcam_button
+                                            'left_target': self.pause_button
                                             })
         self.showbet_button.hide()
 
@@ -200,7 +190,6 @@ class playScreen:
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
                 
                 self.pause_button.show()
-                self.showcam_button.show()
                 self.showbet_button.show()
                 
                 self.header.set_text('Start Dealing Cards')
