@@ -1,7 +1,7 @@
-from deck import Deck
-from card_ranker import CardRanker
-from player import Player
-from pot import TempPot
+from game_logic.deck import Deck
+from game_logic.card_ranker import CardRanker
+from game_logic.player import Player
+from game_logic.pot import TempPot
 import random
 from enum import Enum
 
@@ -26,7 +26,7 @@ class GameState:
   # Check which players can start a new game and return that number
   def ready_up_players(self):
     ready_players = 0
-    for player in players:
+    for player in self.players:
       if player.chips == 0:
         player.last_action = "out"
       else:
@@ -380,43 +380,44 @@ class GameState:
 
     return res
 
+# Sample code previously used in game demo
 
-players = [
-  Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
-  Player("John", is_ai=True, chips=200, cards=["KC", "8H"]), 
-  Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
-  ]
+# players = [
+#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
+#   Player("John", is_ai=True, chips=200, cards=["KC", "8H"]), 
+#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
+#   ]
 
-state = GameState(players)
-state.start_game()
+# state = GameState(players)
+# state.start_game()
 
-while True:
-  while state.game_active:
-    # send out small and big blind
-    if state.is_awaiting_preflop():
-      state.step()
-    # execute a player turn & update round/cards if necessary
-    else:
-      if state.is_curr_pos_at_ai():
-        print("AI response")
-        p_action = "fold"
-        state.step(p_action)
-      else:
-        print("Not AI response")
-        p_action = input("Action:\n")
-        p_bet = None
-        if p_action.lower() == "raise":
-          p_bet = int(input("Bet:\n"))
-        state.step(p_action, p_bet)
+# while True:
+#   while state.game_active:
+#     # send out small and big blind
+#     if state.is_awaiting_preflop():
+#       state.step()
+#     # execute a player turn & update round/cards if necessary
+#     else:
+#       if state.is_curr_pos_at_ai():
+#         print("AI response")
+#         p_action = "fold"
+#         state.step(p_action)
+#       else:
+#         print("Not AI response")
+#         p_action = input("Action:\n")
+#         p_bet = None
+#         if p_action.lower() == "raise":
+#           p_bet = int(input("Bet:\n"))
+#         state.step(p_action, p_bet)
 
-    print(state.players[state.curr_pos], state.curr_pos)
-    if state.game_active:
-      print(state)
+#     print(state.players[state.curr_pos], state.curr_pos)
+#     if state.game_active:
+#       print(state)
 
 
-  response = state.start_game()
-  if response == GameState.StartResponse.not_enough_players:
-    break
+#   response = state.start_game()
+#   if response == GameState.StartResponse.not_enough_players:
+#     break
 
-for player in players:
-  print(player)
+# for player in players:
+#   print(player)
