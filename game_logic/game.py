@@ -26,7 +26,7 @@ class GameState:
   # Check which players can start a new game and return that number
   def ready_up_players(self):
     ready_players = 0
-    for player in players:
+    for player in self.players:
       if player.chips == 0:
         player.last_action = "out"
       else:
