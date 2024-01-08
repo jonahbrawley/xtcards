@@ -15,12 +15,14 @@ from windows.cam_window import camWindow
 from windows.info_window import infoWindow
 from windows.church_window import churchWindow
 
+from game_logic.game import GameState
+from game_logic.player import Player
+
 import pygame.camera
 
 homeswitch = False
 
 class playScreen:
-    playerNames = []
     def __init__(self, manager, window, state):
         Colors = Scheme()
         self.state = state
@@ -181,28 +183,43 @@ class playScreen:
                 self.playerSetUp = playerNameSetupWindow(manager, playerSetuppos, setupWindow.player_count)
                 setupWindow.startClicked = False
 
+            # START THE GAME
             if(playerNameSetupWindow.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
-                #player widnow
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
-                # show pause button
+                
                 self.pause_button.show()
-
                 self.showcam_button.show()
                 self.showbet_button.show()
-                # hide header
+                
                 self.header.hide()
-                #build bank
-                self.bank = bankWindow(manager=manager, pos=bankpos)
                 playerNameSetupWindow.submitPlayerClicked = False
+
                 self.header.show()
-                #show info button
                 self.info_button.show()
-                #show donation button
                 self.church_button.show()
+
                 self.bank = bankWindow(manager=manager, pos=bankpos)
 
                 setupWindow.startClicked = False # why is this here?
+
+                # Process player/AI combo tuple
+                # self.playerSetUp.playerNames - input player names
+                # self.players.aiplayercount - selected AI count
+                # self.players.aiPlayerNames - shuffled AI player names
+                game_participants = []
+                chips = setupWindow.chip_count
+                
+                for player in self.playerSetUp.playerNames:
+                    person = Player(name=player, is_ai=False, chips=chips)
+                    game_participants.append(person)
+                
+                for i in range(self.players.aiplayercount):
+                    ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
+                    game_participants.append(ai)
+                
+                # // START GAME INSTANCE //
+                self.game_state = GameState(game_participants)
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -264,12 +281,11 @@ class playScreen:
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+            
             if self.camwindow != None:
                 print('drawing')
                 self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
-
-            
 
             manager.draw_ui(self.window)
 
