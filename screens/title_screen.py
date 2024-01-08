@@ -153,6 +153,7 @@ class titleScreen:
                         self.isConfClicked = True
 
                 # cfg window position
+                # TODO: CHANGE WINDOW HAS TO BE CONFIG
                 if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT):
                     cfgpos = self.config.rect
                 
