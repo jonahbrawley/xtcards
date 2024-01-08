@@ -80,13 +80,13 @@ class playScreen:
         self.pause_button.hide()
 
         #Finished dealing button
-        dealing_button_rect = pygame.Rect(15, 20, 250, 50)
+        dealing_button_rect = pygame.Rect(15, -100, 250, 50)
         self.dealing_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
                                             text='Finished Dealing',
                                             manager=manager,
                                             anchors={
                                             'centerx': 'centerx',
-                                            'top_target': self.header
+                                            'bottom': 'bottom'
                                             })
         self.dealing_button.hide()
 
