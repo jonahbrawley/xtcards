@@ -26,6 +26,8 @@ class titleScreen:
         self.play_button = None
         self.config = None
 
+        self.animate = True # animation flag
+
         # animation calculations
         self.rotation_angle = 0.0 # animation rotation angle
 
@@ -143,7 +145,9 @@ class titleScreen:
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.play_button:
                         print('TITLE: Starting game')
+                        self.animate = False
                         self.state = ScreenState.START
+                        self.animate = True
                     if event.ui_element == self.quit_button:
                         print('TITLE: I should really be going!')
                         return ScreenState.QUIT
@@ -180,11 +184,14 @@ class titleScreen:
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
 
-            rotated_circle = pygame.transform.rotate(self.circle_surface, self.rotation_angle) # draw animation
-            rc_rect = rotated_circle.get_rect(center=self.circle_center)
-            self.window.blit(rotated_circle, rc_rect.topleft)
+            # drawing animation
+            # (don't draw on different screens to save memory)
+            if (self.animate):
+                rotated_circle = pygame.transform.rotate(self.circle_surface, self.rotation_angle)
+                rc_rect = rotated_circle.get_rect(center=self.circle_center)
+                self.window.blit(rotated_circle, rc_rect.topleft)
+                self.rotation_angle += 10 * time_delta # update rotation
 
-            self.rotation_angle += 13 * time_delta # update rotation
             manager.draw_ui(self.window)
 
             pygame.display.flip()
