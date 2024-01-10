@@ -16,7 +16,6 @@ class titleScreen:
         self.width = manager.window_resolution[0]
         self.height = manager.window_resolution[1]
         self.clock = pygame.time.Clock()
-        self.time_delta = None
         self.window = window
         self.background = pygame.Surface((self.width, self.height))
         self.background.fill(Colors.window_bg)
@@ -29,8 +28,7 @@ class titleScreen:
 
         self.animate = True # animation flag
 
-        # animation calculations below
-        # ----------------------------
+        # animation calculations
         self.rotation_angle = 0.0 # animation rotation angle
 
         suits = [
@@ -72,10 +70,6 @@ class titleScreen:
             tilt_angle = -angle
             rotated_card = pygame.transform.rotozoom(current_card, angle=tilt_angle - 90, scale=1)
             self.cards_cache[angle] = rotated_card
-        
-        self.place_animation() # draw card ring
-
-        self.animation_cache = [] # cache of transformed surfaces
 
     def load(self, manager, state):
         global debugswitch
@@ -121,6 +115,8 @@ class titleScreen:
                                                      'bottom': 'bottom',
                                                      'bottom_target': self.settings_button
                                                  })
+        
+        self.place_animation() # draw ring
 
     # places images in self.cards around circle
     def place_animation(self):
@@ -134,23 +130,14 @@ class titleScreen:
 
             self.circle_surface.blit(rotated_card, (x, y))
 
-    def cache_animation(self):
-        for angle in range(0, 360, 1):
-            rotated_circle = pygame.transform.rotate(self.circle_surface, angle)
-            rc_rect = rotated_circle.get_rect(center=self.circle_center)
-            self.animation_cache.append((rotated_circle, rc_rect))
-            #self.rotation_angle += 13 * self.time_delta # update rotation
-
     def run(self, manager):
         self.isConfClicked = False
         cfg_width = 350
         cfg_height = 500
         cfgpos = pygame.Rect((300, 350), (cfg_width, cfg_height))
 
-        self.cache_animation() # cache animation
-
         while True:
-            self.time_delta = self.clock.tick(60) / 1000
+            time_delta = self.clock.tick(60) / 1000.0
             keys = pygame.key.get_pressed()
 
             for event in pygame.event.get():
@@ -194,19 +181,16 @@ class titleScreen:
 
                 manager.process_events(event)
 
-            manager.update(self.time_delta)
+            manager.update(time_delta)
             self.window.blit(self.background, (0,0))
 
             # drawing animation
             # (don't draw on different screens to save memory)
             if (self.animate):
-                self.rotation_angle += 5 * self.time_delta
-                current_frame = int(self.rotation_angle) % len(self.animation_cache)
-                surface, rect = self.animation_cache[current_frame]
-                # surface = self.animation_cache[0][0]
-                # rect = self.animation_cache[0][1]
-                self.window.blit(surface, rect.topleft)
-                #self.animation_cache.append(self.animation_cache.pop(0))
+                rotated_circle = pygame.transform.rotate(self.circle_surface, self.rotation_angle)
+                rc_rect = rotated_circle.get_rect(center=self.circle_center)
+                self.window.blit(rotated_circle, rc_rect.topleft)
+                self.rotation_angle += 10 * time_delta # update rotation
 
             manager.draw_ui(self.window)
 
