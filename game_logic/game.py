@@ -238,6 +238,7 @@ class GameState:
     return False
 
   # update board when a round is over
+  # NOTE: this is NOT the end of the game, only the end of the current betting round
   def end_round(self):
     round_is_over = True
     while round_is_over:
@@ -349,8 +350,54 @@ class GameState:
       card_value = self.deck.scan()
     return card_value
 
-  def state_to_json_for_ai_at_curr_pos(self):
-    print("TODO: generate a json object for the AI model at curr_pos")
+  def to_json_at_ai(self):
+    '''
+    data to add to json object:
+    - total game pot value
+    - current round pot
+    - opponents' last actions, current bets, chip counts (only who is still playing & not including current pos)
+    - community cards
+    - ai's cards
+    - ai's last action
+    - ai's current bet amount
+    '''
+    print("Generating a json object for the AI model at curr_pos")
+    # current round pot value
+    pot_round_value = self.tmp_pot.sum_bets()
+
+    # total game pot value
+    pot_game_value = pot_round_value
+    for pot in self.side_pots:
+      pot_game_value += pot.sum_bets()
+
+    community_cards = self.community_cards
+    ai_instance = self.players[self.curr_pos]
+    ai_cards = ai_instance.cards
+    ai_last_action = ai_instance.last_action
+    ai_curr_bet = ai_instance.curr_bet
+
+    # opponents must be NOT 'out' and NOT be the current ai player
+    opponents_data = []
+    for opponent in self.players:
+      if opponent.id != self.curr_pos and opponent.last_action != 'out':
+        opponent_obj = {
+          "last_action" : opponent.last_action,
+          "curr_bet" : opponent.curr_bet,
+          "chips" : opponent.chips
+        }
+        opponents_data.append(opponent_obj)
+
+    res_state = {
+      "pot_round" : pot_round_value,
+      "pot_game" : pot_game_value,
+      "community_cards" : community_cards,
+      "ai_cards" : ai_cards,
+      "ai_last_action" : ai_last_action,
+      "ai_curr_bet" : ai_curr_bet,
+      "opponents" : opponents_data
+    }
+
+    return res_state
 
   def divider(s):
     return "\n-------------------- " + s + " --------------------\n\n"
@@ -365,6 +412,7 @@ class GameState:
     res += f"Community Cards: {self.community_cards}\n"
     res += f"Dealer Position: {self.dealer_pos}\n"
     res += f"Current Position: {self.curr_pos}\n"
+    res += f"Current Player: {self.players[self.curr_pos].name}\n"
 
     res += GameState.divider(f"Players ({len(self.players)})")
     for player in self.players:
@@ -400,7 +448,9 @@ class GameState:
 #     else:
 #       if state.is_curr_pos_at_ai():
 #         print("AI response")
-#         p_action = "fold"
+#         ai_state = state.to_json_at_ai()
+#         print(ai_state)
+#         p_action = "call"
 #         state.step(p_action)
 #       else:
 #         print("Not AI response")
