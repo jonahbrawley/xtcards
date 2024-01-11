@@ -2,6 +2,7 @@ from game_logic.deck import Deck
 from game_logic.card_ranker import CardRanker
 from game_logic.player import Player
 from game_logic.pot import TempPot
+from game_logic.poker_agent import predict_ai_move
 import random
 from enum import Enum
 
@@ -449,8 +450,7 @@ class GameState:
 #       if state.is_curr_pos_at_ai():
 #         print("AI response")
 #         ai_state = state.to_json_at_ai()
-#         print(ai_state)
-#         p_action = "call"
+#         p_action = predict_ai_move(ai_state)
 #         state.step(p_action)
 #       else:
 #         print("Not AI response")
