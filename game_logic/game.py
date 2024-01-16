@@ -141,6 +141,7 @@ class GameState:
         return False
 
     elif action == "raise":
+      bet_amount = min_required_bet + bet_amount
       if bet_amount == player.chips:
         action = "all_in"
       elif bet_amount == min_required_bet:
@@ -149,6 +150,12 @@ class GameState:
         return False
       elif bet_amount < min_required_bet:
         return False
+    
+    elif action == "blind":
+      if bet_amount == player.chips:
+        action = "all_in"
+      else:
+        action = "wait"
     
     else:
       return False
@@ -178,11 +185,11 @@ class GameState:
           self.increment_curr_pos()
 
         p_sm = self.players[self.curr_pos]
-        self.execute_player_action(p_sm, "raise", min(p_sm.chips, GameState.SMALL_BLIND))
+        self.execute_player_action(p_sm, "blind", min(p_sm.chips, GameState.SMALL_BLIND))
         self.increment_curr_pos()
 
         p_b = self.players[self.curr_pos]
-        self.execute_player_action(p_b, "raise", min(p_b.chips, GameState.BIG_BLIND))
+        self.execute_player_action(p_b, "blind", min(p_b.chips, GameState.BIG_BLIND))
       else:
         # If a play should not take place, end round immediately
         if self.is_round_over():
@@ -433,7 +440,7 @@ class GameState:
 
 # players = [
 #   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
-#   Player("John", is_ai=True, chips=200, cards=["KC", "8H"]), 
+#   Player("John", is_ai=False, chips=200, cards=["KC", "8H"]), 
 #   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
 #   ]
 
