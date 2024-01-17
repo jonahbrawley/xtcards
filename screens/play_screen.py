@@ -69,26 +69,6 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
-        self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='camwin',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.pause_button
-                                            })
-        self.showcam_button.hide()
-
-        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='betwin',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.showcam_button
-                                            })
-        self.showbet_button.hide()
-
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
         self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
@@ -131,24 +111,6 @@ class playScreen:
         bank_width = self.width*.25
         bank_height = self.height*.55
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
-
-        # player name set up
-        playerSetup_width = self.width*.26
-        playerSetup_height = self.height*.46
-        playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
-        # bet set up TEMP
-        bet_width = self.width*.25
-        bet_height = self.height*.50
-        betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
-        # cam set up TEMP
-        cam_width = self.width*.50
-        cam_height = self.height*.75
-        campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
-
-        pygame.camera.init()
-        info_width = 175
-        info_height = 400
-        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
 
         #info icon set up
         info_width = self.width*.20
@@ -201,36 +163,12 @@ class playScreen:
                             pauseClicked = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
-                    
-                    if (event.ui_element == self.showcam_button):
-                        if (not self.camClicked):
-                            print('OPENING CAM')
-                            self.camwindow = camWindow(manager, campos)
-                            self.camClicked = True
-                        elif (self.camClicked):
-                            print('KILLING CAM')
-                            self.camwindow.drawcam = False
-                            self.camClicked = False
-                            self.camwindow.webcam.stop()
-                            self.camwindow.kill()
-                            self.camwindow = None
-                    
-                    if (event.ui_element == self.showbet_button):
-                        if (not self.betClicked):
-                            print('OPENING BET')
-                            self.betwindow = betWindow(manager, betpos)
-                            self.betClicked = True
-                        elif (self.betClicked):
-                            print('KILLING BET')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.betClicked = False
-                    
 
                     #if info button clicked
                     if (event.ui_element == self.info_button and not infoClicked):
                             print('TITLE: Drawing info dialog')
                             infoClicked = True
+                            darken = True
                             self.info = infoWindow(manager=manager, pos=infopos)
                             self.info.set_blocking(False)
                             self.info.load_text("assets/poker_rules.txt")
@@ -239,6 +177,7 @@ class playScreen:
                     if (event.ui_element == self.church_button and not churchClicked):
                         print('TITLE: Drawing donation dialog')
                         churchClicked = True
+                        darken = True
                         self.church = churchWindow(manager=manager, pos=churchpos)
                         self.church.set_blocking(False)
 
@@ -262,13 +201,16 @@ class playScreen:
             if (pauseClicked):
                 if not self.pause.alive():
                     pauseClicked = False
-                if self.pause.homeswitch:
-                    self.pause.homeswitch = False
-                    homeswitch = True
             
             if (infoClicked):
                 if not self.info.alive():
+                    darken = False
                     infoClicked = False
+
+            if (churchClicked):
+                if not self.church.alive():
+                    darken = False
+                    churchClicked = False
 
             if (churchClicked):
                 if not self.church.alive():
@@ -286,3 +228,168 @@ class playScreen:
     def delete(self, manager):
         print('DEBUG: Deleting objects')
         manager.clear_and_reset()
+
+class pauseWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='Pause',
+                        object_id='#pause_window',
+                        draggable=False)
+        self.resume_button = pygame_gui.elements.UIButton(pygame.Rect((0, 400/4), (150, 40)),
+                                                                "Resume",
+                                                                manager=manager,
+                                                                object_id="pause_window_label",
+                                                                container=self,
+                                                                parent_element=self,
+                                                                anchors={
+                                                                    "centerx": "centerx"
+                                                                })
+                
+        self.save_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 10), ((200), 40)),
+                                                            text='Save and Quit',
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "top_target": self.resume_button,
+                                                                "centerx": "centerx"
+                                                            })
+        
+        self.quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 10), ((200), 40)),
+                                                            text='Abandon Game',
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "top_target": self.save_button,
+                                                                "centerx": "centerx"
+                                                            })
+        
+    def process_event(self, event):
+        global homeswitch
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
+            if (event.ui_element == self.quit_button):
+                homeswitch = True
+            if (event.ui_element == self.resume_button):
+                self.kill()
+            if (event.ui_element == self.save_button):
+                homeswitch = True
+
+class playerWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='Players',
+                        object_id='#setup_window',
+                        draggable=False)
+        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (400, 40)),
+                                                                    "players | chips | action",
+                                                                    manager=manager,
+                                                                    object_id="config_window_label",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "centerx": "centerx"
+                                                                    })
+        # for i in setupWindow.player_count:
+        #     self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (180, 40)),
+        #                                                             "players "+str(i)+": ",
+        #                                                             manager=manager,
+        #                                                             object_id="config_window_label",
+        #                                                             container=self,
+        #                                                             parent_element=self,
+        #                                                             anchors={
+        #                                                                 "left": "left"
+        #                                                             })
+
+class bankWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                        manager,
+                        window_display_title='The Holy Bank',
+                        object_id='#setup_window',
+                        draggable=False)
+        self.bank_label = pygame_gui.elements.UILabel(pygame.Rect((0, 20), (180, 40)),
+                                                                    "Value:",
+                                                                    manager=manager,
+                                                                    object_id="header_game",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "top": "top",
+                                                                        "centerx": "centerx"
+                                                                    })
+        self.value_label = pygame_gui.elements.UILabel(pygame.Rect((0, 20), (180, 40)),
+                                                                    "0",
+                                                                    manager=manager,
+                                                                    object_id="header_game",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "top_target": self.bank_label,
+                                                                        "centerx": "centerx"
+                                                                    })
+        self.log_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, -60), ((100), 40)),
+                                                            text='Log',
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "bottom": "bottom",
+                                                                "centerx": "centerx"
+                                                            })
+
+class infoWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='How to Play Poker',
+                         object_id='#info_window',
+                         draggable=True)
+        self.scroll_box = pygame_gui.elements.UIScrollingContainer(pygame.Rect((0, 0), (200, 200)),
+                                                                                             manager=manager,
+                                                                                             container=self,
+                                                                                             object_id="scroll_container"
+        )
+        self.info_label = pygame_gui.elements.UILabel(pygame.Rect((0, 0), (200, 1)),
+                                                      "",
+                                                      manager=manager,
+                                                      container=self.scroll_box,
+                                                      object_id="info_label"
+        )
+    def load_text(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                text = file.read()
+                self.info_label.set_text(text)
+                self.scroll_box.set_dimensions((400, 400))
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
+
+class churchWindow(pygame_gui.elements.UIWindow):
+    def __init__(self, manager, pos):
+        super().__init__((pos),
+                         manager,
+                         window_display_title='How to Donate!',
+                         object_id='#church_window',
+                         draggable=True)
+        self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate to our local church! We hope you enjoyed using xtcards :)",
+                                                            relative_rect=pygame.Rect((0, 10), (300, 200)),
+                                                            manager=manager,
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                            "centerx": "centerx"
+                                                            })
+        self.donate_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((125, 300), ((100), 40)),
+                                                          text='Donate',
+                                                          manager=manager,
+                                                          container=self,
+                                                          parent_element=self,
+                                                          anchors={
+                                                              "bottom': 'bottom",
+                                                              "centerx': 'centerx"
+                                                          })
