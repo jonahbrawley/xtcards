@@ -3,7 +3,8 @@ import pygame_gui
 
 class camWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
-        self.drawcam = False
+        self.drawcam = True
+        self.img = None
 
         super().__init__((pos),
                         manager,
@@ -47,6 +48,14 @@ class camWindow(pygame_gui.elements.UIWindow):
     
     def draw_camera(self):
         if self.drawcam and self.webcam.query_image():
-            img = self.webcam.get_image()
-            img = pygame.transform.flip(img, True, False) # fix horizontal flip
-            self.camera_display.set_image(img)
+            self.img = self.webcam.get_image()
+            self.img = pygame.transform.flip(self.img, True, False) # fix horizontal flip
+            self.camera_display.set_image(self.img)
+
+    def process_event(self, event):
+        handled = super().process_event(event)
+
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
+            if (event.ui_element == self.capture_button):
+                self.drawcam = False
+                # SEND self.img to lambda or set state to do this here

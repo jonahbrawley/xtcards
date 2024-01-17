@@ -285,8 +285,7 @@ class playScreen:
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
-                print('drawing')
-                self.camwindow.drawcam = True
+                #self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
