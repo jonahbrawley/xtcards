@@ -15,12 +15,14 @@ from windows.cam_window import camWindow
 from windows.info_window import infoWindow
 from windows.church_window import churchWindow
 
+from game_logic.game import GameState
+from game_logic.player import Player
+
 import pygame.camera
 
 homeswitch = False
 
 class playScreen:
-    playerNames = []
     def __init__(self, manager, window, state):
         Colors = Scheme()
         self.state = state
@@ -38,6 +40,14 @@ class playScreen:
 
         self.camClicked = False # TEMP
         self.betClicked = False # TEMP
+
+        # Class variable for a new GameState from game_logic/game.py.
+        # This variable is updated after number of players/AI is selected.
+
+        # For future save game functions, this class variable should be loaded
+        # from the saved game's GameState object.
+        # (more on this functionality later)
+        self.game_state = None
 
     def load(self, manager, state):
         self.state = state
@@ -68,6 +78,27 @@ class playScreen:
                                             'top': 'top'
                                             })
         self.pause_button.hide()
+
+        #Finished dealing button
+        dealing_button_rect = pygame.Rect(15, -100, 250, 50)
+        self.dealing_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                            text='Finished Dealing',
+                                            manager=manager,
+                                            anchors={
+                                            'centerx': 'centerx',
+                                            'bottom': 'bottom'
+                                            })
+        self.dealing_button.hide()
+
+        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                            text='betwin',
+                                            manager=manager,
+                                            anchors={
+                                            'left': 'left',
+                                            'top': 'top',
+                                            'left_target': self.pause_button
+                                            })
+        self.showbet_button.hide()
 
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
@@ -112,6 +143,26 @@ class playScreen:
         bank_height = self.height*.55
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
+        # player name set up
+        playerSetup_width = self.width*.26
+        playerSetup_height = self.height*.46
+        playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
+
+        # bet set up TEMP
+        bet_width = self.width*.25
+        bet_height = self.height*.50
+        betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
+
+        # cam set up TEMP
+        cam_width = self.width*.50
+        cam_height = self.height*.75
+        campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
+
+        pygame.camera.init()
+        info_width = 175
+        info_height = 400
+        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
+
         #info icon set up
         info_width = self.width*.20
         info_height = self.height*.4
@@ -133,38 +184,81 @@ class playScreen:
                 self.playerSetUp = playerNameSetupWindow(manager, playerSetuppos, setupWindow.player_count)
                 setupWindow.startClicked = False
 
+            # START THE GAME
             if(playerNameSetupWindow.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
-                #player widnow
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
-                # show pause button
+                
                 self.pause_button.show()
-
-                self.showcam_button.show()
                 self.showbet_button.show()
-                # hide header
-                self.header.hide()
-                #build bank
-                self.bank = bankWindow(manager=manager, pos=bankpos)
+                
+                self.header.set_text('Start Dealing Cards')
+                self.dealing_button.show()
                 playerNameSetupWindow.submitPlayerClicked = False
+
                 self.header.show()
-                #show info button
                 self.info_button.show()
-                #show donation button
                 self.church_button.show()
+
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                setupWindow.startClicked = False
+
+                setupWindow.startClicked = False # why is this here?
+
+                # Process player/AI combo tuple
+                # self.playerSetUp.playerNames - input player names
+                # self.players.aiplayercount - selected AI count
+                # self.players.aiPlayerNames - shuffled AI player names
+                game_participants = []
+                chips = setupWindow.chip_count
+                
+                for player in self.playerSetUp.playerNames:
+                    person = Player(name=player, is_ai=False, chips=chips)
+                    game_participants.append(person)
+                
+                for i in range(self.players.aiplayercount):
+                    ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
+                    game_participants.append(ai)
+                
+                # // START GAME INSTANCE //
+                self.game_state = GameState(game_participants)
 
             for event in pygame.event.get():
-                #if pause button is clicked
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    # PAUSE BUTTON
                     if (event.ui_element == self.pause_button and not pauseClicked):
                             print('TITLE: Drawing pause dialog')
                             pauseClicked = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
+                    
+                    # TEMP CAMERA TESTS
+                    if (event.ui_element == self.dealing_button):
+                        if (not self.camClicked):
+                            print('OPENING CAM')
+                            self.camwindow = camWindow(manager, campos)
+                            self.camClicked = True
+                            self.header.set_text('Scan AI Cards')
+                        elif (self.camClicked):
+                            print('KILLING CAM')
+                            self.camwindow.drawcam = False
+                            self.camClicked = False
+                            self.camwindow.webcam.stop()
+                            self.camwindow.kill()
+                            self.camwindow = None
+                    
+                    # TEMP BET TESTS
+                    if (event.ui_element == self.showbet_button):
+                        if (not self.betClicked):
+                            print('OPENING BET')
+                            self.betwindow = betWindow(manager, betpos)
+                            self.betClicked = True
+                        elif (self.betClicked):
+                            print('KILLING BET')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.betClicked = False
 
-                    #if info button clicked
+                    # INFO BUTTON
                     if (event.ui_element == self.info_button and not infoClicked):
                             print('TITLE: Drawing info dialog')
                             infoClicked = True
@@ -173,7 +267,7 @@ class playScreen:
                             self.info.set_blocking(False)
                             self.info.load_text("assets/poker_rules.txt")
 
-                    #if donation button clicked
+                    # DONATION BUTTON
                     if (event.ui_element == self.church_button and not churchClicked):
                         print('TITLE: Drawing donation dialog')
                         churchClicked = True
@@ -191,13 +285,15 @@ class playScreen:
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
+            
             if self.camwindow != None:
                 print('drawing')
                 self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
-            
+
+            # Check and reset flags
             if (pauseClicked):
                 if not self.pause.alive():
                     pauseClicked = False
@@ -206,7 +302,6 @@ class playScreen:
                 if not self.info.alive():
                     darken = False
                     infoClicked = False
-
             if (churchClicked):
                 if not self.church.alive():
                     darken = False
@@ -221,7 +316,6 @@ class playScreen:
             if (homeswitch):
                 self.state = ScreenState.TITLE
                 homeswitch = False
-
             if (self.state != ScreenState.START):
                 return self.state
     

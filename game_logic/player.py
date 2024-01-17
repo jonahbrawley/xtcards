@@ -7,7 +7,7 @@ class Player:
       self.__generate_id()
     self.name = name
     self.chips = chips
-    self.last_action = None
+    self.last_action = None # wait, fold, call, raise, all_in, pot_committed, out
     self.curr_bet = 0
     self.cards = cards
     self.is_ai = is_ai
