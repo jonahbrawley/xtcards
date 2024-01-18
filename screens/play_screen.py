@@ -290,6 +290,8 @@ class playScreen:
 
             if (self.camClicked and self.camwindow.snaptaken): # cam window open, snap taken
                 self.sendImg(self.camwindow.img)
+                self.camwindow.snaptaken = False
+                self.camwindow.drawcam = True
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
