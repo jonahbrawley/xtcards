@@ -20,6 +20,13 @@ from game_logic.player import Player
 
 import pygame.camera
 
+# image proc
+import cv2
+import base64
+import requests
+import json
+import numpy as np
+
 homeswitch = False
 
 class playScreen:
@@ -277,6 +284,13 @@ class playScreen:
 
                 manager.process_events(event)
 
+            # --------------------
+            # GAME FLOW STATEMENTS
+            # --------------------
+
+            if (self.camClicked and self.camwindow.snaptaken): # cam window open, snap taken
+                self.sendImg(self.camwindow.img)
+
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
             
@@ -321,3 +335,15 @@ class playScreen:
         self.camwindow.webcam.stop()
         self.camwindow.kill()
         self.camwindow = None
+    
+    def sendImg(self, img):
+        # send img to AWS lambda, store res
+        # used to scan AI / player cards
+        img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        img = np.array(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        img_bytes = img.tobytes()
+        img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+
+        response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+        response = json.loads(response.text)
+        print(response)

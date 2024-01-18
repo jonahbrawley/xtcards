@@ -1,11 +1,14 @@
 import pygame
 import pygame_gui
+import cv2
+import numpy as np
 
 class camWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         self.drawcam = True
         self.img = None
         self.webcam = None
+        self.snaptaken = False # detect img capture outside of context
 
         super().__init__((pos),
                         manager,
@@ -43,15 +46,20 @@ class camWindow(pygame_gui.elements.UIWindow):
                                             'centerx': 'centerx'
                                             })
         
-        cameras = pygame.camera.list_cameras()
-        self.webcam = pygame.camera.Camera(cameras[0])
-        self.webcam.start()
+        #cameras = pygame.camera.list_cameras()
+        #self.webcam = pygame.camera.Camera(cameras[0])
+        self.webcam = cv2.VideoCapture(0)
+        #self.webcam.start()
     
     def draw_camera(self):
-        if self.drawcam and self.webcam.query_image():
-            self.img = self.webcam.get_image()
-            self.img = pygame.transform.flip(self.img, True, False) # fix horizontal flip
-            self.camera_display.set_image(self.img)
+        if self.drawcam:
+            #self.img = self.webcam.get_image()
+            _, self.img = self.webcam.read()
+            self.img = np.array(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)) # fix colors
+            disp = np.swapaxes(self.img, 0, 1) # display as proper array
+            disp = pygame.surfarray.make_surface(disp)
+            disp = pygame.transform.flip(disp, True, False) # fix horizontal flip
+            self.camera_display.set_image(disp)
 
     def process_event(self, event):
         handled = super().process_event(event)
@@ -59,4 +67,5 @@ class camWindow(pygame_gui.elements.UIWindow):
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
             if (event.ui_element == self.capture_button):
                 self.drawcam = False
+                self.snaptaken = True
                 # SEND self.img to lambda or set state to do this here
