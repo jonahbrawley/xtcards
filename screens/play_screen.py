@@ -240,11 +240,7 @@ class playScreen:
                             self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
-                            self.camwindow.drawcam = False
-                            self.camClicked = False
-                            self.camwindow.webcam.stop()
-                            self.camwindow.kill()
-                            self.camwindow = None
+                            self.killCamera()
                     
                     # TEMP BET TESTS
                     if (event.ui_element == self.showbet_button):
@@ -277,7 +273,7 @@ class playScreen:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
-                    self.state = ScreenState.TITLE
+                    homeswitch = True
 
                 manager.process_events(event)
 
@@ -285,7 +281,6 @@ class playScreen:
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
-                #self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
@@ -308,6 +303,8 @@ class playScreen:
             pygame.display.update()
 
             if (homeswitch):
+                if (self.camwindow != None):
+                    self.killCamera()
                 self.state = ScreenState.TITLE
                 homeswitch = False
             if (self.state != ScreenState.START):
@@ -316,3 +313,11 @@ class playScreen:
     def delete(self, manager):
         print('DEBUG: Deleting objects')
         manager.clear_and_reset()
+    
+    def killCamera(self):
+        # only call if self.camwindow != None
+        self.camwindow.drawcam = False
+        self.camClicked = False
+        self.camwindow.webcam.stop()
+        self.camwindow.kill()
+        self.camwindow = None

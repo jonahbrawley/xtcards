@@ -5,6 +5,7 @@ class camWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
         self.drawcam = True
         self.img = None
+        self.webcam = None
 
         super().__init__((pos),
                         manager,

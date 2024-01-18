@@ -175,9 +175,6 @@ class titleScreen:
                 # quit program handling
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
-                if keys[pygame.K_ESCAPE]:
-                    print('TITLE: I should really be going!')
-                    return ScreenState.QUIT
 
                 manager.process_events(event)
 
