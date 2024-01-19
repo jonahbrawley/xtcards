@@ -68,7 +68,7 @@ class playScreen:
         stp_height = 500
         stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
 
-        #pause button
+        # pause button
         pause_button_rect = pygame.Rect(15, 15, 100, 50)
         self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='Pause',
@@ -79,10 +79,10 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
-        #Finished dealing button
+        # Scan AI cards button
         dealing_button_rect = pygame.Rect(15, -100, 250, 50)
         self.dealing_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
-                                            text='Finished Dealing',
+                                            text='Scan AI\'s Hand',
                                             manager=manager,
                                             anchors={
                                             'centerx': 'centerx',
@@ -154,8 +154,8 @@ class playScreen:
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
 
         # cam set up TEMP
-        cam_width = self.width*.50
-        cam_height = self.height*.75
+        cam_width = self.width*.4
+        cam_height = self.height*.7
         campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
 
         pygame.camera.init()
@@ -285,8 +285,7 @@ class playScreen:
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
-                print('drawing')
-                self.camwindow.drawcam = True
+                #self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
