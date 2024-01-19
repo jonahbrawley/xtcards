@@ -20,6 +20,13 @@ from game_logic.player import Player
 
 import pygame.camera
 
+# image proc
+import cv2
+import base64
+import requests
+import json
+import numpy as np
+
 homeswitch = False
 
 class playScreen:
@@ -240,11 +247,7 @@ class playScreen:
                             self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
-                            self.camwindow.drawcam = False
-                            self.camClicked = False
-                            self.camwindow.webcam.stop()
-                            self.camwindow.kill()
-                            self.camwindow = None
+                            self.killCamera()
                     
                     # TEMP BET TESTS
                     if (event.ui_element == self.showbet_button):
@@ -277,15 +280,23 @@ class playScreen:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
-                    self.state = ScreenState.TITLE
+                    homeswitch = True
 
                 manager.process_events(event)
+
+            # --------------------
+            # GAME FLOW STATEMENTS
+            # --------------------
+
+            if (self.camClicked and self.camwindow.snaptaken): # cam window open, snap taken
+                self.sendImg(self.camwindow.img)
+                self.camwindow.snaptaken = False
+                self.camwindow.drawcam = True
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
-                #self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
@@ -308,6 +319,8 @@ class playScreen:
             pygame.display.update()
 
             if (homeswitch):
+                if (self.camwindow != None):
+                    self.killCamera()
                 self.state = ScreenState.TITLE
                 homeswitch = False
             if (self.state != ScreenState.START):
@@ -316,3 +329,23 @@ class playScreen:
     def delete(self, manager):
         print('DEBUG: Deleting objects')
         manager.clear_and_reset()
+    
+    def killCamera(self):
+        # only call if self.camwindow != None
+        self.camwindow.drawcam = False
+        self.camClicked = False
+        self.camwindow.webcam.stop()
+        self.camwindow.kill()
+        self.camwindow = None
+    
+    def sendImg(self, img):
+        # send img to AWS lambda, store res
+        # used to scan AI / player cards
+        img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        img = np.array(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        img_bytes = img.tobytes()
+        img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+
+        response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+        response = json.loads(response.text)
+        print(response)
