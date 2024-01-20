@@ -289,9 +289,20 @@ class playScreen:
             # --------------------
 
             if (self.camClicked and self.camwindow.snaptaken): # cam window open, snap taken
-                self.sendImg(self.camwindow.img)
-                self.camwindow.snaptaken = False
-                self.camwindow.drawcam = True
+                ai_cards = []
+                scan_cards = 2
+                i = 0
+
+                while i < scan_cards:
+                    card = self.sendImg(self.camwindow.img)
+                    ai_cards.append(card)
+                    self.camwindow.snaptaken = False
+                    self.camwindow.drawcam = True
+
+                    self.camwindow.instruction_label.set_text("Scan cards - 2 of 2")
+                    i=i+1
+
+                print(ai_cards)
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
@@ -348,4 +359,5 @@ class playScreen:
 
         response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
         response = json.loads(response.text)
-        print(response)
+        
+        return response["class"]
