@@ -345,7 +345,7 @@ class playScreen:
         # only call if self.camwindow != None
         self.camwindow.drawcam = False
         self.camClicked = False
-        self.camwindow.webcam.stop()
+        self.camwindow.webcam.release()
         self.camwindow.kill()
         self.camwindow = None
     
