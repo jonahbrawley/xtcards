@@ -9,6 +9,7 @@ class camWindow(pygame_gui.elements.UIWindow):
         self.img = None
         self.webcam = None
         self.snaptaken = False # detect img capture outside of context
+        self.scanning_ai_cards = False
 
         super().__init__((pos),
                         manager,
@@ -27,7 +28,7 @@ class camWindow(pygame_gui.elements.UIWindow):
                                                           )
         
         self.instruction_label = pygame_gui.elements.UILabel(pygame.Rect((0, 30), (pos.width, 40)),
-                                                                    "INSTRUCTION_TEXT", # placeholder
+                                                                    "Scan cards - 1 of 2",
                                                                     manager=manager,
                                                                     object_id="header_game",
                                                                     container=self,
@@ -46,18 +47,32 @@ class camWindow(pygame_gui.elements.UIWindow):
                                             'centerx': 'centerx'
                                             })
         
+        #cameras = pygame.camera.list_cameras()
+        #self.webcam = pygame.camera.Camera(cameras[0])
         self.webcam = cv2.VideoCapture(0)
+        #self.webcam.start()
     
     def draw_camera(self):
         if self.drawcam:
-            _, self.img = self.webcam.read()
+            #self.img = self.webcam.get_image()
+            _, frame = self.webcam.read()
+            frame = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) # fix colors
 
-            self.img = np.array(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)) # fix colors
-            disp = np.swapaxes(self.img, 0, 1) # display as proper array
+            self.img = frame
+
             
+            disp = np.swapaxes(frame, 0, 1) # display as proper array
+            if (self.scanning_ai_cards):
+                disp = self.aiFilter(disp)
             disp = pygame.surfarray.make_surface(disp)
             disp = pygame.transform.flip(disp, True, False) # fix horizontal flip
+
             self.camera_display.set_image(disp)
+
+    def aiFilter(self, img):
+        imgblur = cv2.blur(img, (33,2))
+        edges = cv2.Canny(imgblur, 200, 150)
+        return edges
 
     def process_event(self, event):
         handled = super().process_event(event)
