@@ -163,7 +163,7 @@ class playScreen:
         # info icon set up
         info_width = self.width*.20
         info_height = self.height*.4
-        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2)-(info_height)), (info_width, info_height))
+        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2.15)-(info_height)), (info_width, info_height))
 
         # church icon set up
         church_width = self.width*.20
