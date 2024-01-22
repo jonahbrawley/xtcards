@@ -54,6 +54,7 @@ class camWindow(pygame_gui.elements.UIWindow):
 
             self.img = np.array(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)) # fix colors
             disp = np.swapaxes(self.img, 0, 1) # display as proper array
+            
             disp = pygame.surfarray.make_surface(disp)
             disp = pygame.transform.flip(disp, True, False) # fix horizontal flip
             self.camera_display.set_image(disp)

@@ -47,7 +47,6 @@ class playScreen:
         self.betwindow = None
 
         self.camClicked = False
-        self.betClicked = False # TEMP
 
         # Class variable for a new GameState from game_logic/game.py.
         # This variable is updated after number of players/AI is selected.
@@ -99,16 +98,6 @@ class playScreen:
                                             'bottom': 'bottom'
                                             })
         self.scan_button.hide()
-
-        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='betwin',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.pause_button
-                                            })
-        self.showbet_button.hide()
 
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
@@ -198,7 +187,6 @@ class playScreen:
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
                 
                 self.pause_button.show()
-                self.showbet_button.show()
                 
                 self.header.set_text('Start Dealing Cards')
                 self.scan_button.show()
@@ -254,18 +242,6 @@ class playScreen:
                         elif (self.camClicked):
                             print('KILLING CAM')
                             self.killCamera()
-                    
-                    # TEMP BET TESTS
-                    if (event.ui_element == self.showbet_button):
-                        if (not self.betClicked):
-                            print('OPENING BET')
-                            self.betwindow = betWindow(manager, betpos)
-                            self.betClicked = True
-                        elif (self.betClicked):
-                            print('KILLING BET')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.betClicked = False
 
                     # INFO BUTTON
                     if (event.ui_element == self.info_button and not infoClicked):
@@ -295,6 +271,28 @@ class playScreen:
             # --------------------
             if (self.cam_state == CameraState.BETTING):
                 self.scan_button.hide()
+                if (self.betwindow == None):
+                    self.betwindow = betWindow(manager, betpos)
+                    
+                else: # bet window open
+                    if (self.betwindow.folds):
+                        print('Player folded!') # later change to remove player from round
+                        self.betwindow.kill()
+                        self.betwindow = None
+                        self.cam_state = CameraState.SCAN_FLOP
+                        # update it on player window here
+                        
+                    if (self.betwindow.placed_bet != None):
+                        if (self.betwindow.placed_bet == "0"):
+                            print('Player checked')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.cam_state = CameraState.SCAN_FLOP
+                        else:
+                            print('Player bet ' + self.betwindow.placed_bet + " chips")
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.cam_state = CameraState.SCAN_FLOP
 
             if (self.cam_state == CameraState.SCAN_AI_HAND):
                 if (self.camClicked):
@@ -330,6 +328,7 @@ class playScreen:
 
             if (self.cam_state == CameraState.SCAN_FLOP):
                 self.scan_button.show()
+                self.scan_button.set_text( "Scan Flop" )
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
