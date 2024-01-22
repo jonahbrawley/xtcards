@@ -57,22 +57,30 @@ class camWindow(pygame_gui.elements.UIWindow):
             #self.img = self.webcam.get_image()
             _, frame = self.webcam.read()
             frame = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) # fix colors
-
             self.img = frame
 
             
             disp = np.swapaxes(frame, 0, 1) # display as proper array
+
             if (self.scanning_ai_cards):
                 disp = self.aiFilter(disp)
+                
             disp = pygame.surfarray.make_surface(disp)
             disp = pygame.transform.flip(disp, True, False) # fix horizontal flip
-
             self.camera_display.set_image(disp)
 
     def aiFilter(self, img):
-        imgblur = cv2.blur(img, (33,2))
-        edges = cv2.Canny(imgblur, 200, 150)
-        return edges
+        h, w = img.shape[:2]
+        
+        img = cv2.blur(img, (135,135))
+
+        img = cv2.resize(img, (15, 15), interpolation=cv2.INTER_LINEAR)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
+        
+        #edges = cv2.Canny(imgblur, 200, 150)
+        return img
 
     def process_event(self, event):
         handled = super().process_event(event)
