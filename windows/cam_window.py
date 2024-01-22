@@ -27,7 +27,7 @@ class camWindow(pygame_gui.elements.UIWindow):
                                                           )
         
         self.instruction_label = pygame_gui.elements.UILabel(pygame.Rect((0, 30), (pos.width, 40)),
-                                                                    "Scan cards - 1 of 2",
+                                                                    "INSTRUCTION_TEXT", # placeholder
                                                                     manager=manager,
                                                                     object_id="header_game",
                                                                     container=self,
