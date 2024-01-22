@@ -5,7 +5,7 @@ from game_logic.pot import TempPot
 from game_logic.poker_agent import predict_ai_move
 import random
 from enum import Enum
-
+from objects.gamestate import GameState
 
 
 class GameInstance:
@@ -94,7 +94,7 @@ class GameInstance:
         if player.cards is None:
           player.pull_cards(self.deck)
     
-    return self.StartResponse.successful
+    return self.StartResponse.successful, GameState.SCAN_AI_HAND
 
   def await_player_action(self, player):
     print(GameInstance.divider("Player Action"))
@@ -190,11 +190,14 @@ class GameInstance:
 
         p_b = self.players[self.curr_pos]
         self.execute_player_action(p_b, "blind", min(p_b.chips, GameInstance.BIG_BLIND))
+        self.increment_curr_pos()
+        return GameState.PREFLOP_BETS
       else:
         # If a play should not take place, end round immediately
         if self.is_round_over():
           self.end_round()
-          return
+          print("TODO: RETURN ROUND STATE")
+          return None
 
         # individual player move
         curr_player = self.players[self.curr_pos]
@@ -213,6 +216,8 @@ class GameInstance:
       # round is not over, move to next player
       else:
         self.increment_curr_pos()
+
+      print("TODO: RETURN ROUND STATE")
 
   # OR n-1 players are either "out" or "fold", one person wins
   def is_round_over(self):

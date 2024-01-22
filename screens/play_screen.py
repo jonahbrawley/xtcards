@@ -293,7 +293,7 @@ class playScreen:
                             self.current_ai_card_scan = self.current_ai_card_scan + 1
 
                             self.killCamera()
-                            self.game_state = GameState.POST_AI_BETS
+                            self.game_state = GameState.PREFLOP_BETS
 
                         else:
                             # SEND SELF.AI_CARDS TO GAME FLOW HERE (the same as above)
@@ -302,7 +302,7 @@ class playScreen:
                             self.ai_cards = []
                             self.current_ai_card_scan = self.current_ai_card_scan + 1
             
-            if (self.game_state == GameState.POST_AI_BETS):
+            if (self.game_state == GameState.PREFLOP_BETS):
                 self.scan_button.hide()
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos)

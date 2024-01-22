@@ -2,7 +2,7 @@ from enum import Enum
 
 class GameState(Enum):
     SCAN_AI_HAND = 0        #  AI's hand at the beginning of the round
-    POST_AI_BETS = 1
+    PREFLOP_BETS = 1
 
     SCAN_FLOP = 2           #  scan 3 cards
     POST_FLOP_BETS = 3
