@@ -11,10 +11,13 @@ class betWindow(pygame_gui.elements.UIWindow):
         self.v_pad = 30
         self.h_pad = 30
 
+        self.placed_bet = None # starts with no bet
+        self.folds = False # set to True if they fold
+
         self.button_height = 40
 
         self.fold_button_width = (pos.width*.333)-self.h_pad
-        #self.dynamic_button_width = pos.width-((self.h_pad*4)+self.fold_button_width)
+        
         self.dynamic_button_width = pos.width*.666-self.h_pad*3
 
         self.yourmoney_label = pygame_gui.elements.UILabel(pygame.Rect((self.v_pad, self.h_pad), (pos.width, 40)),
@@ -70,3 +73,8 @@ class betWindow(pygame_gui.elements.UIWindow):
                 self.dynamic_button.set_text("Check")
             elif (not self.bet_input_box.get_text() == "0"):
                 self.dynamic_button.set_text("Bet")
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
+            if (event.ui_element == self.dynamic_button):
+                self.placed_bet = self.bet_input_box.get_text()
+            if (event.ui_element == self.fold_button):
+                self.folds = True

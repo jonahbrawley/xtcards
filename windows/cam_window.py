@@ -27,7 +27,7 @@ class camWindow(pygame_gui.elements.UIWindow):
                                                           )
         
         self.instruction_label = pygame_gui.elements.UILabel(pygame.Rect((0, 30), (pos.width, 40)),
-                                                                    "Scan cards - 1 of 2",
+                                                                    "INSTRUCTION_TEXT", # placeholder
                                                                     manager=manager,
                                                                     object_id="header_game",
                                                                     container=self,
@@ -46,17 +46,15 @@ class camWindow(pygame_gui.elements.UIWindow):
                                             'centerx': 'centerx'
                                             })
         
-        #cameras = pygame.camera.list_cameras()
-        #self.webcam = pygame.camera.Camera(cameras[0])
         self.webcam = cv2.VideoCapture(0)
-        #self.webcam.start()
     
     def draw_camera(self):
         if self.drawcam:
-            #self.img = self.webcam.get_image()
             _, self.img = self.webcam.read()
+
             self.img = np.array(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)) # fix colors
             disp = np.swapaxes(self.img, 0, 1) # display as proper array
+            
             disp = pygame.surfarray.make_surface(disp)
             disp = pygame.transform.flip(disp, True, False) # fix horizontal flip
             self.camera_display.set_image(disp)
