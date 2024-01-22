@@ -3,7 +3,7 @@ import pygame_gui
 from pygame_gui.elements import UILabel
 
 from objects.screenstate import ScreenState
-from objects.camstate import CameraState
+from objects.gamestate import GameState
 from objects.scheme import Scheme
 
 from windows.setup import setupWindow
@@ -16,7 +16,7 @@ from windows.cam_window import camWindow
 from windows.info_window import infoWindow
 from windows.church_window import churchWindow
 
-from game_logic.game import GameState
+from game_logic.game import GameInstance
 from game_logic.player import Player
 
 import pygame.camera
@@ -48,15 +48,15 @@ class playScreen:
 
         self.camClicked = False
 
-        # Class variable for a new GameState from game_logic/game.py.
+        # Class variable for a new GameInstance from game_logic/game.py.
         # This variable is updated after number of players/AI is selected.
 
         # For future save game functions, this class variable should be loaded
-        # from the saved game's GameState object.
+        # from the saved game's GameInstance object.
         # (more on this functionality later)
-        self.game_state = None
+        self.game_instance = None
 
-        self.cam_state = None
+        self.game_state = None
 
     def load(self, manager, state):
         self.state = state
@@ -220,8 +220,8 @@ class playScreen:
                 game_participants.append(self.human_participants)
                 game_participants.append(self.ai_participants)
                 
-                self.game_state = GameState(game_participants) # // START GAME INSTANCE //
-                self.cam_state = CameraState.SCAN_AI_HAND # begin the game by scanning the AI's cards
+                self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
+                self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -269,32 +269,7 @@ class playScreen:
             # --------------------
             # GAME FLOW STATEMENTS
             # --------------------
-            if (self.cam_state == CameraState.BETTING):
-                self.scan_button.hide()
-                if (self.betwindow == None):
-                    self.betwindow = betWindow(manager, betpos)
-                    
-                else: # bet window open
-                    if (self.betwindow.folds):
-                        print('Player folded!') # later change to remove player from round
-                        self.betwindow.kill()
-                        self.betwindow = None
-                        self.cam_state = CameraState.SCAN_FLOP
-                        # update it on player window here
-                        
-                    if (self.betwindow.placed_bet != None):
-                        if (self.betwindow.placed_bet == "0"):
-                            print('Player checked')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.cam_state = CameraState.SCAN_FLOP
-                        else:
-                            print('Player bet ' + self.betwindow.placed_bet + " chips")
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.cam_state = CameraState.SCAN_FLOP
-
-            if (self.cam_state == CameraState.SCAN_AI_HAND):
+            if (self.game_state == GameState.SCAN_AI_HAND):
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
                     curr_ai = self.players.aiPlayerNames[self.current_ai_card_scan]
@@ -318,7 +293,7 @@ class playScreen:
                             self.current_ai_card_scan = self.current_ai_card_scan + 1
 
                             self.killCamera()
-                            self.cam_state = CameraState.BETTING
+                            self.game_state = GameState.POST_AI_BETS
 
                         else:
                             # SEND SELF.AI_CARDS TO GAME FLOW HERE (the same as above)
@@ -326,8 +301,33 @@ class playScreen:
                             print(self.ai_cards) # for now just print
                             self.ai_cards = []
                             self.current_ai_card_scan = self.current_ai_card_scan + 1
+            
+            if (self.game_state == GameState.POST_AI_BETS):
+                self.scan_button.hide()
+                if (self.betwindow == None):
+                    self.betwindow = betWindow(manager, betpos)
+                    
+                else: # bet window open
+                    if (self.betwindow.folds):
+                        print('Player folded!') # later change to remove player from round
+                        self.betwindow.kill()
+                        self.betwindow = None
+                        self.game_state = GameState.SCAN_FLOP
+                        # update it on player window here
+                        
+                    if (self.betwindow.placed_bet != None):
+                        if (self.betwindow.placed_bet == "0"):
+                            print('Player checked')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.game_state = GameState.SCAN_FLOP
+                        else:
+                            print('Player bet ' + self.betwindow.placed_bet + " chips")
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.game_state = GameState.SCAN_FLOP
 
-            if (self.cam_state == CameraState.SCAN_FLOP):
+            if (self.game_state == GameState.SCAN_FLOP):
                 self.scan_button.show()
                 self.scan_button.set_text( "Scan Flop" )
 

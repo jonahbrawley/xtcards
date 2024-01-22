@@ -8,7 +8,7 @@ from enum import Enum
 
 
 
-class GameState:
+class GameInstance:
   class StartResponse(Enum):
     successful = 0
     not_enough_players = 1
@@ -89,7 +89,7 @@ class GameState:
     self.game_active = True
 
     # If a physical deck is not being used, deal all the cards to the players
-    if not GameState.USE_PHYSICAL_DECK:
+    if not GameInstance.USE_PHYSICAL_DECK:
       for player in self.players:
         if player.cards is None:
           player.pull_cards(self.deck)
@@ -97,7 +97,7 @@ class GameState:
     return self.StartResponse.successful
 
   def await_player_action(self, player):
-    print(GameState.divider("Player Action"))
+    print(GameInstance.divider("Player Action"))
     print(player)
 
     p_action = None
@@ -185,11 +185,11 @@ class GameState:
           self.increment_curr_pos()
 
         p_sm = self.players[self.curr_pos]
-        self.execute_player_action(p_sm, "blind", min(p_sm.chips, GameState.SMALL_BLIND))
+        self.execute_player_action(p_sm, "blind", min(p_sm.chips, GameInstance.SMALL_BLIND))
         self.increment_curr_pos()
 
         p_b = self.players[self.curr_pos]
-        self.execute_player_action(p_b, "blind", min(p_b.chips, GameState.BIG_BLIND))
+        self.execute_player_action(p_b, "blind", min(p_b.chips, GameInstance.BIG_BLIND))
       else:
         # If a play should not take place, end round immediately
         if self.is_round_over():
@@ -262,7 +262,7 @@ class GameState:
       if self.round == "preflop":
         self.round = "flop"
         print("Flop")
-        if GameState.USE_PHYSICAL_DECK:
+        if GameInstance.USE_PHYSICAL_DECK:
           self.deck.set_scanning_status(True)
           for i in range(3):
             self.community_cards[i] = self.scan_card_until_valid()
@@ -273,7 +273,7 @@ class GameState:
       elif self.round == "flop":
         print("Turn")
         self.round = "turn"
-        if GameState.USE_PHYSICAL_DECK:
+        if GameInstance.USE_PHYSICAL_DECK:
           self.deck.set_scanning_status(True)
           self.community_cards[3] = self.scan_card_until_valid()
         else:
@@ -282,7 +282,7 @@ class GameState:
       elif self.round == "turn":
         print("River")
         self.round = "river"
-        if GameState.USE_PHYSICAL_DECK:
+        if GameInstance.USE_PHYSICAL_DECK:
           self.deck.set_scanning_status(True)
           self.community_cards[4] = self.scan_card_until_valid()
         else:
@@ -315,7 +315,7 @@ class GameState:
 
     # if using a physical deck, get player cards here
     # if not, cards are dealt in start_game() method
-    if GameState.USE_PHYSICAL_DECK:
+    if GameInstance.USE_PHYSICAL_DECK:
       self.deck.set_scanning_status(True)
       for player in self.players:
         if not player.is_ai:
@@ -415,21 +415,21 @@ class GameState:
 
     res = "\n\n\n"
 
-    res += GameState.divider("General State")
+    res += GameInstance.divider("General State")
     res += f"Round: {self.round}\n"
     res += f"Community Cards: {self.community_cards}\n"
     res += f"Dealer Position: {self.dealer_pos}\n"
     res += f"Current Position: {self.curr_pos}\n"
     res += f"Current Player: {self.players[self.curr_pos].name}\n"
 
-    res += GameState.divider(f"Players ({len(self.players)})")
+    res += GameInstance.divider(f"Players ({len(self.players)})")
     for player in self.players:
       res += f"ID{player.id}, chips:{player.chips}, cards:{player.cards}, last_action:{player.last_action}\n"
 
-    res += GameState.divider("Current Pot")
+    res += GameInstance.divider("Current Pot")
     for key, value in self.tmp_pot.bets.items():
       res += f"{key}:${value}\t"
-    res += GameState.divider("Final Pots")
+    res += GameInstance.divider("Final Pots")
     for i, pot in enumerate(self.side_pots):
       for key, value in pot.bets.items():
         res += f"{key}:${value}\t"
@@ -444,7 +444,7 @@ class GameState:
 #   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
 #   ]
 
-# state = GameState(players)
+# state = GameInstance(players)
 # state.start_game()
 
 # while True:
@@ -473,7 +473,7 @@ class GameState:
 
 
 #   response = state.start_game()
-#   if response == GameState.StartResponse.not_enough_players:
+#   if response == GameInstance.StartResponse.not_enough_players:
 #     break
 
 # for player in players:
