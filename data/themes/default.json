@@ -200,6 +200,16 @@
             "size": "25"
         }
     },
+    "#church_button": 
+    {
+        "images": 
+        {
+            "normal_image": 
+            {
+                "path": ""
+            }
+        }
+    },
     "drop_down_menu.button":
     {
         "font":

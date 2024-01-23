@@ -8,16 +8,14 @@ class infoWindow(pygame_gui.elements.UIWindow):
                          window_display_title='How to Play Poker',
                          object_id='#info_window',
                          draggable=True)
-        self.scroll_box = pygame_gui.elements.UIScrollingContainer(pygame.Rect((0, 0), (200, 200)),
+        self.scroll_box = pygame_gui.elements.UIScrollingContainer(pygame.Rect((100, 200), (300, 200)),
                                                                                              manager=manager,
-                                                                                             container=self,
-                                                                                             object_id="scroll_container"
+                                                                                             container=self
         )
-        self.info_label = pygame_gui.elements.UILabel(pygame.Rect((0, 0), (200, 1)),
+        self.info_label = pygame_gui.elements.UILabel(pygame.Rect((50, 50), (200, 1)),
                                                       "",
                                                       manager=manager,
-                                                      container=self.scroll_box,
-                                                      object_id="info_label"
+                                                      container=self.scroll_box
         )
     def load_text(self, file_path):
         try:

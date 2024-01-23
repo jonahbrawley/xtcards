@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+import webbrowser
 
 class churchWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
@@ -8,7 +9,7 @@ class churchWindow(pygame_gui.elements.UIWindow):
                          window_display_title='How to Donate!',
                          object_id='#church_window',
                          draggable=True)
-        self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate to our local church! We hope you enjoyed using xtcards :)",
+        self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate in support for our local church. We hope you enjoyed using xtcards, God bless you! :)",
                                                             relative_rect=pygame.Rect((0, 10), (300, 200)),
                                                             manager=manager,
                                                             container=self,
@@ -25,3 +26,8 @@ class churchWindow(pygame_gui.elements.UIWindow):
                                                               "bottom': 'bottom",
                                                               "centerx': 'centerx"
                                                           })
+    def process_event(self, event):
+        super().process_event(event)
+        if event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+            if event.ui_element == self.donate_button:
+                webbrowser.open("https://magonline.com/give/")
