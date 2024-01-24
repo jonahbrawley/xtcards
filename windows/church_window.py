@@ -10,14 +10,14 @@ class churchWindow(pygame_gui.elements.UIWindow):
                          object_id='#church_window',
                          draggable=True)
         self.donation_label = pygame_gui.elements.UITextBox("Please click the button below to donate in support for our local church. We hope you enjoyed using xtcards, God bless you! :)",
-                                                            relative_rect=pygame.Rect((0, 10), (300, 200)),
+                                                            relative_rect=pygame.Rect((0, 10), (pos.width/1.5, pos.height/2)),
                                                             manager=manager,
                                                             container=self,
                                                             parent_element=self,
                                                             anchors={
                                                             "centerx": "centerx"
                                                             })
-        self.donate_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((125, 300), ((100), 40)),
+        self.donate_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((125, 300), (pos.width/3.8, pos.height/8.5)),
                                                           text='Donate',
                                                           manager=manager,
                                                           container=self,
