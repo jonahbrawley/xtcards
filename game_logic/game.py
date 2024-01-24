@@ -476,43 +476,43 @@ class GameInstance:
 
 # Sample code previously used in game demo
 
-players = [
-  Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
-  Player("John", is_ai=False, chips=200, cards=["KC", "8H"]), 
-  Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
-  ]
+# players = [
+#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
+#   Player("John", is_ai=False, chips=200, cards=["KC", "8H"]), 
+#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
+#   ]
 
-instance = GameInstance(players)
-instance.start_game()
+# instance = GameInstance(players)
+# instance.start_game()
 
-while True:
-  while instance.game_active:
-    # send out small and big blind
-    if instance.is_awaiting_preflop():
-      print(instance.step().name)
-    # execute a player turn & update round/cards if necessary
-    else:
-      if instance.is_curr_pos_at_ai():
-        print("AI response")
-        ai_state = instance.to_json_at_ai()
-        p_action = predict_ai_move(ai_state)
-        print(instance.step(p_action).name)
-      else:
-        print("Not AI response")
-        p_action = input("Action:\n")
-        p_bet = None
-        if p_action.lower() == "raise":
-          p_bet = int(input("Bet:\n"))
-        print(instance.step(p_action, p_bet).name)
+# while True:
+#   while instance.game_active:
+#     # send out small and big blind
+#     if instance.is_awaiting_preflop():
+#       print(instance.step().name)
+#     # execute a player turn & update round/cards if necessary
+#     else:
+#       if instance.is_curr_pos_at_ai():
+#         print("AI response")
+#         ai_state = instance.to_json_at_ai()
+#         p_action = predict_ai_move(ai_state)
+#         print(instance.step(p_action).name)
+#       else:
+#         print("Not AI response")
+#         p_action = input("Action:\n")
+#         p_bet = None
+#         if p_action.lower() == "raise":
+#           p_bet = int(input("Bet:\n"))
+#         print(instance.step(p_action, p_bet).name)
 
-    print(instance.players[instance.curr_pos], instance.curr_pos)
-    if instance.game_active:
-      print(instance)
+#     print(instance.players[instance.curr_pos], instance.curr_pos)
+#     if instance.game_active:
+#       print(instance)
 
 
-  response = instance.start_game()
-  if response == GameState.ERROR_STATE:
-    break
+#   response = instance.start_game()
+#   if response == GameState.ERROR_STATE:
+#     break
 
-for player in players:
-  print(player)
+# for player in players:
+#   print(player)
