@@ -218,7 +218,7 @@ class playScreen:
                     game_participants.append(ai)
                 
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
-                self.game_state = GameState.SCAN_PLAYER_HAND # begin the game by scanning the AI's cards
+                self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
