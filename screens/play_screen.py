@@ -218,7 +218,7 @@ class playScreen:
                     game_participants.append(ai)
                 
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
-                self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
+                self.game_state = GameState.SCAN_PLAYER_HAND # begin the game by scanning the AI's cards
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -287,7 +287,7 @@ class playScreen:
                         
                         if (self.card_index >= cards_to_scan):
                             self.card_index = 0
-                            print("AI CARDS:")
+                            print("AI %s CARDS:" % (curr_player.name))
                             curr_player.cards = self.cards_scanned
                             print(curr_player.cards)
                             self.cards_scanned = []
@@ -328,6 +328,39 @@ class playScreen:
             if (self.game_state == GameState.SCAN_FLOP):
                 self.scan_button.show()
                 self.scan_button.set_text( "Scan Flop" )
+
+            if (self.game_state == GameState.SCAN_PLAYER_HAND):
+                if (self.camClicked):
+                    self.camwindow.scanning_ai_cards = False
+                    self.scan_button.hide()
+                    cards_to_scan = 2
+
+                    while (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].is_ai):
+                        self.player_index += 1
+                    
+                    if (self.player_index < len(self.game_instance.players)):
+                        curr_player = self.game_instance.players[self.player_index]
+                        
+                        self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            self.cards_scanned.append(self.scanCard())
+                            self.card_index += 1
+                        
+                        if (self.card_index >= cards_to_scan):
+                            self.card_index = 0
+                            print("PLAYER %s CARDS:" % (curr_player.name))
+                            curr_player.cards = self.cards_scanned
+                            print(curr_player.cards)
+                            self.cards_scanned = []
+                            self.player_index += 1
+                    else: 
+                        self.player_index = 0
+                        self.card_index = 0
+                        self.cards_scanned = []
+
+                        self.killCamera()
+                        self.game_state = GameState.PREFLOP_BETS # ready to move on
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
