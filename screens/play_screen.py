@@ -120,8 +120,9 @@ class playScreen:
                                                           })
         self.church_button.hide()
 
-        self.current_ai_card_scan = 0 # used to track which AI we need to persistently scan cards for
-        self.ai_cards = []
+        self.player_index = 0 # keep track of which player we are operating on
+        self.card_index = 0 # which card are we scanning
+        self.cards_scanned = []
 
         self.setup = setupWindow(manager, stppos)
 
@@ -206,20 +207,15 @@ class playScreen:
                 # self.players.aiplayercount - selected AI count
                 # self.players.aiPlayerNames - shuffled AI player names
                 game_participants = []
-                self.human_participants = []
-                self.ai_participants = []
                 chips = setupWindow.chip_count
                 
                 for player in self.playerSetUp.playerNames:
                     person = Player(name=player, is_ai=False, chips=chips)
-                    self.human_participants.append(person)
+                    game_participants.append(person)
                 
                 for i in range(self.players.aiplayercount):
                     ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
-                    self.ai_participants.append(ai)
-                    
-                game_participants.append(self.human_participants)
-                game_participants.append(self.ai_participants)
+                    game_participants.append(ai)
                 
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
@@ -271,37 +267,38 @@ class playScreen:
             # GAME FLOW STATEMENTS
             # --------------------
             if (self.game_state == GameState.SCAN_AI_HAND):
+
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
-                    curr_ai = self.players.aiPlayerNames[self.current_ai_card_scan]
                     self.scan_button.hide()
+                    cards_to_scan = 2
 
-                    if not self.ai_cards: # no cards in ai hand list yet
-                        self.camwindow.instruction_label.set_text( "%s's cards - 1 of 2" % (curr_ai) )
+                    while (self.player_index < len(self.game_instance.players) and not self.game_instance.players[self.player_index].is_ai):
+                        self.player_index += 1
+                    
+                    if (self.player_index < len(self.game_instance.players)):
+                        curr_player = self.game_instance.players[self.player_index]
+                        
+                        self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
 
-                    if (self.camwindow.snaptaken): # scan frame upon clicking button
-                        card = self.scanCard()
-                        self.ai_cards.append(card)
+                        if (self.camwindow.snaptaken):
+                            self.cards_scanned.append(self.scanCard())
+                            self.card_index += 1
+                        
+                        if (self.card_index >= cards_to_scan):
+                            self.card_index = 0
+                            print("AI %s CARDS:" % (curr_player.name))
+                            curr_player.cards = self.cards_scanned
+                            print(curr_player.cards)
+                            self.cards_scanned = []
+                            self.player_index += 1
+                    else: 
+                        self.player_index = 0
+                        self.card_index = 0
+                        self.cards_scanned = []
 
-                        if (len(self.ai_cards) == 1):
-                            self.camwindow.instruction_label.set_text( "%s's cards - 2 of 2" % (curr_ai) )
-
-                        elif (self.current_ai_card_scan == self.players.aiplayercount-1): # see if we have no more AI to scan
-                            # SEND SELF.AI_CARDS TO GAME FLOW HERE
-                            print("AI CARDS:")
-                            print(self.ai_cards) # for now just print
-                            self.ai_cards = []
-                            self.current_ai_card_scan = self.current_ai_card_scan + 1
-
-                            self.killCamera()
-                            self.game_state = GameState.PREFLOP_BETS
-
-                        else:
-                            # SEND SELF.AI_CARDS TO GAME FLOW HERE (the same as above)
-                            print("AI CARDS:")
-                            print(self.ai_cards) # for now just print
-                            self.ai_cards = []
-                            self.current_ai_card_scan = self.current_ai_card_scan + 1
+                        self.killCamera()
+                        self.game_state = GameState.PREFLOP_BETS # ready to move on
             
             if (self.game_state == GameState.PREFLOP_BETS):
                 self.scan_button.hide()
@@ -331,6 +328,39 @@ class playScreen:
             if (self.game_state == GameState.SCAN_FLOP):
                 self.scan_button.show()
                 self.scan_button.set_text( "Scan Flop" )
+
+            if (self.game_state == GameState.SCAN_PLAYER_HAND):
+                if (self.camClicked):
+                    self.camwindow.scanning_ai_cards = False
+                    self.scan_button.hide()
+                    cards_to_scan = 2
+
+                    while (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].is_ai):
+                        self.player_index += 1
+                    
+                    if (self.player_index < len(self.game_instance.players)):
+                        curr_player = self.game_instance.players[self.player_index]
+                        
+                        self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            self.cards_scanned.append(self.scanCard())
+                            self.card_index += 1
+                        
+                        if (self.card_index >= cards_to_scan):
+                            self.card_index = 0
+                            print("PLAYER %s CARDS:" % (curr_player.name))
+                            curr_player.cards = self.cards_scanned
+                            print(curr_player.cards)
+                            self.cards_scanned = []
+                            self.player_index += 1
+                    else: 
+                        self.player_index = 0
+                        self.card_index = 0
+                        self.cards_scanned = []
+
+                        self.killCamera()
+                        self.game_state = GameState.PREFLOP_BETS # ready to move on
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
