@@ -160,6 +160,56 @@
             "enable_close_button": "0"
         }
     },
+    "#info_window":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28",
+            "border_width": "5"
+        }
+    },
+    "#info_window.#close_button": 
+    {
+        "font": 
+        {
+            "size": "25"
+        }
+    },
+    "#church_window":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28",
+            "border_width": "5"
+        }
+    },
+    "#church_window.#close_button": 
+    {
+        "font": 
+        {
+            "size": "25"
+        }
+    },
+    "#church_button": 
+    {
+        "images": 
+        {
+            "normal_image": 
+            {
+                "path": ""
+            }
+        }
+    },
     "drop_down_menu.button":
     {
         "font":

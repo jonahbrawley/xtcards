@@ -1,3 +1,5 @@
+# In the current game context, the Pot object will only be instantiated
+# in the TempPot method: `to_sidepots`, which is called at the end of the current betting round
 class Pot:
   def __init__(self, bets=None):
     if bets is None:

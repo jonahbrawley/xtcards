@@ -1,8 +1,9 @@
 import pygame
 import pygame_gui
-
 from pygame_gui.elements import UILabel
+
 from objects.screenstate import ScreenState
+from objects.gamestate import GameState
 from objects.scheme import Scheme
 
 from windows.setup import setupWindow
@@ -15,10 +16,17 @@ from windows.cam_window import camWindow
 from windows.info_window import infoWindow
 from windows.church_window import churchWindow
 
-from game_logic.game import GameState
+from game_logic.game import GameInstance
 from game_logic.player import Player
 
 import pygame.camera
+
+# image proc
+import cv2
+import base64
+import requests
+import json
+import numpy as np
 
 homeswitch = False
 
@@ -38,15 +46,16 @@ class playScreen:
         self.camwindow = None
         self.betwindow = None
 
-        self.camClicked = False # TEMP
-        self.betClicked = False # TEMP
+        self.camClicked = False
 
-        # Class variable for a new GameState from game_logic/game.py.
+        # Class variable for a new GameInstance from game_logic/game.py.
         # This variable is updated after number of players/AI is selected.
 
         # For future save game functions, this class variable should be loaded
-        # from the saved game's GameState object.
+        # from the saved game's GameInstance object.
         # (more on this functionality later)
+        self.game_instance = None
+
         self.game_state = None
 
     def load(self, manager, state):
@@ -68,7 +77,7 @@ class playScreen:
         stp_height = 500
         stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
 
-        #pause button
+        # pause button
         pause_button_rect = pygame.Rect(15, 15, 100, 50)
         self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='Pause',
@@ -79,25 +88,16 @@ class playScreen:
                                             })
         self.pause_button.hide()
 
-        self.showcam_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='camwin',
+        # Scan AI cards button
+        dealing_button_rect = pygame.Rect(15, -100, 250, 50)
+        self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                            text='Scan AI\'s Hand',
                                             manager=manager,
                                             anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.pause_button
+                                            'centerx': 'centerx',
+                                            'bottom': 'bottom'
                                             })
-        self.showcam_button.hide()
-
-        self.showbet_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='betwin',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top',
-                                            'left_target': self.showcam_button
-                                            })
-        self.showbet_button.hide()
+        self.scan_button.hide()
 
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
@@ -110,14 +110,19 @@ class playScreen:
         self.info_button.hide()
 
         #donation button
-        church_button_rect = pygame.Rect(-110, 15, 40, 50)
+        church_button_rect = pygame.Rect(-415, 15, 350, 50)
         self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
-                                                          text='$',
+                                                          text='DONATE TO MAGNOLIA CHURCH',
+                                                          object_id='#church_button',
                                                           manager=manager,
                                                           anchors={
                                                           'right': 'right'
                                                           })
         self.church_button.hide()
+
+        self.player_index = 0 # keep track of which player we are operating on
+        self.card_index = 0 # which card are we scanning
+        self.cards_scanned = []
 
         self.setup = setupWindow(manager, stppos)
 
@@ -152,22 +157,17 @@ class playScreen:
         bet_height = self.height*.50
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
 
-        # cam set up TEMP
-        cam_width = self.width*.50
-        cam_height = self.height*.75
+        # cam set up
+        cam_width = self.width*.4
+        cam_height = self.height*.7
         campos = pygame.Rect(((self.width*.5)-(cam_width//2), self.height*.125), (cam_width, cam_height))
 
-        pygame.camera.init()
-        info_width = 175
-        info_height = 400
-        infopos = pygame.Rect(((self.width/2)-(info_width/2), (self.height/2)-(info_height/2)), (info_width, info_height))
-
-        #info icon set up
+        # info icon set up
         info_width = self.width*.20
         info_height = self.height*.4
-        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2)-(info_height)), (info_width, info_height))
+        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2.15)-(info_height)), (info_width, info_height))
 
-        #church icon set up
+        # church icon set up
         church_width = self.width*.20
         church_height = self.height*.4
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
@@ -189,10 +189,9 @@ class playScreen:
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
                 
                 self.pause_button.show()
-                self.showcam_button.show()
-                self.showbet_button.show()
                 
-                self.header.hide()
+                self.header.set_text('Start Dealing Cards')
+                self.scan_button.show()
                 playerNameSetupWindow.submitPlayerClicked = False
 
                 self.header.show()
@@ -218,8 +217,8 @@ class playScreen:
                     ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
                     game_participants.append(ai)
                 
-                # // START GAME INSTANCE //
-                self.game_state = GameState(game_participants)
+                self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
+                self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -230,31 +229,16 @@ class playScreen:
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
                     
-                    # TEMP CAMERA TESTS
-                    if (event.ui_element == self.showcam_button):
+                    # CAMERA BUTTON
+                    if (event.ui_element == self.scan_button):
                         if (not self.camClicked):
                             print('OPENING CAM')
                             self.camwindow = camWindow(manager, campos)
                             self.camClicked = True
+                            self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
-                            self.camwindow.drawcam = False
-                            self.camClicked = False
-                            self.camwindow.webcam.stop()
-                            self.camwindow.kill()
-                            self.camwindow = None
-                    
-                    # TEMP BET TESTS
-                    if (event.ui_element == self.showbet_button):
-                        if (not self.betClicked):
-                            print('OPENING BET')
-                            self.betwindow = betWindow(manager, betpos)
-                            self.betClicked = True
-                        elif (self.betClicked):
-                            print('KILLING BET')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.betClicked = False
+                            self.killCamera()
 
                     # INFO BUTTON
                     if (event.ui_element == self.info_button and not infoClicked):
@@ -275,16 +259,113 @@ class playScreen:
                     return ScreenState.QUIT
                 if keys[pygame.K_ESCAPE]:
                     print('DEBUG: Switching to TITLE')
-                    self.state = ScreenState.TITLE
+                    homeswitch = True
 
                 manager.process_events(event)
+
+            # --------------------
+            # GAME FLOW STATEMENTS
+            # --------------------
+            if (self.game_state == GameState.SCAN_AI_HAND):
+
+                if (self.camClicked):
+                    self.camwindow.scanning_ai_cards = True # hide AI cards from player
+                    self.scan_button.hide()
+                    cards_to_scan = 2
+
+                    while (self.player_index < len(self.game_instance.players) and not self.game_instance.players[self.player_index].is_ai):
+                        self.player_index += 1
+                    
+                    if (self.player_index < len(self.game_instance.players)):
+                        curr_player = self.game_instance.players[self.player_index]
+                        
+                        self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            self.cards_scanned.append(self.scanCard())
+                            self.card_index += 1
+                        
+                        if (self.card_index >= cards_to_scan):
+                            self.card_index = 0
+                            print("AI %s CARDS:" % (curr_player.name))
+                            curr_player.cards = self.cards_scanned
+                            print(curr_player.cards)
+                            self.cards_scanned = []
+                            self.player_index += 1
+                    else: 
+                        self.player_index = 0
+                        self.card_index = 0
+                        self.cards_scanned = []
+
+                        self.killCamera()
+                        self.game_state = GameState.PREFLOP_BETS # ready to move on
+            
+            if (self.game_state == GameState.PREFLOP_BETS):
+                self.scan_button.hide()
+                if (self.betwindow == None):
+                    self.betwindow = betWindow(manager, betpos)
+                    
+                else: # bet window open
+                    if (self.betwindow.folds):
+                        print('Player folded!') # later change to remove player from round
+                        self.betwindow.kill()
+                        self.betwindow = None
+                        self.game_state = GameState.SCAN_FLOP
+                        # update it on player window here
+                        
+                    if (self.betwindow.placed_bet != None):
+                        if (self.betwindow.placed_bet == "0"):
+                            print('Player checked')
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.game_state = GameState.SCAN_FLOP
+                        else:
+                            print('Player bet ' + self.betwindow.placed_bet + " chips")
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.game_state = GameState.SCAN_FLOP
+
+            if (self.game_state == GameState.SCAN_FLOP):
+                self.scan_button.show()
+                self.scan_button.set_text( "Scan Flop" )
+
+            if (self.game_state == GameState.SCAN_PLAYER_HAND):
+                if (self.camClicked):
+                    self.camwindow.scanning_ai_cards = False
+                    self.scan_button.hide()
+                    cards_to_scan = 2
+
+                    while (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].is_ai):
+                        self.player_index += 1
+                    
+                    if (self.player_index < len(self.game_instance.players)):
+                        curr_player = self.game_instance.players[self.player_index]
+                        
+                        self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            self.cards_scanned.append(self.scanCard())
+                            self.card_index += 1
+                        
+                        if (self.card_index >= cards_to_scan):
+                            self.card_index = 0
+                            print("PLAYER %s CARDS:" % (curr_player.name))
+                            curr_player.cards = self.cards_scanned
+                            print(curr_player.cards)
+                            self.cards_scanned = []
+                            self.player_index += 1
+                    else: 
+                        self.player_index = 0
+                        self.card_index = 0
+                        self.cards_scanned = []
+
+                        self.killCamera()
+                        self.game_state = GameState.PREFLOP_BETS # ready to move on
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
-                print('drawing')
-                self.camwindow.drawcam = True
                 self.camwindow.draw_camera()
 
             manager.draw_ui(self.window)
@@ -307,11 +388,41 @@ class playScreen:
             pygame.display.update()
 
             if (homeswitch):
+                if (self.camwindow != None):
+                    self.killCamera()
                 self.state = ScreenState.TITLE
                 homeswitch = False
             if (self.state != ScreenState.START):
                 return self.state
-    
+
     def delete(self, manager):
         print('DEBUG: Deleting objects')
         manager.clear_and_reset()
+    
+    def killCamera(self):
+        # only call if self.camwindow != None
+        self.camwindow.drawcam = False
+        self.camClicked = False
+        self.camwindow.webcam.release()
+        self.camwindow.kill()
+        self.camwindow = None
+    
+    def scanCard(self):
+        card = self.sendImg(self.camwindow.img) # send lambda call
+        self.camwindow.snaptaken = False
+        self.camwindow.drawcam = True
+
+        return card
+    
+    def sendImg(self, img):
+        # send img to AWS lambda, store res
+        # used to scan AI / player cards
+        img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+        img = np.array(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        img_bytes = img.tobytes()
+        img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+
+        response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+        response = json.loads(response.text)
+        
+        return response["class"]
