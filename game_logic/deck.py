@@ -1,7 +1,3 @@
-import sys
-sys.path.append('../')
-from webcam import WebcamCapture
-
 import random
 
 
@@ -21,24 +17,3 @@ class Deck:
 
     res = self.cards.pop()
     return res
-
-  def set_scanning_status(self, status=True):
-    if self.scanning_active == status:
-      print(f"status already set to: {status}")
-      return
-
-    self.scanning_active = status
-
-    if status:
-      self.webcam = WebcamCapture(show_window=True)
-      self.webcam.start()
-    else:
-      self.webcam.stop()
-      self.webcam = None
-  
-  def scan(self):
-    if self.webcam is not None and self.webcam.is_frame_not_null():
-      res = self.webcam.detect_card()
-      return res
-    else:
-      return None

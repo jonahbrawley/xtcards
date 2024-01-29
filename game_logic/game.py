@@ -282,44 +282,22 @@ class GameInstance:
           player.curr_bet = 0
 
       if self.round == self.GameRound.PREFLOP:
-        self.round = self.GameRound.FLOP
         print("Flop")
-        if GameInstance.USE_PHYSICAL_DECK:
-          self.deck.set_scanning_status(True)
-          for i in range(3):
-            self.community_cards[i] = self.scan_card_until_valid()
-        else:
-          for i in range(3):
-            self.community_cards[i] = self.deck.pull()
-
+        self.round = self.GameRound.FLOP
       elif self.round == self.GameRound.FLOP:
         print("Turn")
         self.round = self.GameRound.TURN
-        if GameInstance.USE_PHYSICAL_DECK:
-          self.deck.set_scanning_status(True)
-          self.community_cards[3] = self.scan_card_until_valid()
-        else:
-          self.community_cards[3] = self.deck.pull()
-
       elif self.round == self.GameRound.TURN:
         print("River")
         self.round = self.GameRound.RIVER
-        if GameInstance.USE_PHYSICAL_DECK:
-          self.deck.set_scanning_status(True)
-          self.community_cards[4] = self.scan_card_until_valid()
-        else:
-          self.community_cards[4] = self.deck.pull()
-
       elif self.round == self.GameRound.RIVER:
         print("End")
         self.round = self.GameRound.END
-        self.end_game()
         return GameState.SCAN_PLAYER_HAND # End of game, next GameState should be scanning player cards
 
       # this `else` shouldn't be reached unless there is an error with the self.round field
       else:
         print(f"Error: could not proceed to next round from GameRound='{self.round}'")
-        self.deck.set_scanning_status(False)
         return GameState.ERROR_STATE
 
       # split out sidepots
@@ -332,7 +310,6 @@ class GameInstance:
 
     # Move curr_pos to next active player after dealer if
     self.curr_pos = self.get_next_pos(self.dealer_pos)
-    self.deck.set_scanning_status(False)
 
     # Game has not ended yet, return next GameState that game should do
     if self.round == self.GameRound.FLOP:
@@ -349,17 +326,9 @@ class GameInstance:
 
 
   # Called after river betting & cards are revealed
+  # Player cards must be scanned before this method is called
+  # (e.g. GameState.SCAN_PLAYER_HAND -> GameState.END_ROUND)
   def end_game(self):
-
-    # if using a physical deck, get player cards here
-    # if not, cards are dealt in start_game() method
-    if GameInstance.USE_PHYSICAL_DECK:
-      self.deck.set_scanning_status(True)
-      for player in self.players:
-        if not player.is_ai:
-          player.cards = [self.scan_card_until_valid(), self.scan_card_until_valid()]
-      self.deck.set_scanning_status(False)
-
     # split into pots one last time
     self.side_pots += self.tmp_pot.to_sidepots()
 
@@ -371,7 +340,7 @@ class GameInstance:
       if player.id in winnings.keys():
         player.chips += winnings[player.id]
 
-    # disperse pots over winner(s)
+    # show off winning amounts
     print("WINNINGS:")
     print(winnings)
 
@@ -379,7 +348,11 @@ class GameInstance:
     for p in self.players:
       if p.chips == 0:
         p.last_action = "out"
+        print(f"Player Out: {p.name}")
     self.game_active = False
+
+    return winnings
+
 
   def players_that_can_do_action(self):
     res = []
@@ -387,14 +360,6 @@ class GameInstance:
       if player.can_do_action():
         res.append(player)
     return res
-
-  # temporary method used to get captured card value until button exists
-  def scan_card_until_valid(self):
-    print("RUNNING TEMPORARY METHOD: scan_card_until_valid()\nREPLACE THIS WITH SOME BUTTON UI INTERACTION ASAP")
-    card_value = None
-    while not card_value:
-      card_value = self.deck.scan()
-    return card_value
 
   def to_json_at_ai(self):
     '''
@@ -482,8 +447,11 @@ class GameInstance:
 #   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
 #   ]
 
+# community_cards = ['2H', '2D', '8C', '6C', '7H']
+
 # instance = GameInstance(players)
 # instance.start_game()
+# instance.community_cards = community_cards
 
 # while True:
 #   while instance.game_active:
@@ -503,16 +471,19 @@ class GameInstance:
 #         p_bet = None
 #         if p_action.lower() == "raise":
 #           p_bet = int(input("Bet:\n"))
-#         print(instance.step(p_action, p_bet).name)
+#         next_state = instance.step(p_action, p_bet)
+        print(next_state.name)
+        if next_state == GameState.SCAN_PLAYER_HAND:
+          print(instance.end_game())
 
-#     print(instance.players[instance.curr_pos], instance.curr_pos)
-#     if instance.game_active:
-#       print(instance)
+    print(instance.players[instance.curr_pos], instance.curr_pos)
+    if instance.game_active:
+      print(instance)
 
 
-#   response = instance.start_game()
-#   if response == GameState.ERROR_STATE:
-#     break
+  response = instance.start_game()
+  if response == GameState.ERROR_STATE:
+    break
 
-# for player in players:
-#   print(player)
+for player in players:
+  print(player)
