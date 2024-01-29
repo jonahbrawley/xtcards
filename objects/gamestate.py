@@ -1,6 +1,9 @@
 from enum import Enum
 
 class GameState(Enum):
+    UNCHANGED_STATE = -2    #  Don't change the game state to any new value
+    ERROR_STATE = -1        #  I hope this state is never reached
+
     SCAN_AI_HAND = 0        #  AI's hand at the beginning of the round
     PREFLOP_BETS = 1
 
