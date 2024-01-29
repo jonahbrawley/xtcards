@@ -293,6 +293,7 @@ class playScreen:
                             self.cards_scanned = []
                             self.player_index += 1
                     else: 
+                        self.camwindow.scanning_ai_cards = False
                         self.player_index = 0
                         self.card_index = 0
                         self.cards_scanned = []
@@ -326,8 +327,56 @@ class playScreen:
                             self.game_state = GameState.SCAN_FLOP
 
             if (self.game_state == GameState.SCAN_FLOP):
-                self.scan_button.show()
-                self.scan_button.set_text( "Scan Flop" )
+                if (self.camClicked):
+                    self.scan_button.hide()
+                    cards_to_scan = 3
+
+                    if (self.card_index < cards_to_scan):
+                        self.camwindow.instruction_label.set_text( "Scan flop - %d of 3" % (self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            card = self.scanCard()
+                            self.game_instance.community_cards[self.card_index] = card
+                            self.card_index += 1
+                    if (self.card_index == cards_to_scan):
+                        self.killCamera()
+                        print(self.game_instance.community_cards)
+                        self.game_state = GameState.POST_FLOP_BETS
+
+            if (self.game_state == GameState.SCAN_TURN):
+                if (self.camClicked):
+                    self.scan_button.hide()
+                    cards_to_scan = 1
+
+                    if (self.card_index < cards_to_scan):
+                        self.camwindow.instruction_label.set_text( "Scan turn - %d of 1" % (self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            card = self.scanCard()
+                            self.game_instance.community_cards[self.card_index] = card
+                            self.card_index += 1
+                    if (self.card_index == cards_to_scan):
+                        self.killCamera()
+                        print(self.game_instance.community_cards)
+                        self.game_state = GameState.POST_TURN_BETS
+
+            if (self.game_state == GameState.SCAN_RIVER):
+                if (self.camClicked):
+                    self.scan_button.hide()
+                    cards_to_scan = 1
+
+                    if (self.card_index < cards_to_scan):
+                        self.camwindow.instruction_label.set_text( "Scan river - %d of 1" % (self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            card = self.scanCard()
+                            self.game_instance.community_cards[self.card_index] = card
+                            self.card_index += 1
+                    if (self.card_index == cards_to_scan):
+                        self.card_index = 0
+                        self.killCamera()
+                        print(self.game_instance.community_cards)
+                        self.game_state = GameState.FINAL_BETS
 
             if (self.game_state == GameState.SCAN_PLAYER_HAND):
                 if (self.camClicked):
@@ -426,3 +475,6 @@ class playScreen:
         response = json.loads(response.text)
         
         return response["class"]
+    
+    def scanPoolCards(self):
+        pass
