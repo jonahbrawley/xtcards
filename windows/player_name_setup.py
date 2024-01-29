@@ -22,11 +22,11 @@ class playerNameSetupWindow(pygame_gui.elements.UIWindow):
         self.player_name_labels = []
         for i in range(self.playercount):
             player_name_label = pygame_gui.elements.UITextEntryLine(
-            pygame.Rect((h_pad, v_pad), (200, 40)),
-            placeholder_text=f"player{i+1}",  # Use f-string to include the player number in the initial text
-            container=self,
-            parent_element=self,
-            anchors={"left": "left"}
+                pygame.Rect((h_pad, v_pad), (200, 40)),
+                initial_text=f"player{i+1}",  # Use f-string to include the player number in the initial text
+                container=self,
+                parent_element=self,
+                anchors={"left": "left"}
             )
             player_name_label.set_text_length_limit(9),
             self.player_name_labels.append(player_name_label)  # Add the label to the list
