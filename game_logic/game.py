@@ -472,18 +472,18 @@ class GameInstance:
 #         if p_action.lower() == "raise":
 #           p_bet = int(input("Bet:\n"))
 #         next_state = instance.step(p_action, p_bet)
-        print(next_state.name)
-        if next_state == GameState.SCAN_PLAYER_HAND:
-          print(instance.end_game())
+#         print(next_state.name)
+#         if next_state == GameState.SCAN_PLAYER_HAND:
+#           print(instance.end_game())
 
-    print(instance.players[instance.curr_pos], instance.curr_pos)
-    if instance.game_active:
-      print(instance)
+#     print(instance.players[instance.curr_pos], instance.curr_pos)
+#     if instance.game_active:
+#       print(instance)
 
 
-  response = instance.start_game()
-  if response == GameState.ERROR_STATE:
-    break
+#   response = instance.start_game()
+#   if response == GameState.ERROR_STATE:
+#     break
 
-for player in players:
-  print(player)
+# for player in players:
+#   print(player)
