@@ -167,8 +167,8 @@ class playScreen:
         infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2.15)-(info_height)), (info_width, info_height))
 
         # church icon set up
-        church_width = self.width*.20
-        church_height = self.height*.4
+        church_width = self.width*.2
+        church_height = self.height*.45
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
 
         while True:
