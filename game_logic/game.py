@@ -66,6 +66,12 @@ class GameInstance:
 
   def is_curr_pos_at_ai(self):
     return self.players[self.curr_pos].is_ai
+  
+  def get_min_required_bet(self, player=None):
+    if not player:
+      player = self.players[self.curr_pos]
+    return self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+
 
   # setup all variables for a new game state
   def start_game(self):
@@ -133,7 +139,7 @@ class GameInstance:
     return p_action, p_bet
 
   def execute_player_action(self, player, action, bet_amount):
-    min_required_bet = self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+    min_required_bet = self.get_min_required_bet(player)
     print(f"min_required_bet = {min_required_bet}")
 
     if action == "fold":
