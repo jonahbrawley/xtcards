@@ -171,6 +171,7 @@ class playScreen:
         church_width = self.width*.20
         church_height = self.height*.4
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
+        player_chips = [setupWindow.chip_count for i in range(setupWindow.player_count)]
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -216,7 +217,10 @@ class playScreen:
                 for i in range(self.players.aiplayercount):
                     ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
                     game_participants.append(ai)
-                
+
+                #update chips for player window
+                self.player_chips = [player.chips for player in game_participants]
+
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
@@ -298,33 +302,70 @@ class playScreen:
                         self.card_index = 0
                         self.cards_scanned = []
 
+                        self.game_instance.start_game()
+                        self.game_instance.step() # perform small and big blinds
                         self.killCamera()
                         self.game_state = GameState.PREFLOP_BETS # ready to move on
             
-            if (self.game_state == GameState.PREFLOP_BETS):
+            if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
+                next_state = GameState.UNCHANGED_STATE
+                # get the current player details with
+                player_pos = self.game_instance.curr_pos
+                player_action_label = self.players.player_action_list[player_pos]
+
+                player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
+                # show bet dialogue & collect input action, bet for that player
+                self.header.set_text(player + "'s Turn")
+                self.min_bet = self.game_instance.get_min_required_bet()
+
                 self.scan_button.hide()
                 if (self.betwindow == None):
-                    self.betwindow = betWindow(manager, betpos)
-                    
+                    self.betwindow = betWindow(manager, betpos, self.min_bet)
+                    print('DEBUG: Drawing bet window')
                 else: # bet window open
                     if (self.betwindow.folds):
                         print('Player folded!') # later change to remove player from round
                         self.betwindow.kill()
                         self.betwindow = None
-                        self.game_state = GameState.SCAN_FLOP
                         # update it on player window here
-                        
-                    if (self.betwindow.placed_bet != None):
+                        print('DEBUG: Drawing bet window2')
+                        next_state = self.game_instance.step('fold')
+                        player_action_label.set_text("folded")
+
+                    elif (self.betwindow.placed_bet != None):
+                        print('Player bet ')
+                        next_state = self.game_instance.step('call', self.betwindow.placed_bet)
+                        print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
+                            player_action_label.set_text("Checked")
                             print('Player checked')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.game_state = GameState.SCAN_FLOP
+                        elif (self.betwindow.placed_bet == self.min_bet):
+                            player_action_label.set_text("Called")
+                            print('Player called')
                         else:
                             print('Player bet ' + self.betwindow.placed_bet + " chips")
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.game_state = GameState.SCAN_FLOP
+                            player_action_label.set_text(self.betwindow.placed_bet)
+                        self.betwindow.kill()
+                        self.betwindow = None
+
+                if  next_state == GameState.SCAN_FLOP:   
+                    self.game_state = GameState.SCAN_FLOP
+                    self.header.set_text('Scan Flop')
+                    self.scan_button.set_text('Scan Flop')
+                    self.scan_button.show()
+
+
+                if  next_state == GameState.SCAN_TURN:   
+                    self.game_state = GameState.SCAN_TURN
+                    self.header.set_text('Scan Turn Card')
+                    self.scan_button.set_text('Scan Turn')
+                    self.scan_button.show()
+
+                if  next_state == GameState.SCAN_RIVER:   
+                    self.game_state = GameState.SCAN_RIVER
+                    self.header.set_text('Scan River Card')
+                    self.scan_button.set_text('Scan River')
+                    self.scan_button.show()
 
             if (self.game_state == GameState.SCAN_FLOP):
                 if (self.camClicked):
