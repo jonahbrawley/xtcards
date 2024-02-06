@@ -309,7 +309,7 @@ class playScreen:
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
                 # current player's chips
-                self.player_chips = self.game_instance.players[player_pos]
+                self.player_chips = self.game_instance.players[player_pos].chips
                 player_label.set_text(self.game_instance.players[player_pos].name + ":  " + str(self.player_chips) + "  |  ")
                 
                 if (self.game_state == GameState.PREFLOP_BETS):
@@ -355,7 +355,10 @@ class playScreen:
                             print('Player bet ' + self.betwindow.placed_bet + " chips")
                             player_action_label.set_text(self.betwindow.placed_bet)
                             next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
-
+                        # current player's chips
+                        self.player_chips = self.game_instance.players[player_pos].chips
+                        player_label.set_text(self.game_instance.players[player_pos].name + ":  " + str(self.player_chips) + "  |  ")
+                        
                         self.betwindow.kill()
                         self.betwindow = None
 
