@@ -65,7 +65,7 @@ class betWindow(pygame_gui.elements.UIWindow):
                                                             "left": "left"
                                                         })
         self.dynamic_button = pygame_gui.elements.UIButton(pygame.Rect((self.h_pad, -(self.v_pad+self.button_height)), (self.dynamic_button_width, self.button_height)),
-                                                        "Check",
+                                                        "Check/Call",
                                                         manager=manager,
                                                         container=self,
                                                         parent_element=self,
@@ -82,7 +82,7 @@ class betWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.bet_input_box and (self.bet_input_box.get_text() == "0" or self.bet_input_box.get_text() == min_req_bet)):
                 self.dynamic_button.set_text("Check/Call")
             elif (not self.bet_input_box.get_text() == "0"):
-                self.dynamic_button.set_text("Bet")
+                self.dynamic_button.set_text("Raise")
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
             if (event.ui_element == self.dynamic_button):
                 self.placed_bet = self.bet_input_box.get_text()

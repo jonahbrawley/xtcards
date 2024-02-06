@@ -171,7 +171,6 @@ class playScreen:
         church_width = self.width*.20
         church_height = self.height*.4
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
-        player_chips = [setupWindow.chip_count for i in range(setupWindow.player_count)]
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -188,7 +187,6 @@ class playScreen:
             if(playerNameSetupWindow.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
-                
                 self.pause_button.show()
                 
                 self.header.set_text('Start Dealing Cards')
@@ -219,8 +217,6 @@ class playScreen:
                     game_participants.append(ai)
 
                 #update chips for player window
-                self.player_chips = [player.chips for player in game_participants]
-
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
@@ -308,10 +304,22 @@ class playScreen:
                         self.game_state = GameState.PREFLOP_BETS # ready to move on
             
             if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
-                next_state = GameState.UNCHANGED_STATE
                 # get the current player details with
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
+                player_label = self.players.player_labels_list[player_pos]
+                # current player's chips
+                self.player_chips = self.game_instance.players[player_pos]
+                player_label.set_text(self.game_instance.players[player_pos].name + ":  " + str(self.player_chips) + "  |  ")
+                
+                if (self.game_state == GameState.PREFLOP_BETS):
+                    player_blinds = {}
+                    player_blinds = self.game_instance.tmp_pot.bets
+                    for player_index, blind_value in player_blinds.items():
+                        self.players.player_action_list[player_index].set_text(str(blind_value))
+
+                next_state = GameState.UNCHANGED_STATE
+                
 
                 player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
                 # show bet dialogue & collect input action, bet for that player
@@ -334,17 +342,20 @@ class playScreen:
 
                     elif (self.betwindow.placed_bet != None):
                         print('Player bet ')
-                        next_state = self.game_instance.step('call', self.betwindow.placed_bet)
                         print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
-                            player_action_label.set_text("Checked")
+                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                            player_action_label.set_text("Check")
                             print('Player checked')
-                        elif (self.betwindow.placed_bet == self.min_bet):
-                            player_action_label.set_text("Called")
+                        elif (int(self.betwindow.placed_bet) <= self.min_bet):
+                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                            player_action_label.set_text("Call" + self.betwindow.placed_bet)
                             print('Player called')
                         else:
                             print('Player bet ' + self.betwindow.placed_bet + " chips")
                             player_action_label.set_text(self.betwindow.placed_bet)
+                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+
                         self.betwindow.kill()
                         self.betwindow = None
 
