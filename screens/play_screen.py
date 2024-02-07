@@ -235,7 +235,6 @@ class playScreen:
                             print('OPENING CAM')
                             self.camwindow = camWindow(manager, campos)
                             self.camClicked = True
-                            self.header.set_text('Scan AI Cards')
                         elif (self.camClicked):
                             print('KILLING CAM')
                             self.killCamera()
@@ -267,6 +266,7 @@ class playScreen:
             # GAME FLOW STATEMENTS
             # --------------------
             if (self.game_state == GameState.SCAN_AI_HAND):
+                self.header.set_text('Scan AI Cards')
 
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
