@@ -267,7 +267,6 @@ class playScreen:
             # GAME FLOW STATEMENTS
             # --------------------
             if (self.game_state == GameState.SCAN_AI_HAND):
-
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
                     self.scan_button.hide()
