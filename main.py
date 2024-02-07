@@ -13,7 +13,7 @@ Colors = Scheme()
 class xtcApp:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('xtcards')
+        pygame.display.set_caption('Kingdom Cards')
 
         print('OS: '+ os.name)
         if os.name == 'nt':

@@ -78,7 +78,7 @@ class titleScreen:
         header_rect = pygame.Rect(0, self.height*.15, self.width//3, 150)
 
         self.header = UILabel(relative_rect=header_rect,
-                              text='xtcards',
+                              text='Kingdom Cards',
                               manager=manager,
                               object_id='header',
                               anchors={
