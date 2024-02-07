@@ -78,7 +78,7 @@ class titleScreen:
         header_rect = pygame.Rect(0, self.height*.15, self.width//3, 150)
 
         self.header = UILabel(relative_rect=header_rect,
-                              text='xtcards',
+                              text='Kingdom Cards',
                               manager=manager,
                               object_id='header',
                               anchors={
@@ -156,7 +156,7 @@ class titleScreen:
 
                 # cfg window position
                 # TODO: CHANGE WINDOW HAS TO BE CONFIG
-                if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT and cfgpos != None):
+                if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT and self.config != None):
                     cfgpos = self.config.rect
                 
                 # cfg snap to bounds

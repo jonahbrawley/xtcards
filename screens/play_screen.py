@@ -309,7 +309,7 @@ class playScreen:
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
-                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}):
+                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}): 
                     player_blinds = self.game_instance.tmp_pot.bets
                     for player_index, blind_value in player_blinds.items():
                         self.players.player_action_list[player_index].set_text(str(blind_value))
