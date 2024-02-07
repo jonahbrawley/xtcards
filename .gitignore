@@ -4,3 +4,4 @@ venv
 build
 dist
 xtcards.spec
+main.spec
