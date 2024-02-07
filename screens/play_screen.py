@@ -187,7 +187,6 @@ class playScreen:
             if(playerNameSetupWindow.submitPlayerClicked):
                 print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
-                
                 self.pause_button.show()
                 
                 self.header.set_text('Start Dealing Cards')
@@ -216,7 +215,8 @@ class playScreen:
                 for i in range(self.players.aiplayercount):
                     ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips)
                     game_participants.append(ai)
-                
+
+                #update chips for player window
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
@@ -298,33 +298,93 @@ class playScreen:
                         self.card_index = 0
                         self.cards_scanned = []
 
+                        self.game_instance.start_game()
+                        self.game_instance.step() # perform small and big blinds
                         self.killCamera()
                         self.game_state = GameState.PREFLOP_BETS # ready to move on
-            
-            if (self.game_state == GameState.PREFLOP_BETS):
+
+            player_blinds = {}
+            if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
+                # get the current player details with
+                player_pos = self.game_instance.curr_pos
+                player_action_label = self.players.player_action_list[player_pos]
+                player_label = self.players.player_labels_list[player_pos]
+                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}):
+                    player_blinds = self.game_instance.tmp_pot.bets
+                    for player_index, blind_value in player_blinds.items():
+                        self.players.player_action_list[player_index].set_text(str(blind_value))
+                        # player_label.set_text(self.game_instance.players[player_index].name + ":  " + str(self.game_instance.players[player_index].chips) + "  |  ")
+
+                next_state = GameState.UNCHANGED_STATE
+                
+
+                player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
+                # show bet dialogue & collect input action, bet for that player
+                self.header.set_text(player + "'s Turn")
+                self.min_bet = self.game_instance.get_min_required_bet()
+
                 self.scan_button.hide()
                 if (self.betwindow == None):
-                    self.betwindow = betWindow(manager, betpos)
-                    
+                    self.betwindow = betWindow(manager, betpos, self.min_bet)
+                    print('DEBUG: Drawing bet window')
                 else: # bet window open
                     if (self.betwindow.folds):
                         print('Player folded!') # later change to remove player from round
                         self.betwindow.kill()
                         self.betwindow = None
-                        self.game_state = GameState.SCAN_FLOP
                         # update it on player window here
-                        
-                    if (self.betwindow.placed_bet != None):
+                        print('DEBUG: Drawing bet window2')
+                        next_state = self.game_instance.step('fold')
+                        player_action_label.set_text("folded")
+
+                    elif (self.betwindow.placed_bet != None):
+                        print('Player bet ')
+                        print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
+                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                            player_action_label.set_text("Check")
                             print('Player checked')
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.game_state = GameState.SCAN_FLOP
+                        elif (int(self.betwindow.placed_bet) <= self.min_bet):
+                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                            player_action_label.set_text("Call" + self.betwindow.placed_bet)
+                            print('Player called')
                         else:
                             print('Player bet ' + self.betwindow.placed_bet + " chips")
-                            self.betwindow.kill()
-                            self.betwindow = None
-                            self.game_state = GameState.SCAN_FLOP
+                            player_action_label.set_text(self.betwindow.placed_bet)
+                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                        # current player's chips
+                        self.player_chips = self.game_instance.players[player_pos].chips
+                        player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+                        
+                        self.betwindow.kill()
+                        self.betwindow = None
+
+                if  next_state == GameState.SCAN_FLOP:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
+                    self.game_state = GameState.SCAN_FLOP
+                    self.header.set_text('Scan Flop')
+                    self.scan_button.set_text('Scan Flop')
+                    self.scan_button.show()
+
+                if  next_state == GameState.SCAN_TURN:   
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
+                    self.game_state = GameState.SCAN_TURN
+                    self.header.set_text('Scan Turn Card')
+                    self.scan_button.set_text('Scan Turn')
+                    self.scan_button.show()
+
+                if  next_state == GameState.SCAN_RIVER:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
+                    self.game_state = GameState.SCAN_RIVER
+                    self.header.set_text('Scan River Card')
+                    self.scan_button.set_text('Scan River')
+                    self.scan_button.show()
 
             if (self.game_state == GameState.SCAN_FLOP):
                 if (self.camClicked):

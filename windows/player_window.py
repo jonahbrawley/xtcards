@@ -30,6 +30,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "centerx": "centerx"
                                                                     })
         self.player_labels_list = []
+        self.player_action_list = []
         for i in range(len(self.playernames)):
             self.players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
                                                                     self.playernames[i]+ ":  " + str(self.chipcount) + "  |  ",
@@ -42,6 +43,17 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "top_target": self.numplayer_label
                                                                     })
             self.player_labels_list.append(self.players_label)
+            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((180, v_pad), (180, 40)),
+                                                                    "  ",
+                                                                    manager=manager,
+                                                                    object_id="config_window_label",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "left": "left",
+                                                                        "top_target": self.numplayer_label
+                                                                    })
+            self.player_action_list.append(self.players_action)
             v_pad += 50
         for i in range(self.aiplayercount):
             self.ai_players_label = pygame_gui.elements.UILabel(pygame.Rect((20, v_pad), (180, 40)),
@@ -54,5 +66,23 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "left": "left",
                                                                         "top_target": self.numplayer_label
                                                                     })
-            self.player_labels_list.append(self.players_label)
+            self.player_labels_list.append(self.ai_players_label)
+            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((180, v_pad), (180, 40)),
+                                                                    "  ",
+                                                                    manager=manager,
+                                                                    object_id="config_window_label",
+                                                                    container=self,
+                                                                    parent_element=self,
+                                                                    anchors={
+                                                                        "left": "left",
+                                                                        "top_target": self.numplayer_label
+                                                                    })
+            self.player_action_list.append(self.players_action)
             v_pad += 50
+
+        # for i in range(len(self.player_action_list)):
+        #     print(self.player_action_list[i])
+        #     variable_name = "playerAction" + str(i)
+        #     variable_value = self.player_action_list[i]
+        #     exec(f"{variable_name} = {variable_value}")
+        # print(playerAction0)
