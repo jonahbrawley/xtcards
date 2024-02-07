@@ -8,7 +8,7 @@ class infoWindow(pygame_gui.elements.UIWindow):
                          window_display_title='How to Play Poker',
                          object_id='#info_window',
                          draggable=True)
-        self.scroll_box = pygame_gui.elements.UITextBox(""" Welcome to the World of INSERT_GAME_TITLE!
+        self.scroll_box = pygame_gui.elements.UITextBox("""Welcome to the World of INSERT_GAME_TITLE!
 Get ready to dive into a high risk, high reward game of INSERT_GAME_TITLE – where fortunes are made, bluffs are called, and every card is a potential game-changer.
 
 Chapter 1: Setting the Stage
@@ -33,7 +33,7 @@ Chapter 7: Rinse and Repeat
 The thrill doesn't stop! Shuffle the deck, deal the cards, and let the poker frenzy continue. The more you play, the more you'll master the art of reading opponents, crafting killer strategies, and taking big risks!
 
 Congratulations, you've now learned the basics of Poker - where luck meets skill, and every game is unpredictable. May the cards be ever in your favor!""",
-                                                            relative_rect=pygame.Rect((0.000001 * pos.width, 0.025 * pos.height), (0.85 * pos.width, 0.85 * pos.height)),
+                                                            relative_rect=pygame.Rect((0.000001 * pos.width, 0.02 * pos.height), (0.875 * pos.width, 0.825 * pos.height)),
                                                             manager=manager,
                                                             container=self,
                                                             parent_element=self,
