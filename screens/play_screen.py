@@ -267,6 +267,7 @@ class playScreen:
             # GAME FLOW STATEMENTS
             # --------------------
             if (self.game_state == GameState.SCAN_AI_HAND):
+
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
                     self.scan_button.hide()
@@ -405,10 +406,10 @@ class playScreen:
             if (self.game_state == GameState.SCAN_TURN):
                 if (self.camClicked):
                     self.scan_button.hide()
-                    cards_to_scan = 1
+                    cards_to_scan = 4
 
                     if (self.card_index < cards_to_scan):
-                        self.camwindow.instruction_label.set_text( "Scan turn - %d of 1" % (self.card_index+1) )
+                        self.camwindow.instruction_label.set_text( "Scan turn - %d of 1" % (self.card_index+1-3) )
 
                         if (self.camwindow.snaptaken):
                             card = self.scanCard()
@@ -422,10 +423,10 @@ class playScreen:
             if (self.game_state == GameState.SCAN_RIVER):
                 if (self.camClicked):
                     self.scan_button.hide()
-                    cards_to_scan = 1
+                    cards_to_scan = 5
 
                     if (self.card_index < cards_to_scan):
-                        self.camwindow.instruction_label.set_text( "Scan river - %d of 1" % (self.card_index+1) )
+                        self.camwindow.instruction_label.set_text( "Scan river - %d of 1" % (self.card_index+1-4) )
 
                         if (self.camwindow.snaptaken):
                             card = self.scanCard()
