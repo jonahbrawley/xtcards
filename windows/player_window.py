@@ -43,7 +43,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "top_target": self.numplayer_label
                                                                     })
             self.player_labels_list.append(self.players_label)
-            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((180, v_pad), (180, 40)),
+            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((200, v_pad), (180, 40)),
                                                                     "  ",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
@@ -67,7 +67,7 @@ class playerWindow(pygame_gui.elements.UIWindow):
                                                                         "top_target": self.numplayer_label
                                                                     })
             self.player_labels_list.append(self.ai_players_label)
-            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((180, v_pad), (180, 40)),
+            self.players_action = pygame_gui.elements.UILabel(pygame.Rect((200, v_pad), (180, 40)),
                                                                     "  ",
                                                                     manager=manager,
                                                                     object_id="config_window_label",

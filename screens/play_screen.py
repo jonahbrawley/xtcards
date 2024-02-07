@@ -346,7 +346,7 @@ class playScreen:
                             print('Player checked')
                         elif (int(self.betwindow.placed_bet) <= self.min_bet):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
-                            player_action_label.set_text("Call" + self.betwindow.placed_bet)
+                            player_action_label.set_text(self.betwindow.placed_bet)
                             print('Player called')
                         else:
                             print('Player bet ' + self.betwindow.placed_bet + " chips")
