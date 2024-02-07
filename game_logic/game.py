@@ -367,6 +367,17 @@ class GameInstance:
         res.append(player)
     return res
 
+  def get_total_pot_value(self):
+    # current round pot value
+    pot_round_value = self.tmp_pot.sum_bets()
+
+    # total game pot value
+    pot_game_value = pot_round_value
+    for pot in self.side_pots:
+      pot_game_value += pot.sum_bets()
+
+    return pot_game_value
+
   def to_json_at_ai(self):
     '''
     data to add to json object:

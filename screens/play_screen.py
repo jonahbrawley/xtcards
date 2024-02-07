@@ -302,21 +302,18 @@ class playScreen:
                         self.game_instance.step() # perform small and big blinds
                         self.killCamera()
                         self.game_state = GameState.PREFLOP_BETS # ready to move on
-            
+
+            player_blinds = {}
             if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
                 # get the current player details with
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
-                # current player's chips
-                self.player_chips = self.game_instance.players[player_pos].chips
-                player_label.set_text(self.game_instance.players[player_pos].name + ":  " + str(self.player_chips) + "  |  ")
-                
-                if (self.game_state == GameState.PREFLOP_BETS):
-                    player_blinds = {}
+                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}):
                     player_blinds = self.game_instance.tmp_pot.bets
                     for player_index, blind_value in player_blinds.items():
                         self.players.player_action_list[player_index].set_text(str(blind_value))
+                        # player_label.set_text(self.game_instance.players[player_index].name + ":  " + str(self.game_instance.players[player_index].chips) + "  |  ")
 
                 next_state = GameState.UNCHANGED_STATE
                 
@@ -357,25 +354,33 @@ class playScreen:
                             next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
                         # current player's chips
                         self.player_chips = self.game_instance.players[player_pos].chips
-                        player_label.set_text(self.game_instance.players[player_pos].name + ":  " + str(self.player_chips) + "  |  ")
+                        player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
                         
                         self.betwindow.kill()
                         self.betwindow = None
 
-                if  next_state == GameState.SCAN_FLOP:   
+                if  next_state == GameState.SCAN_FLOP:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
                     self.game_state = GameState.SCAN_FLOP
                     self.header.set_text('Scan Flop')
                     self.scan_button.set_text('Scan Flop')
                     self.scan_button.show()
 
-
                 if  next_state == GameState.SCAN_TURN:   
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
                     self.game_state = GameState.SCAN_TURN
                     self.header.set_text('Scan Turn Card')
                     self.scan_button.set_text('Scan Turn')
                     self.scan_button.show()
 
-                if  next_state == GameState.SCAN_RIVER:   
+                if  next_state == GameState.SCAN_RIVER:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
                     self.game_state = GameState.SCAN_RIVER
                     self.header.set_text('Scan River Card')
                     self.scan_button.set_text('Scan River')
