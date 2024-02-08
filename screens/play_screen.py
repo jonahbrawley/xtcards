@@ -19,6 +19,8 @@ from windows.church_window import churchWindow
 from game_logic.game import GameInstance
 from game_logic.player import Player
 
+from local_ml.card_detection import classify_card
+
 import pygame.camera
 
 # image proc
@@ -32,6 +34,7 @@ homeswitch = False
 
 class playScreen:
     def __init__(self, manager, window, state):
+        self.offload_card_detection = True
         Colors = Scheme()
         self.state = state
         
@@ -528,13 +531,19 @@ class playScreen:
         # used to scan AI / player cards
         img = cv2.resize(img, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
         img = np.array(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        img_bytes = img.tobytes()
-        img_b64 = base64.b64encode(img_bytes).decode('utf-8')
 
-        response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
-        response = json.loads(response.text)
-        
-        return response["class"]
+        if self.offload_card_detection:
+            # TODO: offloaded card detection ai
+            response = classify_card(img)
+            return response
+        else:
+            img_bytes = img.tobytes()
+            img_b64 = base64.b64encode(img_bytes).decode('utf-8')
+
+            response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+            response = json.loads(response.text)
+            
+            return response["class"]
     
     def scanPoolCards(self):
         pass
