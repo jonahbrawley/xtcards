@@ -245,7 +245,7 @@ class playScreen:
                             infoClicked = True
                             self.info = infoWindow(manager=manager, pos=infopos)
                             self.info.set_blocking(False)
-                            self.info.load_text("assets/poker_rules.txt")
+                            # self.info.load_text("assets/poker_rules.txt")
 
                     # DONATION BUTTON
                     if (event.ui_element == self.church_button and not churchClicked):
