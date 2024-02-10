@@ -389,6 +389,15 @@ class playScreen:
                     self.scan_button.set_text('Scan River')
                     self.scan_button.show()
 
+                if  next_state == GameState.SCAN_PLAYER_HAND:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
+                    self.game_state = GameState.SCAN_RIVER
+                    self.header.set_text('Scan Player Hands')
+                    self.scan_button.set_text('Scan Player Hands')
+                    self.scan_button.show()
+
             if (self.game_state == GameState.SCAN_FLOP):
                 if (self.camClicked):
                     self.scan_button.hide()
