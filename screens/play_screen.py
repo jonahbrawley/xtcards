@@ -115,12 +115,12 @@ class playScreen:
         #donation button
         church_button_rect = pygame.Rect(-415, 15, 350, 50)
         self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
-                                                          text='DONATE TO MAGNOLIA CHURCH',
-                                                          object_id='#church_button',
-                                                          manager=manager,
-                                                          anchors={
-                                                          'right': 'right'
-                                                          })
+                                                        text='DONATE TO MAGNOLIA CHURCH',
+                                                        object_id='#church_button',
+                                                        manager=manager,
+                                                        anchors={
+                                                        'right': 'right'
+                                                        })
         self.church_button.hide()
 
         self.player_index = 0 # keep track of which player we are operating on
