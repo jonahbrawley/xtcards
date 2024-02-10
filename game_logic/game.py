@@ -23,7 +23,7 @@ class GameInstance:
     END = 4
 
   
-  USE_PHYSICAL_DECK = False
+  USE_PHYSICAL_DECK = True
   SMALL_BLIND = 5
   BIG_BLIND = 10
 
