@@ -192,7 +192,7 @@ class GameInstance:
       Initiate the next game step (e.g. start round, player move, etc.)
       Returns: GameState -- next game state value after step method is completed
       '''
-      if not self.game_active:
+      if not self.game_active or self.round == self.GameRound.END:
         print("Error: Cannot step to next game move because game is not in progress.")
         return GameState.ERROR_STATE
 
