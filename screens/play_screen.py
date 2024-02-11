@@ -320,6 +320,7 @@ class playScreen:
 
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos, self.min_bet)
+                    self.betwindow.yourmoney_label.set_text("You have " + str(self.game_instance.players[self.game_instance.curr_pos].chips) + " chips")
                     print('DEBUG: Drawing bet window')
                 else: # bet window open
                     if (self.betwindow.folds):
