@@ -379,7 +379,9 @@ class playScreen:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
                         players.set_text('')
-                    self.game_state = GameState.SCAN_RIVER
+                    self.game_state = GameState.SCAN_PLAYER_HAND
+                    self.player_index = 0
+                    self.card_index = 0
                     self.header.set_text('Scan Player Hands')
 
             if (self.game_state == GameState.SCAN_FLOP):
@@ -467,7 +469,7 @@ class playScreen:
                         self.cards_scanned = []
 
                         self.killCamera()
-                        self.game_state = GameState.PREFLOP_BETS # ready to move on
+                        self.game_state = GameState.END_ROUND # ready for reveal
                 else:
                     self.viewCamera(manager, campos) # open camera window
 
