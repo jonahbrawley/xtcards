@@ -22,7 +22,7 @@ class CardRanker:
   def rank_and_calculate_winnings(players, community_cards, pots):
     rankings = CardRanker.rank_players(players, community_cards)
     winnings = CardRanker.calculate_winnings(players, rankings, pots)
-    return winnings
+    return rankings, winnings
 
   # Determine the order of hand rankings
   @staticmethod

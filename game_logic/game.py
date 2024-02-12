@@ -339,7 +339,7 @@ class GameInstance:
     self.side_pots += self.tmp_pot.to_sidepots()
 
     # rank and calculate winnings for players based on cards
-    winnings = CardRanker.rank_and_calculate_winnings(self.players, self.community_cards, self.side_pots)
+    rankings, winnings = CardRanker.rank_and_calculate_winnings(self.players, self.community_cards, self.side_pots)
 
     # distribute winnings
     for player in self.players:
@@ -357,7 +357,7 @@ class GameInstance:
         print(f"Player Out: {p.name}")
     self.game_active = False
 
-    return winnings
+    return rankings, winnings
 
 
   def players_that_can_do_action(self):
