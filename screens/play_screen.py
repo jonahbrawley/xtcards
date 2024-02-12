@@ -93,14 +93,14 @@ class playScreen:
 
         # Scan AI cards button
         dealing_button_rect = pygame.Rect(15, -100, 250, 50)
-        self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
-                                            text='Scan AI\'s Hand',
-                                            manager=manager,
-                                            anchors={
-                                            'centerx': 'centerx',
-                                            'bottom': 'bottom'
-                                            })
-        self.scan_button.hide()
+        # self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+        #                                     text='Scan AI\'s Hand',
+        #                                     manager=manager,
+        #                                     anchors={
+        #                                     'centerx': 'centerx',
+        #                                     'bottom': 'bottom'
+        #                                     })
+        # self.scan_button.hide()
 
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
@@ -115,12 +115,12 @@ class playScreen:
         #donation button
         church_button_rect = pygame.Rect(-415, 15, 350, 50)
         self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
-                                                          text='DONATE TO MAGNOLIA CHURCH',
-                                                          object_id='#church_button',
-                                                          manager=manager,
-                                                          anchors={
-                                                          'right': 'right'
-                                                          })
+                                                        text='DONATE TO MAGNOLIA CHURCH',
+                                                        object_id='#church_button',
+                                                        manager=manager,
+                                                        anchors={
+                                                        'right': 'right'
+                                                        })
         self.church_button.hide()
 
         self.player_index = 0 # keep track of which player we are operating on
@@ -192,8 +192,8 @@ class playScreen:
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
                 self.pause_button.show()
                 
-                self.header.set_text('Start Dealing Cards')
-                self.scan_button.show()
+                # self.header.set_text('Start Dealing Cards')
+                # self.scan_button.show()
                 playerNameSetupWindow.submitPlayerClicked = False
 
                 self.header.show()
@@ -231,16 +231,6 @@ class playScreen:
                             pauseClicked = True
                             self.pause = pauseWindow(manager=manager, pos=pausepos)
                             self.pause.set_blocking(True)
-                    
-                    # CAMERA BUTTON
-                    if (event.ui_element == self.scan_button):
-                        if (not self.camClicked):
-                            print('OPENING CAM')
-                            self.camwindow = camWindow(manager, campos)
-                            self.camClicked = True
-                        elif (self.camClicked):
-                            print('KILLING CAM')
-                            self.killCamera()
 
                     # INFO BUTTON
                     if (event.ui_element == self.info_button and not infoClicked):
@@ -272,8 +262,6 @@ class playScreen:
                 self.header.set_text('Scan AI Cards')
 
                 if (self.camClicked):
-                    self.camwindow.scanning_ai_cards = True # hide AI cards from player
-                    self.scan_button.hide()
                     cards_to_scan = 2
 
                     while (self.player_index < len(self.game_instance.players) and not self.game_instance.players[self.player_index].is_ai):
@@ -295,7 +283,7 @@ class playScreen:
                             print(curr_player.cards)
                             self.cards_scanned = []
                             self.player_index += 1
-                    else: 
+                    else: # done scanning cards
                         self.camwindow.scanning_ai_cards = False
                         self.player_index = 0
                         self.card_index = 0
@@ -304,10 +292,14 @@ class playScreen:
                         self.game_instance.start_game()
                         self.game_instance.step() # perform small and big blinds
                         self.killCamera()
-                        self.game_state = GameState.PREFLOP_BETS # ready to move on
+                        self.game_state = GameState.PREFLOP_BETS
+                else:
+                    self.viewCamera(manager, campos) # open camera window
+                    self.camwindow.scanning_ai_cards = True # hide AI cards from player
 
             player_blinds = {}
-            if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
+            if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or 
+                self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
                 # get the current player details with
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
@@ -326,9 +318,9 @@ class playScreen:
                 self.header.set_text(player + "'s Turn")
                 self.min_bet = self.game_instance.get_min_required_bet()
 
-                self.scan_button.hide()
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos, self.min_bet)
+                    self.betwindow.yourmoney_label.set_text("You have " + str(self.game_instance.players[self.game_instance.curr_pos].chips) + " chips")
                     print('DEBUG: Drawing bet window')
                 else: # bet window open
                     if (self.betwindow.folds):
@@ -368,8 +360,6 @@ class playScreen:
                         players.set_text('')
                     self.game_state = GameState.SCAN_FLOP
                     self.header.set_text('Scan Flop')
-                    self.scan_button.set_text('Scan Flop')
-                    self.scan_button.show()
 
                 if  next_state == GameState.SCAN_TURN:   
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
@@ -377,8 +367,6 @@ class playScreen:
                         players.set_text('')
                     self.game_state = GameState.SCAN_TURN
                     self.header.set_text('Scan Turn Card')
-                    self.scan_button.set_text('Scan Turn')
-                    self.scan_button.show()
 
                 if  next_state == GameState.SCAN_RIVER:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
@@ -386,12 +374,18 @@ class playScreen:
                         players.set_text('')
                     self.game_state = GameState.SCAN_RIVER
                     self.header.set_text('Scan River Card')
-                    self.scan_button.set_text('Scan River')
-                    self.scan_button.show()
+
+                if  next_state == GameState.SCAN_PLAYER_HAND:
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                    for players in self.players.player_action_list:
+                        players.set_text('')
+                    self.game_state = GameState.SCAN_PLAYER_HAND
+                    self.player_index = 0
+                    self.card_index = 0
+                    self.header.set_text('Scan Player Hands')
 
             if (self.game_state == GameState.SCAN_FLOP):
                 if (self.camClicked):
-                    self.scan_button.hide()
                     cards_to_scan = 3
 
                     if (self.card_index < cards_to_scan):
@@ -405,10 +399,11 @@ class playScreen:
                         self.killCamera()
                         print(self.game_instance.community_cards)
                         self.game_state = GameState.POST_FLOP_BETS
+                else:
+                    self.viewCamera(manager, campos) # open camera window
 
             if (self.game_state == GameState.SCAN_TURN):
                 if (self.camClicked):
-                    self.scan_button.hide()
                     cards_to_scan = 4
 
                     if (self.card_index < cards_to_scan):
@@ -422,10 +417,11 @@ class playScreen:
                         self.killCamera()
                         print(self.game_instance.community_cards)
                         self.game_state = GameState.POST_TURN_BETS
+                else:
+                    self.viewCamera(manager, campos) # open camera window
 
             if (self.game_state == GameState.SCAN_RIVER):
                 if (self.camClicked):
-                    self.scan_button.hide()
                     cards_to_scan = 5
 
                     if (self.card_index < cards_to_scan):
@@ -440,11 +436,12 @@ class playScreen:
                         self.killCamera()
                         print(self.game_instance.community_cards)
                         self.game_state = GameState.FINAL_BETS
+                else:
+                    self.viewCamera(manager, campos) # open camera window
 
             if (self.game_state == GameState.SCAN_PLAYER_HAND):
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = False
-                    self.scan_button.hide()
                     cards_to_scan = 2
 
                     while (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].is_ai):
@@ -472,7 +469,9 @@ class playScreen:
                         self.cards_scanned = []
 
                         self.killCamera()
-                        self.game_state = GameState.PREFLOP_BETS # ready to move on
+                        self.game_state = GameState.END_ROUND # ready for reveal
+                else:
+                    self.viewCamera(manager, campos) # open camera window
 
             manager.update(time_delta)
             self.window.blit(self.background, (0,0))
@@ -510,6 +509,10 @@ class playScreen:
     def delete(self, manager):
         print('DEBUG: Deleting objects')
         manager.clear_and_reset()
+
+    def viewCamera(self, manager, pos):
+        self.camwindow = camWindow(manager, pos)
+        self.camClicked = True
     
     def killCamera(self):
         # only call if self.camwindow != None
@@ -544,6 +547,3 @@ class playScreen:
             response = json.loads(response.text)
             
             return response["class"]
-    
-    def scanPoolCards(self):
-        pass

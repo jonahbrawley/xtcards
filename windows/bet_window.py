@@ -7,7 +7,7 @@ class betWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos, min_bet):
         super().__init__((pos),
                         manager,
-                        window_display_title='BETTING_PLACEHOLDER',
+                        window_display_title='What do you wager?',
                         object_id='#setup_window',
                         draggable=False)
         self.v_pad = 30
