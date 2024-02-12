@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 from pygame_gui.elements import UILabel
+from pygame_gui.elements import UITextBox
 
 from objects.screenstate import ScreenState
 from objects.gamestate import GameState
@@ -18,6 +19,8 @@ from windows.church_window import churchWindow
 
 from game_logic.game import GameInstance
 from game_logic.player import Player
+from game_logic.card_ranker import CardRanker
+
 
 from local_ml.card_detection import classify_card
 
@@ -93,14 +96,14 @@ class playScreen:
 
         # Scan AI cards button
         dealing_button_rect = pygame.Rect(15, -100, 250, 50)
-        # self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
-        #                                     text='Scan AI\'s Hand',
-        #                                     manager=manager,
-        #                                     anchors={
-        #                                     'centerx': 'centerx',
-        #                                     'bottom': 'bottom'
-        #                                     })
-        # self.scan_button.hide()
+        self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                            text='Scan AI\'s Hand',
+                                            manager=manager,
+                                            anchors={
+                                            'centerx': 'centerx',
+                                            'bottom': 'bottom'
+                                            })
+        self.scan_button.hide()
 
         #info button
         info_button_rect = pygame.Rect(-55, 15, 40, 50)
@@ -126,6 +129,21 @@ class playScreen:
         self.player_index = 0 # keep track of which player we are operating on
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
+
+        # bet set up TEMP
+        result_width = self.width*.25
+        result_height = self.height*.50
+        results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height*.25), (result_width, result_height))
+
+        self.result_text = UITextBox('',
+                            relative_rect=results_rect,
+                            manager=manager,
+                            object_id='config_window_label',
+                            anchors={
+                                'left': 'left',
+                                'top': 'top'
+                            })
+        self.result_text.hide()
 
         self.setup = setupWindow(manager, stppos)
 
@@ -460,6 +478,7 @@ class playScreen:
                             self.card_index = 0
                             print("PLAYER %s CARDS:" % (curr_player.name))
                             curr_player.cards = self.cards_scanned
+                            self.game_instance.players[self.player_index].cards = curr_player.cards
                             print(curr_player.cards)
                             self.cards_scanned = []
                             self.player_index += 1
@@ -470,10 +489,41 @@ class playScreen:
 
                         self.killCamera()
                         self.game_state = GameState.END_ROUND # ready for reveal
+                        results = self.game_instance.end_game()
                 else:
                     self.viewCamera(manager, campos) # open camera window
 
-            manager.update(time_delta)
+            if (self.game_state == GameState.END_ROUND):
+                self.result_text.show()
+                self.scan_button.set_text('Next Round')
+                self.scan_button.show()
+                self.ranker = CardRanker()
+                winning_hand = self.ranker.res[0]
+                print(winning_hand)
+                if (len(results) >= 2):
+                    text = 'Split pot: '
+                    for position, chips in results.items():
+                        player = self.game_instance.players[position]
+                        text += f"{player.name} wins {chips} chips, "
+                        self.player_chips = player.chips
+                        player_label = self.players.player_labels_list[position]
+                        player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
+                    self.result_text.set_text(text[:-2]) 
+                    self.header.set_text('Split Pot!')
+                else:
+                    for position, chips in results.items():
+                        player = self.game_instance.players[position]
+                        self.result_text.set_text(f"Player at position {player.name} has {chips} chips.")
+                        self.header.set_text(f"{player.name} wins {chips} chips!")
+                        self.player_chips = player.chips
+                        player_label = self.players.player_labels_list[position]
+                        player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
+                if (self.scan_button.pressed):
+                    self.game_state = GameState.SCAN_AI_HAND
+                    self.result_text.hide()
+                    self.scan_button.hide()
+
+            manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
             
             if self.camwindow != None:
