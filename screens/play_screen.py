@@ -10,6 +10,7 @@ from windows.setup import setupWindow
 from windows.pause_window import pauseWindow
 from windows.player_window import playerWindow
 from windows.bank_window import bankWindow
+from windows.table_window import tableWindow
 from windows.player_name_setup import playerNameSetupWindow
 from windows.bet_window import betWindow
 from windows.cam_window import camWindow
@@ -147,15 +148,18 @@ class playScreen:
 
         # bank set up
         bank_width = self.width*.25
-        bank_height = self.height*.55
+        bank_height = self.height*.275
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
+
+        # table set up
+        tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
 
         # player name set up
         playerSetup_width = self.width*.26
         playerSetup_height = self.height*.46
         playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
 
-        # bet set up TEMP
+        # bet set up
         bet_width = self.width*.25
         bet_height = self.height*.50
         betpos = pygame.Rect(((self.width*.50)-(bet_width//2), self.height*.25), (bet_width, bet_height))
@@ -200,6 +204,7 @@ class playScreen:
                 self.info_button.show()
                 self.church_button.show()
 
+                self.table = tableWindow(manager=manager, pos=tablepos)
                 self.bank = bankWindow(manager=manager, pos=bankpos)
 
                 setupWindow.startClicked = False # why is this here?
@@ -394,6 +399,7 @@ class playScreen:
                         if (self.camwindow.snaptaken):
                             card = self.scanCard()
                             self.game_instance.community_cards[self.card_index] = card
+                            self.updateTable(self.game_instance.community_cards) # update the table
                             self.card_index += 1
                     if (self.card_index == cards_to_scan):
                         self.killCamera()
@@ -547,3 +553,35 @@ class playScreen:
             response = json.loads(response.text)
             
             return response["class"]
+        
+    def updateTable(self, community_cards):
+        index = 0
+        disp = None
+        suit = None
+        id = None
+        for card in community_cards:
+            # if card == NA
+             # disp = CARD_OUTLINE_IMG
+            # else
+             # create path to card img from current card's classifier
+             # create surface from corresponding card img
+             # disp = pygame.surfarray.make_surface(card)
+            if card != 'NA':
+                if card[1] == "H":
+                    suit = "assets/cards/hearts"
+                elif card[1] == "D":
+                    suit = "assets/cards/diamonds"
+                elif card[1] == "C":
+                    suit = "assets/cards/clubs"
+                elif card[1] == "S":
+                    suit = "assets/cards/spades"
+                
+                if card[0] == "T":
+                    id = suit + "/10.png"
+                else:
+                    id = suit + "/" + card[0] + ".png"
+                
+                disp = pygame.surface.make_surface(id)
+            
+            self.table.table_cards[index].set_image(disp)
+            index = index + 1
