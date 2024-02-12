@@ -418,6 +418,7 @@ class playScreen:
                         if (self.camwindow.snaptaken):
                             card = self.scanCard()
                             self.game_instance.community_cards[self.card_index] = card
+                            self.updateTable(self.game_instance.community_cards) # update the table
                             self.card_index += 1
                     if (self.card_index == cards_to_scan):
                         self.killCamera()
@@ -436,6 +437,7 @@ class playScreen:
                         if (self.camwindow.snaptaken):
                             card = self.scanCard()
                             self.game_instance.community_cards[self.card_index] = card
+                            self.updateTable(self.game_instance.community_cards) # update the table
                             self.card_index += 1
                     if (self.card_index == cards_to_scan):
                         self.card_index = 0
@@ -555,17 +557,10 @@ class playScreen:
             return response["class"]
         
     def updateTable(self, community_cards):
-        index = 0
-        disp = None
         suit = None
         id = None
-        for card in community_cards:
-            # if card == NA
-             # disp = CARD_OUTLINE_IMG
-            # else
-             # create path to card img from current card's classifier
-             # create surface from corresponding card img
-             # disp = pygame.surfarray.make_surface(card)
+        for index in range(len(community_cards)):
+            card = community_cards[index]
             if card != 'NA':
                 if card[1] == "H":
                     suit = "assets/cards/hearts"
@@ -580,8 +575,10 @@ class playScreen:
                     id = suit + "/10.png"
                 else:
                     id = suit + "/" + card[0] + ".png"
-                
-                disp = pygame.surface.make_surface(id)
             
-            self.table.table_cards[index].set_image(disp)
+                card_element = getattr(self.table, f"card{index + 1}")
+                card_element.set_image(pygame.image.load(id))
+                print("Table card " + str(index+1) + " set to " + id)
+
             index = index + 1
+        print("-- Done updating --")
