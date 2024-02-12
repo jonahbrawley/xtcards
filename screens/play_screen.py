@@ -20,7 +20,6 @@ from windows.church_window import churchWindow
 
 from game_logic.game import GameInstance
 from game_logic.player import Player
-from game_logic.card_ranker import CardRanker
 
 
 from local_ml.card_detection import classify_card
@@ -497,7 +496,7 @@ class playScreen:
 
                         self.killCamera()
                         self.game_state = GameState.END_ROUND # ready for reveal
-                        results = self.game_instance.end_game()
+                        rankings, results = self.game_instance.end_game()
                 else:
                     self.viewCamera(manager, campos) # open camera window
 
@@ -505,9 +504,6 @@ class playScreen:
                 self.result_text.show()
                 self.scan_button.set_text('Next Round')
                 self.scan_button.show()
-                self.ranker = CardRanker()
-                winning_hand = self.ranker.res[0]
-                print(winning_hand)
                 if (len(results) >= 2):
                     text = 'Split pot: '
                     for position, chips in results.items():
