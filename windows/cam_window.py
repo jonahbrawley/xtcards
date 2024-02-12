@@ -46,15 +46,10 @@ class camWindow(pygame_gui.elements.UIWindow):
                                             'top_target': self.instruction_label,
                                             'centerx': 'centerx'
                                             })
-        
-        #cameras = pygame.camera.list_cameras()
-        #self.webcam = pygame.camera.Camera(cameras[0])
         self.webcam = cv2.VideoCapture(0)
-        #self.webcam.start()
     
     def draw_camera(self):
         if self.drawcam:
-            #self.img = self.webcam.get_image()
             _, frame = self.webcam.read()
             frame = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) # fix colors
             self.img = frame
@@ -79,7 +74,6 @@ class camWindow(pygame_gui.elements.UIWindow):
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
         
-        #edges = cv2.Canny(imgblur, 200, 150)
         return img
 
     def process_event(self, event):
@@ -89,4 +83,3 @@ class camWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.capture_button):
                 self.drawcam = False
                 self.snaptaken = True
-                # SEND self.img to lambda or set state to do this here
