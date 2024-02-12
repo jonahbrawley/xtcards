@@ -1,24 +1,13 @@
 class Player:
   __ids = [] # store all player ids privately
-  def __init__(self, name, is_ai, chips=1000, id=None, cards=None):
-    if id:
-      self.id = id
-    else:
-      self.__generate_id()
+  def __init__(self, name, is_ai, id, chips=1000, cards=None):
+    self.id = id
     self.name = name
     self.chips = chips
     self.last_action = None # wait, fold, call, raise, all_in, pot_committed, out
     self.curr_bet = 0
     self.cards = cards
     self.is_ai = is_ai
-
-  def __generate_id(self):
-    if len(self.__ids) == 0:
-      self.id = 0
-      self.__ids.append(self.id)
-    else:
-      self.id = self.__ids[-1] + 1
-      self.__ids.append(self.id)
 
   def pull_cards(self, deck):
     self.cards = [deck.pull(), deck.pull()]
