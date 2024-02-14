@@ -3,6 +3,8 @@ import pygame_gui
 
 from random import shuffle
 
+# Used to display player information during the game
+
 class playerWindow(pygame_gui.elements.UIWindow):
     aiPlayerNames = ["HolyBot", "AngelAI", "GodBot", "NoahsAI"]
     shuffle(aiPlayerNames)

@@ -12,7 +12,7 @@ if debug_mode:
     print('DEBUG MODE FOR TENSORFLOW MODEL')
 
 # # Clear cache directory
-os.environ["TFHUB_CACHE_DIR"] = "/nonexistent/directory"
+#os.environ["TFHUB_CACHE_DIR"] = "/nonexistent/directory"
 
 model = None
 if not debug_mode:

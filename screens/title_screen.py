@@ -47,7 +47,7 @@ class titleScreen:
         if len(card_filenames) >= num_cards:
             card_filenames = random.sample(card_filenames, num_cards)
         
-        print(card_filenames)
+        #print(card_filenames)
 
         self.cards = []
         for filename in card_filenames:
@@ -147,15 +147,14 @@ class titleScreen:
                         print('TITLE: Starting game')
                         self.state = ScreenState.START
                     if event.ui_element == self.quit_button:
-                        print('TITLE: I should really be going!')
+                        print('TITLE: Quitting')
                         return ScreenState.QUIT
                     if (event.ui_element == self.settings_button and not self.isConfClicked):
-                        print('TITLE: Drawing config dialog')
+                        print('TITLE: Drawing config')
                         self.config = configWindow(manager=manager, pos=cfgpos)
                         self.isConfClicked = True
 
                 # cfg window position
-                # TODO: CHANGE WINDOW HAS TO BE CONFIG
                 if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT and self.config != None):
                     cfgpos = self.config.rect
                 
