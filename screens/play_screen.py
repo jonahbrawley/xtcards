@@ -11,6 +11,7 @@ from windows.setup import setupWindow
 from windows.pause_window import pauseWindow
 from windows.player_window import playerWindow
 from windows.bank_window import bankWindow
+from windows.log_window import logWindow
 from windows.table_window import tableWindow
 from windows.player_name_setup import playerNameSetupWindow
 from windows.bet_window import betWindow
@@ -151,6 +152,7 @@ class playScreen:
         pauseClicked = False
         infoClicked = False
         churchClicked = False
+        logClicked = False
 
         # pause set up
         pause_width = 350
