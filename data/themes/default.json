@@ -219,6 +219,24 @@
             "regular_path": "assets/jbm-regular.ttf"
         }
     },
+    "result_textbox": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "18",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_text":"rgb(243, 243, 243)"
+        },
+        "misc":
+        {
+            "text_horiz_alignment": "left"
+        }
+    },
     "drop_down_menu.#drop_down_options_list.button":
     {
         "font":

@@ -6,6 +6,7 @@ from pygame_gui.elements import UITextBox
 from objects.screenstate import ScreenState
 from objects.gamestate import GameState
 from objects.scheme import Scheme
+from windows.results_window import resultsWindow
 
 from windows.setup import setupWindow
 from windows.pause_window import pauseWindow
@@ -130,15 +131,16 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
-        # bet set up
-        result_width = self.width*.25
-        result_height = self.height*.50
-        results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height*.25), (result_width, result_height))
 
-        self.result_text = UITextBox('',
+        # bet set up TEMP
+        result_width = self.width*.3
+        result_height = self.height*.22
+        results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
+
+        self.result_text = UITextBox(' ',
                             relative_rect=results_rect,
                             manager=manager,
-                            object_id='config_window_label',
+                            object_id='result_textbox',
                             anchors={
                                 'left': 'left',
                                 'top': 'top'
@@ -171,6 +173,7 @@ class playScreen:
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
+        resultpos = pygame.Rect(((self.width/2)-(self.width*.3/2), (self.height/2.8)-(bank_height/2)), (self.width*.3, bank_height))
 
         # player name set up
         playerSetup_width = self.width*.26
@@ -220,6 +223,8 @@ class playScreen:
                 self.church_button.show()
 
                 self.table = tableWindow(manager=manager, pos=tablepos)
+                self.result_table = resultsWindow(manager=manager, pos=resultpos)
+                self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
 
                 setupWindow.startClicked = False
@@ -499,26 +504,49 @@ class playScreen:
                 self.scan_button.show()
                 if (len(results) >= 2):
                     text = 'Split pot: '
+                    winning_hand = rankings[0][0][2]
                     for position, chips in results.items():
                         player = self.game_instance.players[position]
                         text += f"{player.name} wins {chips} chips, "
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
-                    self.result_text.set_text(text[:-2]) 
+                    self.result_text.set_text(text[:-2] + "\nTop Hand: " + winning_hand + "\n") 
                     self.header.set_text('Split Pot!')
                 else:
+                    winning_hand = rankings[0][0][2]
                     for position, chips in results.items():
                         player = self.game_instance.players[position]
-                        self.result_text.set_text(f"Player at position {player.name} has {chips} chips.")
+                        self.result_text.set_text(f"{player.name} wins {chips} chips.\nTop Hand: {winning_hand}")
                         self.header.set_text(f"{player.name} wins {chips} chips!")
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
+                for index in range(len(rankings[0][0][3])):
+                    card = rankings[0][0][3][index]
+                    if card != 'NA':
+                        if card[1] == "H":
+                            suit = "assets/cards/hearts"
+                        elif card[1] == "D":
+                            suit = "assets/cards/diamonds"
+                        elif card[1] == "C":
+                            suit = "assets/cards/clubs"
+                        elif card[1] == "S":
+                            suit = "assets/cards/spades"
+                        if card[0] == "T":
+                            id = suit + "/10.png"
+                        else:
+                            id = suit + "/" + card[0] + ".png"
+                    card_element = getattr(self.result_table, f"card{index + 1}")
+                    card_element.set_image(pygame.image.load(id))
+                self.result_table.show()
                 if (self.scan_button.pressed):
                     self.game_state = GameState.SCAN_AI_HAND
                     self.result_text.hide()
                     self.scan_button.hide()
+                    self.result_table.hide()
+                    self.clearTable(manager, tablepos)
+
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
@@ -594,6 +622,11 @@ class playScreen:
             
             return response["class"]
         
+    def clearTable(self, manager, tablepos):
+        self.table.kill()
+        self.table = None
+        self.table = tableWindow(manager=manager, pos=tablepos)
+
     def updateTable(self, community_cards):
         suit = None
         id = None
