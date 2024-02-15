@@ -170,6 +170,11 @@ class playScreen:
         bank_width = self.width*.25
         bank_height = self.height*.275
         bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
+        
+        # log set up
+        log_width = self.width*.25
+        log_height = self.height*.275
+        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height+10)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
@@ -270,6 +275,12 @@ class playScreen:
                         churchClicked = True
                         self.church = churchWindow(manager=manager, pos=churchpos)
                         self.church.set_blocking(False)
+                        
+                    if(event.ui_element == bankWindow.log_button and not logClicked):
+                        print('PLAY: Drawing log dialog')
+                        logClicked = True
+                        self.log = logWindow(manager=manager, pos=logpos)
+                        self.log.set_blocking(False)
 
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
