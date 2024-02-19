@@ -75,7 +75,7 @@ class titleScreen:
         global debugswitch
         debugswitch = False
         self.state = state
-        header_rect = pygame.Rect(0, self.height*.15, self.width//3, 150)
+        header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
 
         self.header = UILabel(relative_rect=header_rect,
                               text='Kingdom Cards',

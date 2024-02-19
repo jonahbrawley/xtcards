@@ -64,6 +64,10 @@ class playScreen:
 
         self.game_state = None
 
+        self.e_p = self.width*0.007 # edge padding
+        self.b_width = self.width*0.055 # button width
+        self.b_height = self.height*0.045 # button height
+
     def load(self, manager, state):
         self.state = state
         
@@ -84,7 +88,7 @@ class playScreen:
         stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
 
         # pause button
-        pause_button_rect = pygame.Rect(15, 15, 100, 50)
+        pause_button_rect = pygame.Rect(self.e_p, self.e_p, self.b_width, self.b_height)
         self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='Pause',
                                             manager=manager,
@@ -106,7 +110,7 @@ class playScreen:
         self.scan_button.hide()
 
         # info button
-        info_button_rect = pygame.Rect(-55, 15, 40, 50)
+        info_button_rect = pygame.Rect(-self.e_p-self.b_width/2.5, self.e_p, self.b_width/2.5, self.b_height)
         self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
                                                 text='i',
                                                 manager=manager,
@@ -116,13 +120,14 @@ class playScreen:
         self.info_button.hide()
 
         # donation button
-        church_button_rect = pygame.Rect(-415, 15, 350, 50)
+        church_button_rect = pygame.Rect(-self.e_p-self.b_width*3.2, self.e_p, self.b_width*3.2, self.b_height)
         self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
                                                         text='DONATE TO MAGNOLIA CHURCH',
                                                         object_id='#church_button',
                                                         manager=manager,
                                                         anchors={
-                                                        'right': 'right'
+                                                            'right_target': self.info_button,
+                                                            'right': 'right'
                                                         })
         self.church_button.hide()
 
@@ -130,8 +135,6 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
-
-        # bet set up TEMP
         result_width = self.width*.3
         result_height = self.height*.22
         results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
@@ -157,23 +160,25 @@ class playScreen:
         # pause set up
         pause_width = 350
         pause_height = 400
-        pausepos = pygame.Rect(((self.width/2)-(pause_width/2), (self.height/2)-(pause_height/2)), (pause_width, pause_height))
+        pausepos = pygame.Rect(((self.width/2)-(pause_width+self.e_p), (self.height/2)-(pause_height+self.e_p)), (pause_width, pause_height))
         
         # player set up
         players_width = self.width*.25
         players_height = self.height*.55
-        playerspos = pygame.Rect((10, self.height-(players_height+10)), (players_width, players_height))
+        playerspos = pygame.Rect((0, self.height-players_height), (players_width, players_height))
 
         # bank set up
         bank_width = self.width*.25
         bank_height = self.height*.275
-        bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
+        bankpos = pygame.Rect((self.width - (bank_width), self.height-(bank_height)), (bank_width, bank_height))
 
         # table set up
-        tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
+        tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
+
+        # results set up
         resultpos = pygame.Rect(((self.width/2)-(self.width*.3/2), (self.height/2.8)-(bank_height/2)), (self.width*.3, bank_height))
 
-        # player name set up
+        # action header set up
         playerSetup_width = self.width*.26
         playerSetup_height = self.height*.46
         playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
@@ -191,7 +196,7 @@ class playScreen:
         # info icon set up
         info_width = self.width*.20
         info_height = self.height*.4
-        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2.15)-(info_height)), (info_width, info_height))
+        infopos = pygame.Rect(((self.width)-(info_width+self.e_p), (self.height/2.15)-(info_height)), (info_width, info_height))
 
         # church icon set up
         church_width = self.width*.2

@@ -67,7 +67,7 @@
         "font":
         {
             "name": "jb-header-game",
-            "size": "30",
+            "size": "25",
             "regular_path": "assets/jbm-semibold.ttf"
         }
     },
