@@ -4,6 +4,7 @@ class Player:
     self.id = id
     self.name = name
     self.chips = chips
+    # NOTE: pending_out means the game ended and the player will be out on the next round
     self.last_action = None # wait, fold, call, raise, all_in, pot_committed, out
     self.curr_bet = 0
     self.cards = cards
