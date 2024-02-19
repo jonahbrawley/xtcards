@@ -174,7 +174,7 @@ class playScreen:
         # log set up
         log_width = self.width*.25
         log_height = self.height*.275
-        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height+10)), (log_width, log_height))
+        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height*3)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
@@ -231,7 +231,9 @@ class playScreen:
                 self.result_table = resultsWindow(manager=manager, pos=resultpos)
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+                self.log = logWindow(manager=manager, pos=logpos)
 
+                self.bank.show_log = False
                 setupWindow.startClicked = False
 
                 # Process player/AI combo tuple
@@ -256,6 +258,11 @@ class playScreen:
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
 
+                if (self.bank.show_log == True):
+                    self.log.show()
+                else:
+                    self.log.hide()
+
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if (event.ui_element == self.pause_button and not pauseClicked): # PAUSE BUTTON
@@ -275,12 +282,6 @@ class playScreen:
                         churchClicked = True
                         self.church = churchWindow(manager=manager, pos=churchpos)
                         self.church.set_blocking(False)
-                        
-                    if(event.ui_element == bankWindow.log_button and not logClicked):
-                        print('PLAY: Drawing log dialog')
-                        logClicked = True
-                        self.log = logWindow(manager=manager, pos=logpos)
-                        self.log.set_blocking(False)
 
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
