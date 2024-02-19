@@ -6,7 +6,6 @@ from game_logic.poker_agent import predict_ai_move
 import random
 from enum import Enum
 from objects.gamestate import GameState
-import json
 
 
 class GameInstance:
@@ -378,9 +377,10 @@ class GameInstance:
 
     return pot_game_value
 
-  def to_json_at_ai(self):
+  def get_state_ai(self, pos=None):
     '''
-    data to add to json object:
+    data to add to dictionary:
+    - river state/round name
     - total game pot value
     - current round pot
     - opponents' last actions, current bets, chip counts (only who is still playing & not including current pos)
@@ -390,6 +390,11 @@ class GameInstance:
     - ai's current bet amount
     '''
     print("Generating a json object for the AI model at curr_pos")
+    if pos == None:
+      pos = self.curr_pos
+
+    river_state = self.round.name
+
     # current round pot value
     pot_round_value = self.tmp_pot.sum_bets()
 
@@ -399,7 +404,7 @@ class GameInstance:
       pot_game_value += pot.sum_bets()
 
     community_cards = self.community_cards
-    ai_instance = self.players[self.curr_pos]
+    ai_instance = self.players[pos]
     ai_cards = ai_instance.cards
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
@@ -407,7 +412,7 @@ class GameInstance:
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
     for opponent in self.players:
-      if opponent.id != self.curr_pos and opponent.last_action != 'out':
+      if opponent.id != pos and opponent.last_action != 'out':
         opponent_obj = {
           "last_action" : opponent.last_action,
           "curr_bet" : opponent.curr_bet,
@@ -416,6 +421,7 @@ class GameInstance:
         opponents_data.append(opponent_obj)
 
     res_dict = {
+      "river_state" : river_state,
       "pot_round" : pot_round_value,
       "pot_game" : pot_game_value,
       "community_cards" : community_cards,
@@ -425,7 +431,7 @@ class GameInstance:
       "opponents" : opponents_data
     }
 
-    return json.dumps(res_dict)
+    return res_dict
 
   def divider(s):
     return "\n-------------------- " + s + " --------------------\n\n"
@@ -459,9 +465,9 @@ class GameInstance:
 # Sample code previously used in game demo
 
 # players = [
-#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
-#   Player("John", is_ai=False, chips=200, cards=["KC", "8H"]), 
-#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
+#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"], id=0), 
+#   Player("John", is_ai=True, chips=200, cards=["KC", "8H"], id=1), 
+#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"], id=2)
 #   ]
 
 # community_cards = ['2H', '2D', '8C', '6C', '7H']
@@ -477,11 +483,12 @@ class GameInstance:
 #       print(instance.step().name)
 #     # execute a player turn & update round/cards if necessary
 #     else:
+#       next_state = None
 #       if instance.is_curr_pos_at_ai():
 #         print("AI response")
-#         ai_state = instance.to_json_at_ai()
+#         ai_state = instance.get_state_ai()
 #         p_action = predict_ai_move(ai_state)
-#         print(instance.step(p_action).name)
+#         next_state = instance.step(p_action)
 #       else:
 #         print("Not AI response")
 #         p_action = input("Action:\n")
@@ -489,9 +496,9 @@ class GameInstance:
 #         if p_action.lower() == "raise":
 #           p_bet = int(input("Bet:\n"))
 #         next_state = instance.step(p_action, p_bet)
-#         print(next_state.name)
-#         if next_state == GameState.SCAN_PLAYER_HAND:
-#           print(instance.end_game())
+        
+#       if next_state == GameState.SCAN_PLAYER_HAND:
+#         print(instance.end_game())
 
 #     print(instance.players[instance.curr_pos], instance.curr_pos)
 #     if instance.game_active:
