@@ -52,7 +52,7 @@ class GameInstance:
     player_inactive = True
     while player_inactive:
       pos = (pos + 1) % n_players
-      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["out", "fold", "all_in"]
+      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in"]
     return pos
 
   def increment_curr_pos(self):
@@ -246,7 +246,7 @@ class GameInstance:
     # check if only one player is not out
     out_cnt = 0
     for p in self.players:
-      if p.last_action in ["out", "fold"]:
+      if p.last_action in ["pending_out", "out", "fold"]:
         out_cnt += 1
     if out_cnt == len(self.players) - 1:
       return True
@@ -282,7 +282,7 @@ class GameInstance:
         if player.last_action == "all_in":
           player.last_action = "pot_committed"
 
-        if player.last_action != "out" and player.last_action != "pot_committed" and player.last_action != "fold":
+        if player.last_action != "pending_out" and player.last_action != "out" and player.last_action != "pot_committed" and player.last_action != "fold":
           player.last_action = "wait"
           player.curr_bet = 0
 
@@ -352,7 +352,7 @@ class GameInstance:
     # for each player with no chips, set player.last_action to "out"
     for p in self.players:
       if p.chips == 0:
-        p.last_action = "out"
+        p.last_action = "pending_out"
         print(f"Player Out: {p.name}")
     self.game_active = False
 
@@ -408,7 +408,6 @@ class GameInstance:
     ai_cards = ai_instance.cards
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
-    ai_chips = ai_instance.chips
 
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
@@ -429,7 +428,6 @@ class GameInstance:
       "ai_cards" : ai_cards,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
-      "ai_chips" : ai_chips,
       "opponents" : opponents_data
     }
 

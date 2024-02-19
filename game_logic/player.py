@@ -13,7 +13,7 @@ class Player:
     self.cards = [deck.pull(), deck.pull()]
 
   def can_do_action(self):
-    return self.chips > 0 and self.last_action not in ["all_in", "fold", "out"]
+    return self.chips > 0 and self.last_action not in ["all_in", "fold", "pending_out", "out"]
 
   def __str__(self):
     return (
