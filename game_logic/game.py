@@ -408,6 +408,7 @@ class GameInstance:
     ai_cards = ai_instance.cards
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
+    ai_chips = ai_instance.chips
 
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
@@ -428,6 +429,7 @@ class GameInstance:
       "ai_cards" : ai_cards,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
+      "ai_chips" : ai_chips,
       "opponents" : opponents_data
     }
 
