@@ -85,10 +85,15 @@ class titleScreen:
                                   'centerx': 'centerx',
                                   'top': 'top'
                               })
+        
+        b_height = self.height*0.05
+        b_width = self.width*0.09
+        b_pad = self.height*0.063
+        b_pos = ( (self.circle_surface.get_height()) - (self.height*2.236) )/8
 
-        quit_button_rect = pygame.Rect(0, -self.height*.13, 180, 50)
-        settings_button_rect = pygame.Rect(0, -65, 180, 50)
-        play_button_rect = pygame.Rect(0, -65, 180, 50)
+        quit_button_rect = pygame.Rect(0, b_pos, b_width, b_height)
+        settings_button_rect = pygame.Rect(0, -b_pad, b_width, b_height)
+        play_button_rect = pygame.Rect(0, -b_pad, b_width, b_height)
 
         self.quit_button = UIButton(relative_rect=quit_button_rect,
                                                  text='Quit',
