@@ -232,9 +232,14 @@ class playScreen:
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.log = logWindow(manager=manager, pos=logpos)
+                self.log.hide()
 
                 self.bank.show_log = False
                 setupWindow.startClicked = False
+
+                if (self.bank.show_log and not logClicked):
+                    logClicked = True
+                    self.log.show()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -257,11 +262,6 @@ class playScreen:
                 # update chips for player window
                 self.game_instance = GameInstance(game_participants) # // START GAME INSTANCE //
                 self.game_state = GameState.SCAN_AI_HAND # begin the game by scanning the AI's cards
-
-                if (self.bank.show_log == True):
-                    self.log.show()
-                else:
-                    self.log.hide()
 
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -582,6 +582,9 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
+            if (logClicked):
+                if not self.log.alive():
+                    logClicked = False
 
             pygame.display.update()
 

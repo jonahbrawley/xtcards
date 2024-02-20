@@ -3,14 +3,14 @@ import pygame_gui
 # from windows.log_window import logWindow
 
 class bankWindow(pygame_gui.elements.UIWindow):
+    show_log = False
+
     def __init__(self, manager, pos):
         super().__init__((pos),
                         manager,
                         window_display_title='The Holy Bank',
                         object_id='#setup_window',
                         draggable=False)
-        
-        self.show_log = False
 
         self.bank_label = pygame_gui.elements.UILabel(pygame.Rect((0, 20), (180, 40)),
                                                                     "Value:",
@@ -44,8 +44,9 @@ class bankWindow(pygame_gui.elements.UIWindow):
 
     def process_event(self, event):
         handled = super().process_event(event)
-
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
             if (event.ui_element == self.log_button):
-                self.show_log = True
-                print('PLAY: Drawing log window')
+                print("Before button event:", self.show_log)
+                self.show_log = not self.show_log
+                print("After button event:", self.show_log)
+
