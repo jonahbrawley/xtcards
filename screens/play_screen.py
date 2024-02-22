@@ -232,14 +232,16 @@ class playScreen:
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.log = logWindow(manager=manager, pos=logpos)
-                self.bank.show_log = False
+                
+                # bankWindow.show_log = False
                 setupWindow.startClicked = False
 
-                if (self.bank.show_log and not logClicked):
+                if (bankWindow.show_log and not logClicked):
                     logClicked = True
                     self.log.show()
+                    self.log.set_blocking(False)
                     
-                if (self.bank.show_log == False):
+                if (bankWindow.show_log == False):
                     logClicked = False
                     self.log.hide()
 
