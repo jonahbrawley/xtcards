@@ -232,13 +232,16 @@ class playScreen:
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.log = logWindow(manager=manager, pos=logpos)
-                self.log.hide()
-            
                 self.bank.show_log = False
                 setupWindow.startClicked = False
 
-                if (self.bank.show_log == True):
+                if (self.bank.show_log and not logClicked):
+                    logClicked = True
                     self.log.show()
+                    
+                if (self.bank.show_log == False):
+                    logClicked = False
+                    self.log.hide()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -582,9 +585,9 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
-            # if (logClicked):
-            #     if not self.log.alive():
-            #         logClicked = False
+            if (logClicked):
+                if not self.log.alive():
+                    logClicked = False
 
             pygame.display.update()
 
