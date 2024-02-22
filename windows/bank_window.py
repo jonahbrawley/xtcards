@@ -43,10 +43,9 @@ class bankWindow(pygame_gui.elements.UIWindow):
                                                             })
 
     def process_event(self, event):
-        handled = super().process_event(event)
-        if (event.type == pygame_gui.UI_BUTTON_PRESSED):
-            if (event.ui_element == self.log_button):
-                print("Before button event:", self.show_log)
-                self.show_log = not self.show_log
-                print("After button event:", self.show_log)
+        super().process_event(event)
+        if (event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == self.log_button):
+            print("Log button pressed")
+            self.show_log = True
+            print("State of button:", self.show_log)
 

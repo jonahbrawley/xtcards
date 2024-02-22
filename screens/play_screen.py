@@ -233,12 +233,11 @@ class playScreen:
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.log = logWindow(manager=manager, pos=logpos)
                 self.log.hide()
-
+            
                 self.bank.show_log = False
                 setupWindow.startClicked = False
 
-                if (self.bank.show_log and not logClicked):
-                    logClicked = True
+                if (self.bank.show_log == True):
                     self.log.show()
 
                 # Process player/AI combo tuple
@@ -382,7 +381,8 @@ class playScreen:
                         # current player's chips
                         self.player_chips = self.game_instance.players[player_pos].chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                        
+                        #self.updateGameLog(self.players.player_action_list)
+
                         self.betwindow.kill()
                         self.betwindow = None
 
@@ -582,9 +582,9 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
-            if (logClicked):
-                if not self.log.alive():
-                    logClicked = False
+            # if (logClicked):
+            #     if not self.log.alive():
+            #         logClicked = False
 
             pygame.display.update()
 
@@ -668,6 +668,15 @@ class playScreen:
 
             index = index + 1
         #print("-- Done updating --")
+        
+    def updateGameLog(self):
+        action_list = playerWindow.player_action_list
+        labels = playerWindow.player_labels_list
+        
+        current_player = action_list[self.player_index]
+        current_label = labels[self.player_index]
+        log_text = f"{current_label.text} {current_player}"
+        logWindow.game_log.set_text(log_text)
 
     def killGame(self):
         self.game_state = None
