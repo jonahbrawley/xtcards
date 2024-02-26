@@ -10,45 +10,61 @@ class tableWindow(pygame_gui.elements.UIWindow):
                         draggable=False)
         
         card_width = pos.width*.16
-        card_height = card_width * 1.4
+        card_height = card_width*1.4
 
-        padding = pos.width*.02 # padding inbetween cards
-        cardinc = padding
-        
+        padding = (pos.width - (card_width * 5)) / 10
+
+        card3x = 0
+        card2x = card3x - card_width - padding
+        card1x = card2x - card_width - padding
+        card4x = card3x + card_width + padding
+        card5x = card4x + card_width + padding
+
         imgsurf = pygame.Surface(size=(card_width, card_height))
         imgsurf.fill((40, 62, 51))
-        
-        self.card1 = pygame_gui.elements.UIImage(pygame.Rect((cardinc, pos.height*.2), (card_width, card_height)),
+
+        self.card1 = pygame_gui.elements.UIImage(pygame.Rect((card1x, pos.height*.2), (card_width, card_height)),
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
-                                                          parent_element=self
+                                                          parent_element=self,
+                                                          anchors = {
+                                                             "centerx": "centerx"
+                                                          }
         )
-        cardinc = cardinc + card_width + padding
-        self.card2 = pygame_gui.elements.UIImage(pygame.Rect((cardinc, pos.height*.2), (card_width, card_height)),
+        self.card2 = pygame_gui.elements.UIImage(pygame.Rect((card2x, pos.height*.2), (card_width, card_height)),
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
-                                                          parent_element=self
+                                                          parent_element=self,
+                                                        anchors={
+                                                             "centerx": "centerx"
+                                                        }
         )
-        cardinc = cardinc + card_width + padding
-        self.card3 = pygame_gui.elements.UIImage(pygame.Rect((cardinc, pos.height*.2), (card_width, card_height)),
+        self.card3 = pygame_gui.elements.UIImage(pygame.Rect((card3x, pos.height*.2), (card_width, card_height)),
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
-                                                          parent_element=self
+                                                          parent_element=self,
+                                                          anchors={
+                                                             "centerx": "centerx"
+                                                          }
         )
-        cardinc = cardinc + card_width + padding
-        self.card4 = pygame_gui.elements.UIImage(pygame.Rect((cardinc, pos.height*.2), (card_width, card_height)),
+        self.card4 = pygame_gui.elements.UIImage(pygame.Rect((card4x, pos.height*.2), (card_width, card_height)),
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
-                                                          parent_element=self
+                                                          parent_element=self,
+                                                 anchors={
+                                                     "centerx": "centerx"
+                                                 }
         )
-        cardinc = cardinc + card_width + padding
-        self.card5 = pygame_gui.elements.UIImage(pygame.Rect((cardinc, pos.height*.2), (card_width, card_height)),
+        self.card5 = pygame_gui.elements.UIImage(pygame.Rect((card5x, pos.height*.2), (card_width, card_height)),
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
-                                                          parent_element=self
+                                                          parent_element=self,
+                                                 anchors={
+                                                     "centerx": "centerx"
+                                                 }
         )
