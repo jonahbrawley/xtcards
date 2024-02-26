@@ -351,7 +351,7 @@ class GameInstance:
 
     # for each player with no chips, set player.last_action to "out"
     for p in self.players:
-      if p.chips == 0 and p.last_action is not "out":
+      if p.chips == 0 and p.last_action != "out":
         p.last_action = "pending_out"
         print(f"Player Out: {p.name}")
     self.game_active = False
