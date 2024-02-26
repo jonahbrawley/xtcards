@@ -104,10 +104,17 @@ class CardRanker:
       winners = []
       while len(winners) == 0:
         rank_i += 1
-        for hand_ranking in rankings[rank_i]:
-          p_id = hand_ranking[0] # rankings[x][0] is a player_id
-          if p_id in pots[pot_i].bets.keys(): # p_id made a bet in this pot
-            winners.append(p_id) # then this player is a winner of this pot
+        # EDGE CASE: winner bets a lot, someone went all in with less money
+        # This creates an extra pot, and the rank_i could go out of bounds because of this.
+        # Therefore, check that rank_i < len(rankings) for the edge case
+        if rank_i < len(rankings): 
+          for hand_ranking in rankings[rank_i]:
+            p_id = hand_ranking[0] # rankings[x][0] is a player_id
+            if p_id in pots[pot_i].bets.keys(): # p_id made a bet in this pot
+              winners.append(p_id) # then this player is a winner of this pot
+        else:
+          print(rankings[0][0][0])
+          winners.append(rankings[0][0][0])
 
       # get the $ winnings for each person using pot.sum() / winners len
       pot_sum = pots[pot_i].sum_bets()

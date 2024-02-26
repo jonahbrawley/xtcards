@@ -52,7 +52,7 @@ class GameInstance:
     player_inactive = True
     while player_inactive:
       pos = (pos + 1) % n_players
-      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in"]
+      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in", "pot_committed"]
     return pos
 
   def increment_curr_pos(self):
@@ -118,7 +118,7 @@ class GameInstance:
 
     while p_action is None:
       p_action = input(f"Bet requirement: {self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]}\nMake your move (fold, call, raise, all_in):")
-      if p_action not in ["fold", "call", "raise", "all_in"]:
+      if p_action not in ["fold", "call", "raise", "all_in", "pot_committed"]:
         p_action = None
 
     if p_action != "raise":
@@ -246,7 +246,7 @@ class GameInstance:
     # check if only one player is not out
     out_cnt = 0
     for p in self.players:
-      if p.last_action in ["pending_out", "out", "fold"]:
+      if p.last_action in ["pending_out", "out", "fold", "pot_committed"]:
         out_cnt += 1
     if out_cnt == len(self.players) - 1:
       return True
@@ -464,50 +464,50 @@ class GameInstance:
 
 # Sample code previously used in game demo
 
-players = [
-  Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"], id=0), 
-  Player("John", is_ai=True, chips=200, cards=["KC", "8H"], id=1), 
-  Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"], id=2)
-  ]
+# players = [
+#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"], id=0), 
+#   Player("John", is_ai=True, chips=200, cards=["KC", "8H"], id=1), 
+#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"], id=2)
+#   ]
 
-community_cards = ['2H', '2D', '8C', '6C', '7H']
+# community_cards = ['2H', '2D', '8C', '6C', '7H']
 
-instance = GameInstance(players)
-instance.start_game()
-instance.community_cards = community_cards
+# instance = GameInstance(players)
+# instance.start_game()
+# instance.community_cards = community_cards
 
-while True:
-  while instance.game_active:
-    # send out small and big blind
-    if instance.is_awaiting_preflop():
-      print(instance.step().name)
-    # execute a player turn & update round/cards if necessary
-    else:
-      next_state = None
-      if instance.is_curr_pos_at_ai():
-        print("AI response")
-        ai_state = instance.get_state_ai()
-        p_action = predict_ai_move(ai_state)
-        next_state = instance.step(p_action)
-      else:
-        print("Not AI response")
-        p_action = input("Action:\n")
-        p_bet = None
-        if p_action.lower() == "raise":
-          p_bet = int(input("Bet:\n"))
-        next_state = instance.step(p_action, p_bet)
+# while True:
+#   while instance.game_active:
+#     # send out small and big blind
+#     if instance.is_awaiting_preflop():
+#       print(instance.step().name)
+#     # execute a player turn & update round/cards if necessary
+#     else:
+#       next_state = None
+#       if instance.is_curr_pos_at_ai():
+#         print("AI response")
+#         ai_state = instance.get_state_ai()
+#         p_action = predict_ai_move(ai_state)
+#         next_state = instance.step(p_action)
+#       else:
+#         print("Not AI response")
+#         p_action = input("Action:\n")
+#         p_bet = None
+#         if p_action.lower() == "raise":
+#           p_bet = int(input("Bet:\n"))
+#         next_state = instance.step(p_action, p_bet)
         
-      if next_state == GameState.SCAN_PLAYER_HAND:
-        print(instance.end_game())
+#       if next_state == GameState.SCAN_PLAYER_HAND:
+#         print(instance.end_game())
 
-    print(instance.players[instance.curr_pos], instance.curr_pos)
-    if instance.game_active:
-      print(instance)
+#     print(instance.players[instance.curr_pos], instance.curr_pos)
+#     if instance.game_active:
+#       print(instance)
 
 
-  response = instance.start_game()
-  if response == GameState.ERROR_STATE:
-    break
+#   response = instance.start_game()
+#   if response == GameState.ERROR_STATE:
+#     break
 
-for player in players:
-  print(player)
+# for player in players:
+#   print(player)
