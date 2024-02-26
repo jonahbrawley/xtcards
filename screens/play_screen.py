@@ -52,7 +52,7 @@ class playScreen:
         self.header = None
         self.camwindow = None
         self.betwindow = None
-
+        
         self.camClicked = False
 
         # Class variable for a new GameInstance from game_logic/game.py.
@@ -64,6 +64,8 @@ class playScreen:
         self.game_instance = None
 
         self.game_state = None
+
+        self.player_actions = []
 
     def load(self, manager, state):
         self.state = state
@@ -343,6 +345,7 @@ class playScreen:
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
+                self.player_actions = self.player_actions[-10:]
                 if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}): 
                     player_blinds = self.game_instance.tmp_pot.bets
                     for player_index, blind_value in player_blinds.items():
@@ -368,23 +371,30 @@ class playScreen:
                         self.betwindow = None
                         next_state = self.game_instance.step('fold')
                         player_action_label.set_text("folded")
+                        self.player_actions.append(player + " has folded, womp womp")
+                        self.updateGameLog(self.player_actions)
 
                     elif (self.betwindow.placed_bet != None):
                         #print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
                             player_action_label.set_text("Check")
+                            self.player_actions.append(player + " has checked")
+                            self.updateGameLog(self.player_actions)
                         elif (int(self.betwindow.placed_bet) <= self.min_bet):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
                             player_action_label.set_text(self.betwindow.placed_bet)
+                            self.player_actions.append(player + " has called the current bet")
+                            self.updateGameLog(self.player_actions)
                         else:
                             # print('Player bet ' + self.betwindow.placed_bet + " chips")
                             player_action_label.set_text(self.betwindow.placed_bet)
                             next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                            self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
+                            self.updateGameLog(self.player_actions)
                         # current player's chips
                         self.player_chips = self.game_instance.players[player_pos].chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                        #self.updateGameLog(self.players.player_action_list)
 
                         self.betwindow.kill()
                         self.betwindow = None
@@ -597,6 +607,15 @@ class playScreen:
                 homeswitch = False
             if (self.state != ScreenState.START):
                 return self.state
+            
+    def updateGameLog(self, player_actions):
+        log_text = ""
+        for action in player_actions:
+            log_text += action + "\n"
+
+        # just to remove trailing newline character
+        log_text = log_text[:-1]
+        self.log.game_log.set_text(log_text)
 
     def delete(self, manager):
         print('PLAY: Deleting objects')
@@ -670,15 +689,6 @@ class playScreen:
 
             index = index + 1
         #print("-- Done updating --")
-        
-    def updateGameLog(self):
-        action_list = playerWindow.player_action_list
-        labels = playerWindow.player_labels_list
-        
-        current_player = action_list[self.player_index]
-        current_label = labels[self.player_index]
-        log_text = f"{current_label.text} {current_player}"
-        logWindow.game_log.set_text(log_text)
 
     def killGame(self):
         self.game_state = None
