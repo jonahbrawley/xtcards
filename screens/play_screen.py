@@ -547,6 +547,8 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
+                        self.player_actions.append(player + "has won this round! yippee!")
+                        self.updateGameLog(self.player_actions)
                 for index in range(len(rankings[0][0][3])):
                     card = rankings[0][0][3][index]
                     if card != 'NA':
