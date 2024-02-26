@@ -131,7 +131,6 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
-
         # bet set up TEMP
         result_width = self.width*.3
         result_height = self.height*.22
@@ -241,9 +240,9 @@ class playScreen:
                     self.log.show()
                     self.log.set_blocking(False)
                     
-                if (bankWindow.show_log == False):
-                    logClicked = False
-                    self.log.hide()
+                # if (bankWindow.show_log == False):
+                #     logClicked = False
+                #     self.log.hide()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -270,16 +269,16 @@ class playScreen:
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if (event.ui_element == self.pause_button and not pauseClicked): # PAUSE BUTTON
-                            print('PLAY: Drawing pause dialog')
-                            pauseClicked = True
-                            self.pause = pauseWindow(manager=manager, pos=pausepos)
-                            self.pause.set_blocking(True)
+                        print('PLAY: Drawing pause dialog')
+                        pauseClicked = True
+                        self.pause = pauseWindow(manager=manager, pos=pausepos)
+                        self.pause.set_blocking(True)
 
                     if (event.ui_element == self.info_button and not infoClicked): # INFO BUTTON
-                            print('PLAY: Drawing info dialog')
-                            infoClicked = True
-                            self.info = infoWindow(manager=manager, pos=infopos)
-                            self.info.set_blocking(False)
+                        print('PLAY: Drawing info dialog')
+                        infoClicked = True
+                        self.info = infoWindow(manager=manager, pos=infopos)
+                        self.info.set_blocking(False)
 
                     if (event.ui_element == self.church_button and not churchClicked): # DONATION BUTTON
                         print('PLAY: Drawing donation dialog')
@@ -353,7 +352,6 @@ class playScreen:
                         # player_label.set_text(self.game_instance.players[player_index].name + ":  " + str(self.game_instance.players[player_index].chips) + "  |  ")
 
                 next_state = GameState.UNCHANGED_STATE
-                
 
                 player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
                 # show bet dialogue & collect input action, bet for that player
@@ -563,7 +561,6 @@ class playScreen:
                     self.scan_button.hide()
                     self.result_table.hide()
                     self.clearTable(manager, tablepos)
-
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
