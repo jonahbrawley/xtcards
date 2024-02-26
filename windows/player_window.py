@@ -22,7 +22,11 @@ class playerWindow(pygame_gui.elements.UIWindow):
                         window_display_title='Players',
                         object_id='#setup_window',
                         draggable=False)
-        self.numplayer_label = pygame_gui.elements.UILabel(pygame.Rect((20, 20), (300, 40)),
+
+        windowSpacer = pos.height * .1
+        infoRect = pygame.Rect((0, windowSpacer), (pos.width, 40))
+
+        self.numplayer_label = pygame_gui.elements.UILabel(infoRect,
                                                                     "players : chips | action",
                                                                     manager=manager,
                                                                     object_id="config_window_label",
