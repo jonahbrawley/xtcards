@@ -342,7 +342,6 @@ class playScreen:
 
                 next_state = GameState.UNCHANGED_STATE
                 
-
                 player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
                 # show bet dialogue & collect input action, bet for that player
                 self.header.set_text(player + "'s Turn")
