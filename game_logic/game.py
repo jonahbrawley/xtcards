@@ -246,7 +246,7 @@ class GameInstance:
     # check if only one player is not out
     out_cnt = 0
     for p in self.players:
-      if p.last_action in ["pending_out", "out", "fold", "all_in", "pot_committed"]:
+      if p.last_action in ["pending_out", "out", "fold", "pot_committed"]:
         out_cnt += 1
     if out_cnt == len(self.players) - 1:
       return True
