@@ -52,7 +52,7 @@ class GameInstance:
     player_inactive = True
     while player_inactive:
       pos = (pos + 1) % n_players
-      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in"]
+      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in", "pot_committed"]
     return pos
 
   def increment_curr_pos(self):
@@ -118,7 +118,7 @@ class GameInstance:
 
     while p_action is None:
       p_action = input(f"Bet requirement: {self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]}\nMake your move (fold, call, raise, all_in):")
-      if p_action not in ["fold", "call", "raise", "all_in"]:
+      if p_action not in ["fold", "call", "raise", "all_in", "pot_committed"]:
         p_action = None
 
     if p_action != "raise":
@@ -246,7 +246,7 @@ class GameInstance:
     # check if only one player is not out
     out_cnt = 0
     for p in self.players:
-      if p.last_action in ["pending_out", "out", "fold"]:
+      if p.last_action in ["pending_out", "out", "fold", "pot_committed"]:
         out_cnt += 1
     if out_cnt == len(self.players) - 1:
       return True
@@ -351,7 +351,7 @@ class GameInstance:
 
     # for each player with no chips, set player.last_action to "out"
     for p in self.players:
-      if p.chips == 0 and p.last_action is not "out":
+      if p.chips == 0 and p.last_action != "out":
         p.last_action = "pending_out"
         print(f"Player Out: {p.name}")
     self.game_active = False

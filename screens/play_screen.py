@@ -12,6 +12,7 @@ from windows.setup import setupWindow
 from windows.pause_window import pauseWindow
 from windows.player_window import playerWindow
 from windows.bank_window import bankWindow
+from windows.log_window import logWindow
 from windows.table_window import tableWindow
 from windows.player_name_setup import playerNameSetupWindow
 from windows.bet_window import betWindow
@@ -67,6 +68,8 @@ class playScreen:
         self.e_p = self.width*0.007 # edge padding
         self.b_width = self.width*0.055 # button width
         self.b_height = self.height*0.045 # button height
+
+        self.player_actions = []
 
     def load(self, manager, state):
         self.state = state
@@ -130,6 +133,7 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
+        # bet set up TEMP
         result_width = self.width*.3
         result_height = self.height*.22
         results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
@@ -151,6 +155,7 @@ class playScreen:
         pauseClicked = False
         infoClicked = False
         churchClicked = False
+        logClicked = False
 
         # pause set up
         pause_width = 350
@@ -166,6 +171,12 @@ class playScreen:
         bank_width = self.width*.25
         bank_height = self.height*.275
         bankpos = pygame.Rect((self.width - (bank_width), self.height-(bank_height)), (bank_width, bank_height))
+        bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
+
+        # log set up
+        log_width = self.width*.25
+        log_height = self.height*.275
+        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height*3)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
@@ -230,8 +241,19 @@ class playScreen:
                 self.result_table = resultsWindow(manager=manager, pos=resultpos)
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
+                self.log = logWindow(manager=manager, pos=logpos)
 
+                # bankWindow.show_log = False
                 setupWindow.startClicked = False
+
+                if (bankWindow.show_log and not logClicked):
+                    logClicked = True
+                    self.log.show()
+                    self.log.set_blocking(False)
+
+                # if (bankWindow.show_log == False):
+                #     logClicked = False
+                #     self.log.hide()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -258,16 +280,16 @@ class playScreen:
             for event in pygame.event.get():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if (event.ui_element == self.pause_button and not pauseClicked): # PAUSE BUTTON
-                            print('PLAY: Drawing pause dialog')
-                            pauseClicked = True
-                            self.pause = pauseWindow(manager=manager, pos=pausepos)
-                            self.pause.set_blocking(True)
+                        print('PLAY: Drawing pause dialog')
+                        pauseClicked = True
+                        self.pause = pauseWindow(manager=manager, pos=pausepos)
+                        self.pause.set_blocking(True)
 
                     if (event.ui_element == self.info_button and not infoClicked): # INFO BUTTON
-                            print('PLAY: Drawing info dialog')
-                            infoClicked = True
-                            self.info = infoWindow(manager=manager, pos=infopos)
-                            self.info.set_blocking(False)
+                        print('PLAY: Drawing info dialog')
+                        infoClicked = True
+                        self.info = infoWindow(manager=manager, pos=infopos)
+                        self.info.set_blocking(False)
 
                     if (event.ui_element == self.church_button and not churchClicked): # DONATION BUTTON
                         print('PLAY: Drawing donation dialog')
@@ -332,7 +354,8 @@ class playScreen:
                 player_pos = self.game_instance.curr_pos
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
-                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}): 
+                self.player_actions = self.player_actions[-10:]
+                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}):
                     player_blinds = self.game_instance.tmp_pot.bets
                     for player_index, blind_value in player_blinds.items():
                         #print(self.players.player_action_list)
@@ -341,7 +364,7 @@ class playScreen:
                         # player_label.set_text(self.game_instance.players[player_index].name + ":  " + str(self.game_instance.players[player_index].chips) + "  |  ")
 
                 next_state = GameState.UNCHANGED_STATE
-                
+
                 player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
                 # show bet dialogue & collect input action, bet for that player
                 self.header.set_text(player + "'s Turn")
@@ -357,23 +380,31 @@ class playScreen:
                         self.betwindow = None
                         next_state = self.game_instance.step('fold')
                         player_action_label.set_text("folded")
+                        self.player_actions.append(player + " has folded, womp womp")
+                        self.updateGameLog(self.player_actions)
 
                     elif (self.betwindow.placed_bet != None):
                         #print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
                             player_action_label.set_text("Check")
+                            self.player_actions.append(player + " has checked")
+                            self.updateGameLog(self.player_actions)
                         elif (int(self.betwindow.placed_bet) <= self.min_bet):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
                             player_action_label.set_text(self.betwindow.placed_bet)
+                            self.player_actions.append(player + " has called the current bet")
+                            self.updateGameLog(self.player_actions)
                         else:
                             # print('Player bet ' + self.betwindow.placed_bet + " chips")
                             player_action_label.set_text(self.betwindow.placed_bet)
                             next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                            self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
+                            self.updateGameLog(self.player_actions)
                         # current player's chips
                         self.player_chips = self.game_instance.players[player_pos].chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                        
+
                         self.betwindow.kill()
                         self.betwindow = None
 
@@ -525,6 +556,8 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
+                        self.player_actions.append(player + "has won this round! yippee!")
+                        self.updateGameLog(self.player_actions)
                 for index in range(len(rankings[0][0][3])):
                     card = rankings[0][0][3][index]
                     if card != 'NA':
@@ -549,7 +582,8 @@ class playScreen:
                     self.scan_button.hide()
                     self.result_table.hide()
                     self.clearTable(manager, tablepos)
-
+                    self.player_actions.append("A new round has started!")
+                    self.updateGameLog(self.player_actions)
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
@@ -573,6 +607,9 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
+            if (logClicked):
+                if not self.log.alive():
+                    logClicked = False
 
             pygame.display.update()
 
@@ -583,6 +620,15 @@ class playScreen:
                 homeswitch = False
             if (self.state != ScreenState.START):
                 return self.state
+
+    def updateGameLog(self, player_actions):
+        log_text = ""
+        for action in player_actions:
+            log_text += action + "\n"
+
+        # just to remove trailing newline character
+        log_text = log_text[:-1]
+        self.log.game_log.set_text(log_text)
 
     def delete(self, manager):
         print('PLAY: Deleting objects')

@@ -1,7 +1,10 @@
 import pygame
 import pygame_gui
+# from windows.log_window import logWindow
 
 class bankWindow(pygame_gui.elements.UIWindow):
+    show_log = False
+
     def __init__(self, manager, pos):
         super().__init__((pos),
                         manager,
