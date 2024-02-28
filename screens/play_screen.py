@@ -174,8 +174,8 @@ class playScreen:
         
         # log set up
         log_width = self.width*.25
-        log_height = self.height*.275
-        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height*3)), (log_width, log_height))
+        log_height = self.height*.35
+        logpos = pygame.Rect(((self.width/2) - (log_width*1.9775), (self.height)-(log_height*2.55)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
@@ -538,6 +538,9 @@ class playScreen:
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
                     self.result_text.set_text(text[:-2] + "\nTop Hand: " + winning_hand + "\n") 
                     self.header.set_text('Split Pot!')
+                    # self.player_actions.append("Split pot between the players shown!")
+                    # self.updateGameLog(self.player_actions)
+                    
                 else:
                     winning_hand = rankings[0][0][2]
                     for position, chips in results.items():
@@ -547,8 +550,8 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
-                        self.player_actions.append(player + "has won this round! yippee!")
-                        self.updateGameLog(self.player_actions)
+                    # self.player_actions.append(player.name + " has won this round! yippee!")
+                    # self.updateGameLog(self.player_actions)
                 for index in range(len(rankings[0][0][3])):
                     card = rankings[0][0][3][index]
                     if card != 'NA':
@@ -573,6 +576,8 @@ class playScreen:
                     self.scan_button.hide()
                     self.result_table.hide()
                     self.clearTable(manager, tablepos)
+                    self.player_actions.append("A new round has started!")
+                    self.updateGameLog(self.player_actions)
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
