@@ -573,6 +573,8 @@ class playScreen:
                     self.scan_button.hide()
                     self.result_table.hide()
                     self.clearTable(manager, tablepos)
+                    self.player_actions.append("A new round has started!")
+                    self.updateGameLog(self.player_actions)
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
