@@ -171,7 +171,6 @@ class playScreen:
         bank_width = self.width*.25
         bank_height = self.height*.275
         bankpos = pygame.Rect((self.width - (bank_width), self.height-(bank_height)), (bank_width, bank_height))
-        bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
 
         # log set up
         log_width = self.width*.25
