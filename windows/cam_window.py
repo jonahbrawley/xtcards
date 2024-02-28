@@ -19,33 +19,43 @@ class camWindow(pygame_gui.elements.UIWindow):
         
         imgsurf = pygame.Surface(size=(pos.width, pos.height))
         imgsurf.fill((0, 0, 0)) # black
+
+        buttonHeight = pos.height*.07
+        buttonWidth = pos.width*.3
+        windowSpacer = pos.height*.05
+
+        camRect = pygame.Rect(((pos.width*.8)/8, (pos.height*.6)/10), (pos.width*.75, pos.height*.55))
+        captureRect = pygame.Rect((0, -(buttonHeight+windowSpacer)), (buttonWidth, buttonHeight))
+        textRect = pygame.Rect((0, -(buttonHeight+windowSpacer/2)), (pos.width, 50))
         
-        self.camera_display = pygame_gui.elements.UIImage(pygame.Rect(((pos.width*.8)/8, (pos.height*.6)/10), (pos.width*.75, pos.height*.6)),
+        self.camera_display = pygame_gui.elements.UIImage(camRect,
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
                                                           parent_element=self
                                                           )
-        
-        self.instruction_label = pygame_gui.elements.UILabel(pygame.Rect((0, 30), (pos.width, 40)),
-                                                                    "Scan cards - 1 of 2",
-                                                                    manager=manager,
-                                                                    object_id="header_game",
-                                                                    container=self,
-                                                                    parent_element=self,
-                                                                    anchors={
-                                                                        "top_target": self.camera_display,
-                                                                        "centerx": "centerx"
-                                                                    })
-        
-        self.capture_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 20), (150, 50)),
-                                            text='Capture',
-                                            manager=manager,
-                                            container=self,
-                                            anchors={
-                                            'top_target': self.instruction_label,
-                                            'centerx': 'centerx'
-                                            })
+
+        self.capture_button = pygame_gui.elements.UIButton(captureRect,
+                                                           text='Capture',
+                                                           manager=manager,
+                                                           container=self,
+                                                           anchors={
+                                                               'bottom': 'bottom',
+                                                               'centerx': 'centerx'
+                                                           })
+
+        self.instruction_label = pygame_gui.elements.UILabel(textRect,
+                                                            "Scan cards - 1 of 2",
+                                                            manager=manager,
+                                                            object_id="header_game",
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "centerx": "centerx",
+                                                                "bottom": "bottom",
+                                                                "bottom_target": self.capture_button
+                                                            })
+
         self.webcam = cv2.VideoCapture(0)
     
     def draw_camera(self):
@@ -54,7 +64,6 @@ class camWindow(pygame_gui.elements.UIWindow):
             frame = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) # fix colors
             self.img = frame
 
-            
             disp = np.swapaxes(frame, 0, 1) # display as proper array
 
             if (self.scanning_ai_cards):

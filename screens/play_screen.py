@@ -52,7 +52,7 @@ class playScreen:
         self.header = None
         self.camwindow = None
         self.betwindow = None
-        
+
         self.camClicked = False
 
         # Class variable for a new GameInstance from game_logic/game.py.
@@ -64,6 +64,10 @@ class playScreen:
         self.game_instance = None
 
         self.game_state = None
+
+        self.e_p = self.width*0.007 # edge padding
+        self.b_width = self.width*0.055 # button width
+        self.b_height = self.height*0.045 # button height
 
         self.player_actions = []
 
@@ -87,7 +91,7 @@ class playScreen:
         stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
 
         # pause button
-        pause_button_rect = pygame.Rect(15, 15, 100, 50)
+        pause_button_rect = pygame.Rect(self.e_p, self.e_p, self.b_width, self.b_height)
         self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
                                             text='Pause',
                                             manager=manager,
@@ -109,7 +113,7 @@ class playScreen:
         self.scan_button.hide()
 
         # info button
-        info_button_rect = pygame.Rect(-55, 15, 40, 50)
+        info_button_rect = pygame.Rect(-self.e_p-self.b_width/2.5, self.e_p, self.b_width/2.5, self.b_height)
         self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
                                                 text='i',
                                                 manager=manager,
@@ -119,14 +123,10 @@ class playScreen:
         self.info_button.hide()
 
         # donation button
-        church_button_rect = pygame.Rect(-415, 15, 350, 50)
-        self.church_button = pygame_gui.elements.UIButton(relative_rect=church_button_rect,
+        self.church_button_rect = pygame.Rect(0, self.e_p, -1, self.b_height)
+        self.church_button = pygame_gui.elements.UIButton(relative_rect=self.church_button_rect,
                                                         text='DONATE TO MAGNOLIA CHURCH',
-                                                        object_id='#church_button',
-                                                        manager=manager,
-                                                        anchors={
-                                                        'right': 'right'
-                                                        })
+                                                        manager=manager)
         self.church_button.hide()
 
         self.player_index = 0 # keep track of which player we are operating on
@@ -160,28 +160,30 @@ class playScreen:
         # pause set up
         pause_width = 350
         pause_height = 400
-        pausepos = pygame.Rect(((self.width/2)-(pause_width/2), (self.height/2)-(pause_height/2)), (pause_width, pause_height))
+        pausepos = pygame.Rect(((self.width/2)-(pause_width+self.e_p), (self.height/2)-(pause_height+self.e_p)), (pause_width, pause_height))
         
         # player set up
         players_width = self.width*.25
         players_height = self.height*.55
-        playerspos = pygame.Rect((10, self.height-(players_height+10)), (players_width, players_height))
+        playerspos = pygame.Rect((0, self.height-players_height), (players_width, players_height))
 
         # bank set up
         bank_width = self.width*.25
         bank_height = self.height*.275
-        bankpos = pygame.Rect((self.width - (bank_width+10), self.height-(bank_height+10)), (bank_width, bank_height))
-        
+        bankpos = pygame.Rect((self.width - (bank_width), self.height-(bank_height)), (bank_width, bank_height))
+
         # log set up
         log_width = self.width*.25
         log_height = self.height*.275
         logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height*3)), (log_width, log_height))
 
         # table set up
-        tablepos = pygame.Rect((self.width - (bank_width+10), self.height-((bank_height*2)+10)), (bank_width, bank_height))
+        tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
+
+        # results set up
         resultpos = pygame.Rect(((self.width/2)-(self.width*.3/2), (self.height/2.8)-(bank_height/2)), (self.width*.3, bank_height))
 
-        # player name set up
+        # action header set up
         playerSetup_width = self.width*.26
         playerSetup_height = self.height*.46
         playerSetuppos = pygame.Rect(((self.width/2)-(playerSetup_width/2), (self.height/2)-(playerSetup_height/2)), (playerSetup_width, playerSetup_height))
@@ -199,12 +201,18 @@ class playScreen:
         # info icon set up
         info_width = self.width*.20
         info_height = self.height*.4
-        infopos = pygame.Rect(((self.width)-(info_width+10), (self.height/2.15)-(info_height)), (info_width, info_height))
+        infopos = pygame.Rect(((self.width)-(info_width+self.e_p), (self.height/2.15)-(info_height)), (info_width, info_height))
 
         # church icon set up
         church_width = self.width*.2
         church_height = self.height*.45
         churchpos = pygame.Rect(((self.width)-(church_width*3), (self.height/2)-(church_height/2)), (church_width, church_height))
+
+        # bypass pygame_gui bug where right aligned objects do not anchor right properly
+        donate_width = self.church_button.rect.width
+        self.church_button_rect.x = (self.width - self.info_button.rect.width - self.e_p*2 - donate_width)
+        self.church_button.relative_rect = self.church_button_rect
+        self.church_button.rebuild()
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
@@ -233,7 +241,7 @@ class playScreen:
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.log = logWindow(manager=manager, pos=logpos)
-                
+
                 # bankWindow.show_log = False
                 setupWindow.startClicked = False
 
@@ -241,7 +249,7 @@ class playScreen:
                     logClicked = True
                     self.log.show()
                     self.log.set_blocking(False)
-                    
+
                 # if (bankWindow.show_log == False):
                 #     logClicked = False
                 #     self.log.hide()
@@ -346,7 +354,7 @@ class playScreen:
                 player_action_label = self.players.player_action_list[player_pos]
                 player_label = self.players.player_labels_list[player_pos]
                 self.player_actions = self.player_actions[-10:]
-                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}): 
+                if (self.game_state == GameState.PREFLOP_BETS and player_blinds == {}):
                     player_blinds = self.game_instance.tmp_pot.bets
                     for player_index, blind_value in player_blinds.items():
                         #print(self.players.player_action_list)
@@ -611,7 +619,7 @@ class playScreen:
                 homeswitch = False
             if (self.state != ScreenState.START):
                 return self.state
-            
+
     def updateGameLog(self, player_actions):
         log_text = ""
         for action in player_actions:
