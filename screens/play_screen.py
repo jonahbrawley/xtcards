@@ -176,7 +176,7 @@ class playScreen:
         # log set up
         log_width = self.width*.25
         log_height = self.height*.35
-        logpos = pygame.Rect(((self.width/2) - (log_width*1.9775), (self.height)-(log_height*2.55)), (log_width, log_height))
+        logpos = pygame.Rect(((self.width/2) - (log_width*2), (self.height)-(log_height*2.55)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
