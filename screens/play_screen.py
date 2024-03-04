@@ -134,7 +134,7 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
-        # bet set up TEMP
+        # bet set up
         result_width = self.width*.3
         result_height = self.height*.22
         results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
@@ -161,7 +161,7 @@ class playScreen:
         # pause set up
         pause_width = 350
         pause_height = 400
-        pausepos = pygame.Rect(((self.width/2)-(pause_width+self.e_p), (self.height/2)-(pause_height+self.e_p)), (pause_width, pause_height))
+        pausepos = pygame.Rect(((self.width/2)-pause_width/2, (self.height/2)-pause_height/2), (pause_width, pause_height))
         
         # player set up
         players_width = self.width*.25
