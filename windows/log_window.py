@@ -7,7 +7,7 @@ class logWindow(pygame_gui.elements.UIWindow):
                          manager,
                          window_display_title='The Holy Log',
                          object_id='#log_window',
-                         draggable=True)
+                         draggable=False)
         
         self.game_log = pygame_gui.elements.UITextBox("",
                                                       relative_rect=pygame.Rect((0.000001 * pos.width, 0.02 * pos.height), (0.9 * pos.width, 0.8 * pos.height)),

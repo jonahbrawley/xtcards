@@ -134,7 +134,7 @@ class playScreen:
         self.card_index = 0 # which card are we scanning
         self.cards_scanned = []
 
-        # bet set up TEMP
+        # bet set up
         result_width = self.width*.3
         result_height = self.height*.22
         results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
@@ -161,7 +161,7 @@ class playScreen:
         # pause set up
         pause_width = 350
         pause_height = 400
-        pausepos = pygame.Rect(((self.width/2)-(pause_width+self.e_p), (self.height/2)-(pause_height+self.e_p)), (pause_width, pause_height))
+        pausepos = pygame.Rect(((self.width/2)-pause_width/2, (self.height/2)-pause_height/2), (pause_width, pause_height))
         
         # player set up
         players_width = self.width*.25
@@ -175,8 +175,8 @@ class playScreen:
 
         # log set up
         log_width = self.width*.25
-        log_height = self.height*.35
-        logpos = pygame.Rect(((self.width/2) - (log_width*2), (self.height)-(log_height*2.55)), (log_width, log_height))
+        log_height = self.height*.275
+        logpos = pygame.Rect((self.width - (log_width), self.height-(log_height*3)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
@@ -559,7 +559,7 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
-                        self.player_actions.append(player + "has won this round! yippee!")
+                        self.player_actions.append(player.name + "has won this round! yippee!")
                         self.updateGameLog(self.player_actions)
 
                 if (self.results_displayed == False):
@@ -634,6 +634,7 @@ class playScreen:
             self.camwindow.drawcam = False
             self.camwindow.webcam.release()
             self.camwindow.kill()
+        self.game_state = None
         self.camClicked = False
         self.camwindow = None
     
@@ -656,7 +657,7 @@ class playScreen:
             img_bytes = img.tobytes()
             img_b64 = base64.b64encode(img_bytes).decode('utf-8')
 
-            response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+            response = requests.post('URL', json={'b64img': str(img_b64)})
             response = json.loads(response.text)
             
             return response["class"]
