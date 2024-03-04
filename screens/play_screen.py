@@ -53,6 +53,7 @@ class playScreen:
         self.camwindow = None
         self.betwindow = None
 
+        self.results_displayed = False
         self.camClicked = False
 
         # Class variable for a new GameInstance from game_logic/game.py.
@@ -557,24 +558,11 @@ class playScreen:
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
                         self.player_actions.append(player + "has won this round! yippee!")
                         self.updateGameLog(self.player_actions)
-                for index in range(len(rankings[0][0][3])):
-                    card = rankings[0][0][3][index]
-                    if card != 'NA':
-                        if card[1] == "H":
-                            suit = "assets/cards/hearts"
-                        elif card[1] == "D":
-                            suit = "assets/cards/diamonds"
-                        elif card[1] == "C":
-                            suit = "assets/cards/clubs"
-                        elif card[1] == "S":
-                            suit = "assets/cards/spades"
-                        if card[0] == "T":
-                            id = suit + "/10.png"
-                        else:
-                            id = suit + "/" + card[0] + ".png"
-                    card_element = getattr(self.result_table, f"card{index + 1}")
-                    card_element.set_image(pygame.image.load(id))
-                self.result_table.show()
+
+                if (self.results_displayed == False):
+                    self.updateResultTable(rankings)
+                    self.result_table.show()
+                    self.results_displayed = True
                 if (self.scan_button.pressed):
                     self.game_state = GameState.SCAN_AI_HAND
                     self.result_text.hide()
@@ -701,6 +689,25 @@ class playScreen:
 
             index = index + 1
         #print("-- Done updating --")
+
+    def updateResultTable(self, rankings):
+        for index in range(len(rankings[0][0][3])):
+            card = rankings[0][0][3][index]
+            if card != 'NA':
+                if card[1] == "H":
+                    suit = "assets/cards/hearts"
+                elif card[1] == "D":
+                    suit = "assets/cards/diamonds"
+                elif card[1] == "C":
+                    suit = "assets/cards/clubs"
+                elif card[1] == "S":
+                    suit = "assets/cards/spades"
+                if card[0] == "T":
+                    id = suit + "/10.png"
+                else:
+                    id = suit + "/" + card[0] + ".png"
+            card_element = getattr(self.result_table, f"card{index + 1}")
+            card_element.set_image(pygame.image.load(id))
 
     def killGame(self):
         self.game_state = None
