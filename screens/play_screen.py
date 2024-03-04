@@ -631,6 +631,7 @@ class playScreen:
             self.camwindow.drawcam = False
             self.camwindow.webcam.release()
             self.camwindow.kill()
+        self.game_state = None
         self.camClicked = False
         self.camwindow = None
     
@@ -653,7 +654,7 @@ class playScreen:
             img_bytes = img.tobytes()
             img_b64 = base64.b64encode(img_bytes).decode('utf-8')
 
-            response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+            response = requests.post('URL', json={'b64img': str(img_b64)})
             response = json.loads(response.text)
             
             return response["class"]
