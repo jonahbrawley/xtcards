@@ -176,7 +176,7 @@ class playScreen:
         # log set up
         log_width = self.width*.25
         log_height = self.height*.275
-        logpos = pygame.Rect((self.width - (log_width+10), self.height-(log_height*3)), (log_width, log_height))
+        logpos = pygame.Rect((self.width - (log_width), self.height-(log_height*3)), (log_width, log_height))
 
         # table set up
         tablepos = pygame.Rect((self.width - (bank_width), self.height-(bank_height*2)), (bank_width, bank_height))
@@ -556,7 +556,7 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
-                        self.player_actions.append(player + "has won this round! yippee!")
+                        self.player_actions.append(player.name + "has won this round! yippee!")
                         self.updateGameLog(self.player_actions)
 
                 if (self.results_displayed == False):
@@ -631,6 +631,7 @@ class playScreen:
             self.camwindow.drawcam = False
             self.camwindow.webcam.release()
             self.camwindow.kill()
+        self.game_state = None
         self.camClicked = False
         self.camwindow = None
     
@@ -653,7 +654,7 @@ class playScreen:
             img_bytes = img.tobytes()
             img_b64 = base64.b64encode(img_bytes).decode('utf-8')
 
-            response = requests.post('https://ml-api.kailauapps.com/card-detection', json={'b64img': str(img_b64)})
+            response = requests.post('URL', json={'b64img': str(img_b64)})
             response = json.loads(response.text)
             
             return response["class"]
