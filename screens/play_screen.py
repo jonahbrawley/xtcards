@@ -52,6 +52,7 @@ class playScreen:
         self.header = None
         self.camwindow = None
         self.betwindow = None
+        self.logwindow = None
 
         self.results_displayed = False
         self.camClicked = False
@@ -241,19 +242,18 @@ class playScreen:
                 self.result_table = resultsWindow(manager=manager, pos=resultpos)
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                self.log = logWindow(manager=manager, pos=logpos)
+                self.logwindow = logWindow(manager=manager, pos=logpos)
+                # self.logwindow.hide()
 
-                # bankWindow.show_log = False
+                if (self.bank.show_log and self.logwindow != None):
+                    print("DRAWING LOG")
+                    self.viewLog(manager, logpos)
+                    self.logwindow.show()
+                    self.logwindow.set_blocking(False)
+                else:
+                    self.logwindow.hide()
+
                 setupWindow.startClicked = False
-
-                if (bankWindow.show_log and not logClicked):
-                    logClicked = True
-                    self.log.show()
-                    self.log.set_blocking(False)
-
-                # if (bankWindow.show_log == False):
-                #     logClicked = False
-                #     self.log.hide()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -627,6 +627,10 @@ class playScreen:
     def viewCamera(self, manager, pos):
         self.camwindow = camWindow(manager, pos)
         self.camClicked = True
+    
+    def viewLog(self, manager, pos):
+        self.logwindow = logWindow(manager, pos)
+        self.bank.show_log = True
     
     def killCamera(self):
         # only call if self.camwindow != None
