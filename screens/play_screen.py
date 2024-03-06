@@ -52,7 +52,6 @@ class playScreen:
         self.header = None
         self.camwindow = None
         self.betwindow = None
-        self.logwindow = None
 
         self.results_displayed = False
         self.camClicked = False
@@ -243,15 +242,9 @@ class playScreen:
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
                 self.logwindow = logWindow(manager=manager, pos=logpos)
-                # self.logwindow.hide()
-
-                if (self.bank.show_log and self.logwindow != None):
-                    print("DRAWING LOG")
-                    self.viewLog(manager, logpos)
-                    self.logwindow.show()
-                    self.logwindow.set_blocking(False)
-                else:
-                    self.logwindow.hide()
+                self.logwindow.hide()
+                
+                self.bank.on_show_log_changed = lambda value: self.viewLog(value)
 
                 setupWindow.startClicked = False
 
@@ -597,9 +590,6 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
-            if (logClicked):
-                if not self.log.alive():
-                    logClicked = False
 
             pygame.display.update()
 
@@ -618,7 +608,7 @@ class playScreen:
 
         # just to remove trailing newline character
         log_text = log_text[:-1]
-        self.log.game_log.set_text(log_text)
+        self.logwindow.game_log.set_text(log_text)
 
     def delete(self, manager):
         print('PLAY: Deleting objects')
@@ -628,9 +618,11 @@ class playScreen:
         self.camwindow = camWindow(manager, pos)
         self.camClicked = True
     
-    def viewLog(self, manager, pos):
-        self.logwindow = logWindow(manager, pos)
-        self.bank.show_log = True
+    def viewLog(self, isAlive):
+        if isAlive:
+            self.logwindow.show()
+        else:
+            self.logwindow.hide()
     
     def killCamera(self):
         # only call if self.camwindow != None
