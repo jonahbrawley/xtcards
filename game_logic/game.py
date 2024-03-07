@@ -406,6 +406,7 @@ class GameInstance:
     community_cards = self.community_cards
     ai_instance = self.players[pos]
     ai_cards = ai_instance.cards
+    ai_hand_strength = CardRanker.find_best_hand(ai_cards, community_cards)[0]
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
 
@@ -426,6 +427,7 @@ class GameInstance:
       "pot_game" : pot_game_value,
       "community_cards" : community_cards,
       "ai_cards" : ai_cards,
+      "ai_hand_strength" : ai_hand_strength,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
       "opponents" : opponents_data
