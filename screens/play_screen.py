@@ -241,19 +241,12 @@ class playScreen:
                 self.result_table = resultsWindow(manager=manager, pos=resultpos)
                 self.result_table.hide()
                 self.bank = bankWindow(manager=manager, pos=bankpos)
-                self.log = logWindow(manager=manager, pos=logpos)
+                self.logwindow = logWindow(manager=manager, pos=logpos)
+                self.logwindow.hide()
+                
+                self.bank.on_show_log_changed = lambda value: self.viewLog(value)
 
-                # bankWindow.show_log = False
                 setupWindow.startClicked = False
-
-                if (bankWindow.show_log and not logClicked):
-                    logClicked = True
-                    self.log.show()
-                    self.log.set_blocking(False)
-
-                # if (bankWindow.show_log == False):
-                #     logClicked = False
-                #     self.log.hide()
 
                 # Process player/AI combo tuple
                 # self.playerSetUp.playerNames - input player names
@@ -547,6 +540,9 @@ class playScreen:
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
                     self.result_text.set_text(text[:-2] + "\nTop Hand: " + winning_hand + "\n") 
                     self.header.set_text('Split Pot!')
+                    # self.player_actions.append("Split pot between the players shown!")
+                    # self.updateGameLog(self.player_actions)
+                    
                 else:
                     winning_hand = rankings[0][0][2]
                     for position, chips in results.items():
@@ -594,9 +590,6 @@ class playScreen:
             if (churchClicked):
                 if not self.church.alive():
                     churchClicked = False
-            if (logClicked):
-                if not self.log.alive():
-                    logClicked = False
 
             pygame.display.update()
 
@@ -615,7 +608,7 @@ class playScreen:
 
         # just to remove trailing newline character
         log_text = log_text[:-1]
-        self.log.game_log.set_text(log_text)
+        self.logwindow.game_log.set_text(log_text)
 
     def delete(self, manager):
         print('PLAY: Deleting objects')
@@ -624,6 +617,12 @@ class playScreen:
     def viewCamera(self, manager, pos):
         self.camwindow = camWindow(manager, pos)
         self.camClicked = True
+    
+    def viewLog(self, isAlive):
+        if isAlive:
+            self.logwindow.show()
+        else:
+            self.logwindow.hide()
     
     def killCamera(self):
         # only call if self.camwindow != None

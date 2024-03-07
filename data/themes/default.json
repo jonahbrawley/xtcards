@@ -185,14 +185,7 @@
         {
             "title_bar_height": "28",
             "border_width": "5",
-            "enable_close_button": "1"
-        }
-    },
-    "#log_window.#close_button": 
-    {
-        "font": 
-        {
-            "size": "25"
+            "enable_close_button": "0"
         }
     },
     "#info_window":
