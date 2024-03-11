@@ -388,6 +388,11 @@ class playScreen:
                             player_action_label.set_text(self.betwindow.placed_bet)
                             self.player_actions.append(player + " has called the current bet")
                             self.updateGameLog(self.player_actions)
+                        elif (int(self.betwindow.placed_bet) == self.player_chips):
+                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                            player_action_label.set_text(self.betwindow.placed_bet)
+                            self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
+                            self.updateGameLog(self.player_actions)
                         else:
                             # print('Player bet ' + self.betwindow.placed_bet + " chips")
                             player_action_label.set_text(self.betwindow.placed_bet)
@@ -552,7 +557,7 @@ class playScreen:
                         self.player_chips = player.chips
                         player_label = self.players.player_labels_list[position]
                         player_label.set_text(player.name + ":  " + str(self.player_chips) + "  |  ")
-                        self.player_actions.append(player.name + "has won this round! yippee!")
+                        self.player_actions.append(player.name + " has won this round! yippee!")
                         self.updateGameLog(self.player_actions)
 
                 if (self.results_displayed == False):

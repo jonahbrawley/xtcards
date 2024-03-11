@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-# from windows.log_window import logWindow
 
 class bankWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
@@ -67,6 +66,4 @@ class bankWindow(pygame_gui.elements.UIWindow):
 
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
             if (event.ui_element == self.log_button):
-                print("Log button pressed")
                 self.show_log = not self.show_log
-                print("State of button:", self.show_log)
