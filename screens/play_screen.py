@@ -104,14 +104,14 @@ class playScreen:
 
         # end round button
         dealing_button_rect = pygame.Rect(15, -100, 250, 50)
-        self.scan_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+        self.dynamic_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
                                             text='Scan AI\'s Hand',
                                             manager=manager,
                                             anchors={
                                             'centerx': 'centerx',
                                             'bottom': 'bottom'
                                             })
-        self.scan_button.hide()
+        self.dynamic_button.hide()
 
         # info button
         info_button_rect = pygame.Rect(-self.e_p-self.b_width/2.5, self.e_p, self.b_width/2.5, self.b_height)
@@ -148,6 +148,19 @@ class playScreen:
                                 'top': 'top'
                             })
         self.result_text.hide()
+
+        bible_width = self.width*.8
+        bible_height = self.height*.15
+        bible_rect = pygame.Rect(((self.width*.50)-(bible_width//2), self.height/3.8), (bible_width, bible_height))
+        self.bible_text = UITextBox('Proverbs 3:6 - In all your ways acknowledge him, and he will make your paths straight.',
+                            relative_rect=bible_rect,
+                            manager=manager,
+                            object_id='result_textbox',
+                            anchors={
+                                'left': 'left',
+                                'top': 'top'
+                            })
+        self.bible_text.hide()
 
         self.setup = setupWindow(manager, stppos)
 
@@ -527,8 +540,8 @@ class playScreen:
 
             if (self.game_state == GameState.END_ROUND):
                 self.result_text.show()
-                self.scan_button.set_text('Next Round')
-                self.scan_button.show()
+                self.dynamic_button.set_text('Next Round')
+                self.dynamic_button.show()
                 if (len(results) >= 2):
                     text = 'Split pot: '
                     winning_hand = rankings[0][0][2]
@@ -559,14 +572,30 @@ class playScreen:
                     self.updateResultTable(rankings)
                     self.result_table.show()
                     self.results_displayed = True
-                if (self.scan_button.pressed):
-                    self.game_state = GameState.SCAN_AI_HAND
+                if (self.dynamic_button.pressed):
                     self.result_text.hide()
-                    self.scan_button.hide()
+                    self.dynamic_button.hide()
                     self.result_table.hide()
                     self.clearTable(manager, tablepos)
-                    self.player_actions.append("A new round has started!")
-                    self.updateGameLog(self.player_actions)
+                    if (player.chips == setupWindow.chip_count*len(self.game_instance.players)):
+                        self.dynamic_button.pressed = False
+                        self.game_state = GameState.END_SCREEN
+                    else:
+                        self.player_actions.append("A new round has started!")
+                        self.game_state = GameState.SCAN_AI_HAND
+                        self.updateGameLog(self.player_actions)
+
+            if (self.game_state == GameState.END_SCREEN):
+                self.header.set_text('Game Over!')
+                self.dynamic_button.set_text('Quit')
+                self.result_text.set_text(player.name + ' is the winner! better luck next time!')
+                self.bible_text.set_text('Even if you lost, remebmer John 3:16: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." So Even though you lost, you can still have eternal life!')
+                self.bible_text.show()
+                self.result_text.show()
+                self.dynamic_button.show()
+                if (self.dynamic_button.pressed):
+                    self.killGame()
+                    return ScreenState.TITLE
 
             manager.update(time_delta)     
             self.window.blit(self.background, (0,0))
