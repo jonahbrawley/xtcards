@@ -409,6 +409,7 @@ class GameInstance:
     ai_hand_strength = CardRanker.find_best_hand(ai_cards, community_cards)[0]
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
+    min_req_bet = self.get_min_required_bet()
 
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
@@ -430,6 +431,7 @@ class GameInstance:
       "ai_hand_strength" : ai_hand_strength,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
+      "min_req_bet" : min_req_bet,
       "opponents" : opponents_data
     }
 
