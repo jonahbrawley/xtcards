@@ -445,7 +445,6 @@ class playScreen:
                         players.set_text('')
                     self.game_state = GameState.SCAN_PLAYER_HAND
                     self.player_index = 0
-                    self.card_index = 0
                     self.header.set_text('Scan Player Hands')
 
             if (self.game_state == GameState.SCAN_FLOP):
@@ -506,7 +505,33 @@ class playScreen:
                 else:
                     self.viewCamera(manager, campos) # open camera window
 
-            if (self.game_state == GameState.SCAN_PLAYER_HAND):
+            # Reached end of game before all community cards have been scanned
+            if self.game_state == GameState.SCAN_PLAYER_HAND and self.game_instance.community_cards[-1] == 'NA':
+                if (self.camClicked):
+                    cards_to_scan = 5
+
+                    if (self.card_index < cards_to_scan):
+                        self.camwindow.instruction_label.set_text( "Scan river - %d of 5" % (self.card_index+1) )
+
+                        if (self.camwindow.snaptaken):
+                            card = self.scanCard()
+                            self.game_instance.community_cards[self.card_index] = card
+                            self.updateTable(self.game_instance.community_cards) # update the table
+                            self.card_index += 1
+                    if (self.card_index == cards_to_scan):
+                        self.card_index = 0
+                        print(self.game_instance.community_cards)
+                        self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+                        for players in self.players.player_action_list:
+                            players.set_text('')
+                        self.game_state = GameState.SCAN_PLAYER_HAND
+                        self.player_index = 0
+                        self.header.set_text('Scan Player Hands')
+                else:
+                    self.viewCamera(manager, campos) # open camera window
+
+            # end of game, scan player hands
+            if (self.game_state == GameState.SCAN_PLAYER_HAND and self.game_instance.community_cards[-1] != 'NA'):
                 if (self.camClicked):
                     self.camwindow.scanning_ai_cards = False
                     cards_to_scan = 2
