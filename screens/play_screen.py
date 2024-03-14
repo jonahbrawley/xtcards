@@ -388,8 +388,8 @@ class playScreen:
                         player_action_label.set_text("folded")
                         self.player_actions.append(player + " has folded, womp womp")
                         self.updateGameLog(self.player_actions)
-
                     elif (self.betwindow.placed_bet != None):
+                        self.player_chips = self.game_instance.players[player_pos].chips
                         #print(self.game_instance)
                         if (self.betwindow.placed_bet == "0"):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
@@ -413,7 +413,6 @@ class playScreen:
                             self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
                             self.updateGameLog(self.player_actions)
                         # current player's chips
-                        self.player_chips = self.game_instance.players[player_pos].chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
 
                         self.betwindow.kill()
