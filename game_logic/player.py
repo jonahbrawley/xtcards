@@ -9,6 +9,7 @@ class Player:
     self.curr_bet = 0
     self.cards = cards
     self.is_ai = is_ai
+    self.won_last = False
 
   def pull_cards(self, deck):
     self.cards = [deck.pull(), deck.pull()]

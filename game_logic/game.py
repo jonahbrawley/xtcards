@@ -31,6 +31,7 @@ class GameInstance:
     self.game_active = False
     self.dealer_pos = random.randint(0, len(self.players))
     self.curr_pos = 0
+    self.round = None
 
   # Check which players can start a new game and return that number
   def ready_up_players(self):
@@ -105,8 +106,7 @@ class GameInstance:
     # If a physical deck is not being used, deal all the cards to the players
     if not GameInstance.USE_PHYSICAL_DECK:
       for player in self.players:
-        if player.cards is None:
-          player.pull_cards(self.deck)
+        player.pull_cards(self.deck)
     
     return GameState.SCAN_AI_HAND
 
@@ -149,8 +149,9 @@ class GameInstance:
 
     elif action == "call":
       bet_amount = min(min_required_bet, player.chips)
-      if bet_amount == player.chips:
+      if bet_amount >= player.chips:
         action = "all_in"
+        bet_amount = player.chips
       elif bet_amount < min_required_bet:
         return False
 
@@ -209,8 +210,14 @@ class GameInstance:
 
         p_b = self.players[self.curr_pos]
         self.execute_player_action(p_b, "blind", min(p_b.chips, GameInstance.BIG_BLIND))
-        self.increment_curr_pos()
-        return GameState.PREFLOP_BETS # this is the next state the game should look at
+        game_over = True
+        for player in self.players:
+          if player.chips > 0:
+            game_over = False
+        
+        if not game_over:
+          self.increment_curr_pos()
+          return GameState.PREFLOP_BETS # this is the next state the game should look at
       else:
         # If a play should not take place, end round immediately
         if self.is_round_over():
@@ -344,6 +351,9 @@ class GameInstance:
     for player in self.players:
       if player.id in winnings.keys():
         player.chips += winnings[player.id]
+        player.won_last = True
+      else:
+        player.won_last = False
 
     # show off winning amounts
     print("WINNINGS:")
@@ -403,14 +413,34 @@ class GameInstance:
     for pot in self.side_pots:
       pot_game_value += pot.sum_bets()
 
+    ai_total_bets = 0
+    for pot in self.side_pots:
+      if pos in pot.bets:
+        ai_total_bets += pot.bets[pos]
+
     community_cards = self.community_cards
     ai_instance = self.players[pos]
     ai_cards = ai_instance.cards
     ai_hand_strength = CardRanker.find_best_hand(ai_cards, community_cards)[0]
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
+    ai_chips = ai_instance.chips
     min_req_bet = self.get_min_required_bet()
 
+    players_in = 0
+    for player in self.players:
+      if player.last_action not in ["pending_out", "out", "fold", "pot_committed"]:
+        players_in += 1
+
+    # calculate the no. of players ai is after the dealer
+    pos_from_dealer = 0
+    pos_index = self.dealer_pos
+    while pos_index != pos:
+      if self.players[pos_index].last_action not in ["pending_out", "out", "fold", "pot_committed"]:
+        pos_from_dealer += 1
+      pos_index += 1
+      if pos_index == len(self.players):
+        pos_index = 0
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
     for opponent in self.players:
@@ -431,7 +461,11 @@ class GameInstance:
       "ai_hand_strength" : ai_hand_strength,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
+      "ai_total_bets" : ai_total_bets,
+      "ai_chips" : ai_chips,
       "min_req_bet" : min_req_bet,
+      "players_in" : players_in,
+      "pos_from_dealer" : pos_from_dealer,
       "opponents" : opponents_data
     }
 
