@@ -74,16 +74,21 @@ class camWindow(pygame_gui.elements.UIWindow):
             self.camera_display.set_image(disp)
 
     def aiFilter(self, img):
-        h, w = img.shape[:2]
-        
-        img = cv2.blur(img, (135,135))
-
-        img = cv2.resize(img, (15, 15), interpolation=cv2.INTER_LINEAR)
+        # h, w = img.shape[:2]
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-        img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
         
-        return img
+        img = cv2.GaussianBlur(img, (31, 31), 0)
+        # img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        _, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+        kernel = np.ones((70, 70), np.uint8)
+        processed_image = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2RGB)
+
+        # img = cv2.resize(processed_image, (100, 100), interpolation=cv2.INTER_LINEAR)
+        # img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
+        # img = cv2.blur(processed_image, (70, 70))
+        
+        return processed_image
 
     def process_event(self, event):
         handled = super().process_event(event)
