@@ -24,7 +24,6 @@ from game_logic.game import GameInstance
 from game_logic.player import Player
 
 from local_ml.card_detection import classify_card
-from local_ml.agent import Agent
 
 import pygame.camera
 
@@ -390,18 +389,9 @@ class playScreen:
                         self.player_actions.append(player + " has folded, womp womp")
                         self.updateGameLog(self.player_actions)
                     elif (self.betwindow.placed_bet != None):
-
                         self.player_chips = self.game_instance.players[player_pos].chips
-
-                        pl = self.game_instance.players[player_pos]
-                        if pl.is_ai:
-                            print(f"AI Move: {pl.name}")
-                            p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
-                            next_state = self.game_instance.step(p_action, p_bet)
-                            player_action_label.set_text("AI " + p_action)
-                            self.player_actions.append(player + f" has {p_action}")
-                            self.updateGameLog(self.player_actions)
-                        elif (self.betwindow.placed_bet == "0"):
+                        #print(self.game_instance)
+                        if (self.betwindow.placed_bet == "0"):
                             next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
                             player_action_label.set_text("Check")
                             self.player_actions.append(player + " has checked")
