@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+import time
 from pygame_gui.elements import UILabel
 from pygame_gui.elements import UITextBox
 
@@ -349,6 +350,7 @@ class playScreen:
                         self.game_instance.start_game()
                         self.game_instance.step() # perform small and big blinds
                         self.killCamera()
+                        print("AI CARDS SCANNED")
                         self.game_state = GameState.PREFLOP_BETS
                 else:
                     self.viewCamera(manager, campos) # open camera window
@@ -376,56 +378,59 @@ class playScreen:
                 # show bet dialogue & collect input action, bet for that player
                 self.header.set_text(player + "'s Turn")
                 self.min_bet = self.game_instance.get_min_required_bet()
-
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos, self.min_bet)
                     self.betwindow.yourmoney_label.set_text("You have " + str(self.game_instance.players[self.game_instance.curr_pos].chips) + " chips")
                     print('PLAY: Drawing bet window')
                 else: # bet window open
-                    if (self.betwindow.folds):
+                    pl = self.game_instance.players[player_pos]
+                    if pl.is_ai:
                         self.betwindow.kill()
-                        self.betwindow = None
-                        next_state = self.game_instance.step('fold')
-                        player_action_label.set_text("folded")
-                        self.player_actions.append(player + " has folded, womp womp")
+                        time.sleep(5)
+                        p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                        next_state = self.game_instance.step(p_action, p_bet)
+                        player_action_label.set_text("AI " + p_action)
+                        self.player_actions.append(player + f" has {p_action}")
                         self.updateGameLog(self.player_actions)
-                    elif (self.betwindow.placed_bet != None):
                         self.player_chips = self.game_instance.players[player_pos].chips
-
-                        pl = self.game_instance.players[player_pos]
-                        if pl.is_ai:
-                            print(f"AI Move: {pl.name}")
-                            p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
-                            next_state = self.game_instance.step(p_action, p_bet)
-                            player_action_label.set_text("AI " + p_action)
-                            self.player_actions.append(player + f" has {p_action}")
-                            self.updateGameLog(self.player_actions)
-                        elif (self.betwindow.placed_bet == "0"):
-                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
-                            player_action_label.set_text("Check")
-                            self.player_actions.append(player + " has checked")
-                            self.updateGameLog(self.player_actions)
-                        elif (int(self.betwindow.placed_bet) <= self.min_bet):
-                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            self.player_actions.append(player + " has called the current bet")
-                            self.updateGameLog(self.player_actions)
-                        elif (int(self.betwindow.placed_bet) == self.player_chips):
-                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
-                            self.updateGameLog(self.player_actions)
-                        else:
-                            # print('Player bet ' + self.betwindow.placed_bet + " chips")
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
-                            self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
-                            self.updateGameLog(self.player_actions)
-                        # current player's chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-
-                        self.betwindow.kill()
                         self.betwindow = None
+                    else:
+                        if (self.betwindow.folds):
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            next_state = self.game_instance.step('fold')
+                            player_action_label.set_text("folded")
+                            self.player_actions.append(player + " has folded, womp womp")
+                            self.updateGameLog(self.player_actions)
+                        elif (self.betwindow.placed_bet != None):
+                            self.player_chips = self.game_instance.players[player_pos].chips
+                            if (self.betwindow.placed_bet == "0"):
+                                next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                                player_action_label.set_text("Check")
+                                self.player_actions.append(player + " has checked")
+                                self.updateGameLog(self.player_actions)
+                            elif (int(self.betwindow.placed_bet) <= self.min_bet):
+                                next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                self.player_actions.append(player + " has called the current bet")
+                                self.updateGameLog(self.player_actions)
+                            elif (int(self.betwindow.placed_bet) == self.player_chips):
+                                next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
+                                self.updateGameLog(self.player_actions)
+                            else:
+                                # print('Player bet ' + self.betwindow.placed_bet + " chips")
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                                self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
+                                self.updateGameLog(self.player_actions)
+                            # current player's chips
+                            player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+
+                            self.betwindow.kill()
+                            self.betwindow = None
 
                 if  next_state == GameState.SCAN_FLOP:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
