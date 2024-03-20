@@ -386,39 +386,52 @@ class playScreen:
                 else: # bet window open
                     pl = self.game_instance.players[player_pos]
                     if pl.is_ai:
-                        def render_on_screen():
-                            self.header.set_text(player + " is thinking...")
-                            self.betwindow.kill()
-                            self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
-                            self.bible_text.show()
-                            event.set()
-                        def delayed_task():
-                            random_time = np.random.randint(3, 7)
-                            time.sleep(random_time)
-                            p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
-                            if p_action == 'fold':
-                                self.next_state = self.game_instance.step(p_action)
-                            else:
-                                self.next_state = self.game_instance.step(p_action, p_bet)
-                            player_action_label.set_text(p_action)
-                            self.player_actions.append(player + f" has {p_action}")
-                            self.updateGameLog(self.player_actions)
-                            self.player_chips = self.game_instance.players[player_pos].chips
-                            player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                            self.betwindow = None
-                            self.bible_text.hide()
-                        # self.header.set_text(player + " is thinking...")
-                        # self.betwindow.kill()
-                        # self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
-                        # self.bible_text.show()
-                        # delay_thread = threading.Thread(target=delayed_task)
-                        # delay_thread.start()
-                        event = threading.Event()
-                        first_task = threading.Thread(target=render_on_screen)
-                        first_task.start()
-                        event.wait()
-                        second_task = threading.Thread(target=delayed_task)
-                        second_task.start()
+                        # def render_on_screen():
+                        #     self.header.set_text(player + " is thinking...")
+                        #     self.betwindow.kill()
+                        #     self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                        #     self.bible_text.show()
+                        #     event.set()
+                        # def delayed_task():
+                        #     random_time = np.random.randint(3, 7)
+                        #     time.sleep(random_time)
+                        #     p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                        #     if p_action == 'fold':
+                        #         self.next_state = self.game_instance.step(p_action)
+                        #     else:
+                        #         self.next_state = self.game_instance.step(p_action, p_bet)
+                        #     player_action_label.set_text(p_action)
+                        #     self.player_actions.append(player + f" has {p_action}")
+                        #     self.updateGameLog(self.player_actions)
+                        #     self.player_chips = self.game_instance.players[player_pos].chips
+                        #     player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+                        #     self.betwindow = None
+                        #     self.bible_text.hide()
+                        self.header.set_text(player + " is thinking...")
+                        self.betwindow.kill()
+                        self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                        self.bible_text.show()
+                        random_time = np.random.randint(3, 7)
+                        time.sleep(random_time)
+                        p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                        if p_action == 'fold':
+                            self.next_state = self.game_instance.step(p_action)
+                        else:
+                            self.next_state = self.game_instance.step(p_action, p_bet)
+                        player_action_label.set_text(p_action)
+                        self.player_actions.append(player + f" has {p_action}")
+                        self.updateGameLog(self.player_actions)
+                        self.player_chips = self.game_instance.players[player_pos].chips
+                        player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+                        self.betwindow = None
+                        self.bible_text.hide()
+
+                        # event = threading.Event()
+                        # first_task = threading.Thread(target=render_on_screen)
+                        # first_task.start()
+                        # event.wait()
+                        # second_task = threading.Thread(target=delayed_task)
+                        # second_task.start()
                     else:
                         if (self.betwindow.folds):
                             self.betwindow.kill()
