@@ -58,6 +58,7 @@ class playScreen:
 
         self.results_displayed = False
         self.camClicked = False
+        self.aiThinking = 0
 
         # Class variable for a new GameInstance from game_logic/game.py.
         # This variable is updated after number of players/AI is selected.
@@ -233,7 +234,7 @@ class playScreen:
 
         while True:
             time_delta = self.clock.tick(60) / 1000.0
-            keys = pygame.key.get_pressed()
+            keys = pygame.key.get_pressed()                
 
             # if setup window is closed, open player window and pause button
             if(setupWindow.startClicked):
@@ -386,52 +387,28 @@ class playScreen:
                 else: # bet window open
                     pl = self.game_instance.players[player_pos]
                     if pl.is_ai:
-                        # def render_on_screen():
-                        #     self.header.set_text(player + " is thinking...")
-                        #     self.betwindow.kill()
-                        #     self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
-                        #     self.bible_text.show()
-                        #     event.set()
-                        # def delayed_task():
-                        #     random_time = np.random.randint(3, 7)
-                        #     time.sleep(random_time)
-                        #     p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
-                        #     if p_action == 'fold':
-                        #         self.next_state = self.game_instance.step(p_action)
-                        #     else:
-                        #         self.next_state = self.game_instance.step(p_action, p_bet)
-                        #     player_action_label.set_text(p_action)
-                        #     self.player_actions.append(player + f" has {p_action}")
-                        #     self.updateGameLog(self.player_actions)
-                        #     self.player_chips = self.game_instance.players[player_pos].chips
-                        #     player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                        #     self.betwindow = None
-                        #     self.bible_text.hide()
-                        self.header.set_text(player + " is thinking...")
-                        self.betwindow.kill()
-                        self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
-                        self.bible_text.show()
-                        random_time = np.random.randint(3, 7)
-                        # time.sleep(random_time)
-                        p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
-                        if p_action == 'fold':
-                            self.next_state = self.game_instance.step(p_action)
-                        else:
-                            self.next_state = self.game_instance.step(p_action, p_bet)
-                        player_action_label.set_text(p_action)
-                        self.player_actions.append(player + f" has {p_action}")
-                        self.updateGameLog(self.player_actions)
-                        self.player_chips = self.game_instance.players[player_pos].chips
-                        player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-                        self.betwindow = None
-                        self.bible_text.hide()
-
-                        # event = threading.Event()
-                        # first_task = threading.Thread(target=render_on_screen)
-                        # first_task.start()
-                        # event.wait()
-                        # second_task = threading.Thread(target=delayed_task)
-                        # second_task.start()
+                        if (self.aiThinking == 0):
+                            thread = threading.Thread(target=self.threadMethod)
+                            thread.start()
+                        if self.aiThinking == 1:
+                            self.header.set_text(player + " is thinking...")
+                            self.betwindow.kill()
+                            self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                            self.bible_text.show()
+                        if self.aiThinking == 2:
+                            p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                            if p_action == 'fold':
+                                self.next_state = self.game_instance.step(p_action)
+                            else:
+                                self.next_state = self.game_instance.step(p_action, p_bet)
+                            player_action_label.set_text(p_action)
+                            self.player_actions.append(player + f" has {p_action}")
+                            self.updateGameLog(self.player_actions)
+                            self.player_chips = self.game_instance.players[player_pos].chips
+                            player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+                            self.betwindow = None
+                            self.bible_text.hide()
+                            self.aiThinking = 0
                     else:
                         if (self.betwindow.folds):
                             self.betwindow.kill()
@@ -718,6 +695,12 @@ class playScreen:
         # just to remove trailing newline character
         log_text = log_text[:-1]
         self.logwindow.game_log.set_text(log_text)
+
+    def threadMethod(self):
+        random_time = np.random.randint(3, 7)
+        self.aiThinking = 1
+        time.sleep(random_time)
+        self.aiThinking = 2
 
     def delete(self, manager):
         print('PLAY: Deleting objects')
