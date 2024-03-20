@@ -697,7 +697,7 @@ class playScreen:
         self.logwindow.game_log.set_text(log_text)
 
     def threadMethod(self):
-        random_time = np.random.randint(3, 7)
+        random_time = np.random.randint(2, 7)
         self.aiThinking = 1
         time.sleep(random_time)
         self.aiThinking = 2
