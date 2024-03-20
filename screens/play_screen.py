@@ -412,7 +412,7 @@ class playScreen:
                         self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
                         self.bible_text.show()
                         random_time = np.random.randint(3, 7)
-                        time.sleep(random_time)
+                        # time.sleep(random_time)
                         p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
                         if p_action == 'fold':
                             self.next_state = self.game_instance.step(p_action)
