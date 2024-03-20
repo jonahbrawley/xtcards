@@ -1,5 +1,7 @@
 import pygame
 import pygame_gui
+import threading
+import time
 from pygame_gui.elements import UILabel
 from pygame_gui.elements import UITextBox
 
@@ -24,6 +26,7 @@ from game_logic.game import GameInstance
 from game_logic.player import Player
 
 from local_ml.card_detection import classify_card
+from local_ml.agent import Agent
 
 import pygame.camera
 
@@ -348,6 +351,7 @@ class playScreen:
                         self.game_instance.start_game()
                         self.game_instance.step() # perform small and big blinds
                         self.killCamera()
+                        print("AI CARDS SCANNED")
                         self.game_state = GameState.PREFLOP_BETS
                 else:
                     self.viewCamera(manager, campos) # open camera window
@@ -369,77 +373,124 @@ class playScreen:
                         self.players.player_action_list[player_index].set_text(str(blind_value))
                         # player_label.set_text(self.game_instance.players[player_index].name + ":  " + str(self.game_instance.players[player_index].chips) + "  |  ")
 
-                next_state = GameState.UNCHANGED_STATE
+                self.next_state = GameState.UNCHANGED_STATE
 
                 player = self.game_instance.players[self.game_instance.curr_pos].name # returns Player instance from player.py
                 # show bet dialogue & collect input action, bet for that player
                 self.header.set_text(player + "'s Turn")
                 self.min_bet = self.game_instance.get_min_required_bet()
-
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos, self.min_bet)
                     self.betwindow.yourmoney_label.set_text("You have " + str(self.game_instance.players[self.game_instance.curr_pos].chips) + " chips")
                     print('PLAY: Drawing bet window')
                 else: # bet window open
-                    if (self.betwindow.folds):
+                    pl = self.game_instance.players[player_pos]
+                    if pl.is_ai:
+                        # def render_on_screen():
+                        #     self.header.set_text(player + " is thinking...")
+                        #     self.betwindow.kill()
+                        #     self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                        #     self.bible_text.show()
+                        #     event.set()
+                        # def delayed_task():
+                        #     random_time = np.random.randint(3, 7)
+                        #     time.sleep(random_time)
+                        #     p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                        #     if p_action == 'fold':
+                        #         self.next_state = self.game_instance.step(p_action)
+                        #     else:
+                        #         self.next_state = self.game_instance.step(p_action, p_bet)
+                        #     player_action_label.set_text(p_action)
+                        #     self.player_actions.append(player + f" has {p_action}")
+                        #     self.updateGameLog(self.player_actions)
+                        #     self.player_chips = self.game_instance.players[player_pos].chips
+                        #     player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+                        #     self.betwindow = None
+                        #     self.bible_text.hide()
+                        self.header.set_text(player + " is thinking...")
                         self.betwindow.kill()
-                        self.betwindow = None
-                        next_state = self.game_instance.step('fold')
-                        player_action_label.set_text("folded")
-                        self.player_actions.append(player + " has folded, womp womp")
-                        self.updateGameLog(self.player_actions)
-                    elif (self.betwindow.placed_bet != None):
-                        self.player_chips = self.game_instance.players[player_pos].chips
-                        #print(self.game_instance)
-                        if (self.betwindow.placed_bet == "0"):
-                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
-                            player_action_label.set_text("Check")
-                            self.player_actions.append(player + " has checked")
-                            self.updateGameLog(self.player_actions)
-                        elif (int(self.betwindow.placed_bet) <= self.min_bet):
-                            next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            self.player_actions.append(player + " has called the current bet")
-                            self.updateGameLog(self.player_actions)
-                        elif (int(self.betwindow.placed_bet) == self.player_chips):
-                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
-                            self.updateGameLog(self.player_actions)
+                        self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                        self.bible_text.show()
+                        random_time = np.random.randint(3, 7)
+                        # time.sleep(random_time)
+                        p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
+                        if p_action == 'fold':
+                            self.next_state = self.game_instance.step(p_action)
                         else:
-                            # print('Player bet ' + self.betwindow.placed_bet + " chips")
-                            player_action_label.set_text(self.betwindow.placed_bet)
-                            next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
-                            self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
-                            self.updateGameLog(self.player_actions)
-                        # current player's chips
+                            self.next_state = self.game_instance.step(p_action, p_bet)
+                        player_action_label.set_text(p_action)
+                        self.player_actions.append(player + f" has {p_action}")
+                        self.updateGameLog(self.player_actions)
+                        self.player_chips = self.game_instance.players[player_pos].chips
                         player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
-
-                        self.betwindow.kill()
                         self.betwindow = None
+                        self.bible_text.hide()
 
-                if  next_state == GameState.SCAN_FLOP:
+                        # event = threading.Event()
+                        # first_task = threading.Thread(target=render_on_screen)
+                        # first_task.start()
+                        # event.wait()
+                        # second_task = threading.Thread(target=delayed_task)
+                        # second_task.start()
+                    else:
+                        if (self.betwindow.folds):
+                            self.betwindow.kill()
+                            self.betwindow = None
+                            self.next_state = self.game_instance.step('fold')
+                            player_action_label.set_text("folded")
+                            self.player_actions.append(player + " has folded, womp womp")
+                            self.updateGameLog(self.player_actions)
+                        elif (self.betwindow.placed_bet != None):
+                            self.player_chips = self.game_instance.players[player_pos].chips
+                            if (self.betwindow.placed_bet == "0"):
+                                self.next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                                player_action_label.set_text("Check")
+                                self.player_actions.append(player + " has checked")
+                                self.updateGameLog(self.player_actions)
+                            elif (int(self.betwindow.placed_bet) <= self.min_bet):
+                                self.next_state = self.game_instance.step('call', int(self.betwindow.placed_bet))
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                self.player_actions.append(player + " has called the current bet")
+                                self.updateGameLog(self.player_actions)
+                            elif (int(self.betwindow.placed_bet) == self.player_chips):
+                                self.next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
+                                self.updateGameLog(self.player_actions)
+                            else:
+                                # print('Player bet ' + self.betwindow.placed_bet + " chips")
+                                player_action_label.set_text(self.betwindow.placed_bet)
+                                self.next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
+                                self.player_actions.append(player + " has raised by " + self.betwindow.placed_bet + " chips")
+                                self.updateGameLog(self.player_actions)
+                            # current player's chips
+                            player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
+
+                            self.betwindow.kill()
+                            self.betwindow = None
+
+                if  self.next_state == GameState.SCAN_FLOP:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
                         players.set_text('')
                     self.game_state = GameState.SCAN_FLOP
                     self.header.set_text('Scan Flop')
 
-                if  next_state == GameState.SCAN_TURN:   
+                if  self.next_state == GameState.SCAN_TURN:   
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
                         players.set_text('')
                     self.game_state = GameState.SCAN_TURN
                     self.header.set_text('Scan Turn Card')
 
-                if  next_state == GameState.SCAN_RIVER:
+                if  self.next_state == GameState.SCAN_RIVER:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
                         players.set_text('')
                     self.game_state = GameState.SCAN_RIVER
                     self.header.set_text('Scan River Card')
 
-                if  next_state == GameState.SCAN_PLAYER_HAND:
+                if  self.next_state == GameState.SCAN_PLAYER_HAND:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
                         players.set_text('')
