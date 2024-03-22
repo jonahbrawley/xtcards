@@ -414,7 +414,7 @@ class playScreen:
                             self.ai_character.set_image(pygame.image.load(fileName))
                             self.ai_character.show()
                             self.header.set_text(player + " is thinking...")
-                            self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
+                            self.bible_text.set_text('2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver."')
                             self.bible_text.show()
                         if self.aiThinking == 2:
                             p_action, p_bet = Agent.predict(self.game_instance.get_state_ai(player_pos))
