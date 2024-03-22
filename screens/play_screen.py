@@ -166,6 +166,20 @@ class playScreen:
                             })
         self.bible_text.hide()
 
+        character_width = 250
+        character_height = character_width*1.2
+
+        imgsurf = pygame.Surface(size=(character_width, character_height))
+        imgsurf.fill((40, 62, 51))
+        char_rect = pygame.Rect((self.width*.3, self.height*.5), (character_width, character_height))
+        self.ai_character = pygame_gui.elements.UIImage(relative_rect=char_rect,
+                                                        image_surface=imgsurf,
+                                                        manager=manager,
+                                                        anchors = {
+                                                            "left": "left",
+                                                        }
+        )
+
         self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
@@ -383,6 +397,10 @@ class playScreen:
                 if (self.betwindow == None):
                     self.betwindow = betWindow(manager, betpos, self.min_bet)
                     self.betwindow.yourmoney_label.set_text("You have " + str(self.game_instance.players[self.game_instance.curr_pos].chips) + " chips")
+                    if (self.game_instance.players[player_pos].is_ai):
+                        self.betwindow.hide()
+                    else:
+                        self.betwindow.show()
                     print('PLAY: Drawing bet window')
                 else: # bet window open
                     pl = self.game_instance.players[player_pos]
@@ -391,8 +409,11 @@ class playScreen:
                             thread = threading.Thread(target=self.threadMethod)
                             thread.start()
                         if self.aiThinking == 1:
-                            self.header.set_text(player + " is thinking...")
                             self.betwindow.kill()
+                            fileName= "assets/ai_characters/" + pl.name + ".png"
+                            self.ai_character.set_image(pygame.image.load(fileName))
+                            self.ai_character.show()
+                            self.header.set_text(player + " is thinking...")
                             self.bible_text.set_text('If you want to help support the church click the donate button in the top right corner, but Remeber 2 Corinthians 9:7 - "Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver." So do not give for any other reason than to help the kingdom of God.')
                             self.bible_text.show()
                         if self.aiThinking == 2:
@@ -408,6 +429,7 @@ class playScreen:
                             player_label.set_text(player + ":  " + str(self.player_chips) + "  |  ")
                             self.betwindow = None
                             self.bible_text.hide()
+                            self.ai_character.hide()
                             self.aiThinking = 0
                     else:
                         if (self.betwindow.folds):
