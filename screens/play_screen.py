@@ -75,14 +75,14 @@ class playScreen:
         self.b_height = self.height*0.045 # button height
 
         self.player_actions = []
-        self.bible_verses = ["Matthew 16:26 - For ywhat will it profit a man if he gains the whole world and forfeits his soul? Or zwhat shall a man give in return for his soul?",
-                            "2 Peter 3:18 - But sgrow in the grace and knowledge of our Lord and Savior Jesus Christ. tTo him be the glory both now and to the day of ueternity. Amen.",
+        self.bible_verses = ["Matthew 16:26 - For ywhat will it profit a man if he gains the whole world and forfeits his soul? Or what shall a man give in return for his soul?",
+                            "2 Peter 3:18 - But grow in the grace and knowledge of our Lord and Savior Jesus Christ. To him be the glory both now and to the day of eternity. Amen.",
                             "Colossians 3:2 - Set your minds on things that are above, not on things that are on earth.",
-                            "Ephesians 4:24 - and to put on sthe new self, tcreated after the likeness of God in true righteousness and holiness.",
-                            "Romans 8:18 - For I consider that the sufferings of this present time nare not worth comparing with the glory that is to be revealed to us.",
-                            "Ephesians 2:8 - For zby grace you have been saved athrough faith. And this is bnot your own doing; cit is the gift of God, James 2:17 - So too, faith by itself, if it does not result in action, is dead.",
+                            "Ephesians 4:24 - and to put on the new self, created after the likeness of God in true righteousness and holiness.",
+                            "Romans 8:18 - For I consider that the sufferings of this present time are not worth comparing with the glory that is to be revealed to us.",
+                            "Ephesians 2:8 - For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, James 2:17 - So too, faith by itself, if it does not result in action, is dead.",
                             "2 Corinthians 9:7 - Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver.",
-                            "Philippians 2:3 - Do nothing from kselfish ambition or lconceit, but in mhumility count others more significant than yourselves."]
+                            "Philippians 2:3 - Do nothing from selfish ambition or conceit, but in humility count others more significant than yourselves."]
 
     def load(self, manager, state):
         self.state = state
