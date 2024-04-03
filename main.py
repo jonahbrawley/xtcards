@@ -38,6 +38,7 @@ class xtcApp:
         screen_state = ScreenState.TITLE # set state to Title screen
         xtTitle = titleScreen(self.manager, self.window, screen_state)
         xtPlay = playScreen(self.manager, self.window, screen_state)
+        xtLoad = None
 
         while True:
             if screen_state == ScreenState.TITLE:
@@ -51,6 +52,13 @@ class xtcApp:
                 xtPlay.load(self.manager, screen_state)
                 screen_state = xtPlay.run(self.manager)
                 xtPlay.delete(self.manager)
+
+            if screen_state == ScreenState.LOAD:
+                print('>> SET STATE LOAD')
+                xtLoad = playScreen(self.manager, self.window, screen_state)
+                xtLoad.load(self.manager, screen_state)
+                screen_state = xtLoad.run(self.manager)
+                xtLoad.delete(self.manager)
 
             if screen_state == ScreenState.QUIT:
                 print('>> SET STATE QUIT')

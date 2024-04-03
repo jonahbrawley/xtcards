@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 import threading
+import pickle
 import time
 from pygame_gui.elements import UILabel
 from pygame_gui.elements import UITextBox
@@ -38,43 +39,116 @@ import json
 import numpy as np
 
 homeswitch = False
+pickleswitch = False
+save_state = None
+# {
+            #     # "header": self.header,                            - CANNOT STORE THREADED PYGAME OBJECTS
+            #     # "camwindow": self.camwindow,                      - CANNOT STORE THREADED PYGAME OBJECTS
+            #     # "screenstate": self.state,                        # screen location (unneeded since we only save from PLAY)
+            #
+            #     "camclicked": self.camClicked,  # is the camera open
+            #
+            #     "header_text": self.header.text,  # save header's text
+            #     "results_displayed": self.results_displayed,  # are game results displayed
+            #
+            #     "aithinking": self.aiThinking,  # is the ai thinking
+            #     "player_actions": self.player_actions,  # used for log window
+            #
+            #     "player_index": self.player_index,  # needed if we save during scanning cards
+            #     "card_index": self.card_index,  # needed if we save during scanning cards
+            #     "cards_scanned": self.cards_scanned,  # needed if we save during scanning cards
+            #
+            #     # "pauseClicked": pauseClicked,                     # we do not care about reopening pause (unneeded)
+            #     "infoClicked": infoClicked,  # is info button clicked
+            #     "churchClicked": churchClicked,  # is church button clicked
+            #     "logClicked": logClicked,  # is log button clicked
+            #
+            #     "game_state": self.game_state,  # see gamestate.py
+            #     "game_instance": self.game_instance  # the backend
+            # }
+            #
+            # if (self.camwindow != None):
+            #     if (self.camwindow.alive()):
+            #         save_state["cw_scanning_ai"] = self.camwindow.scanning_ai_cards  # were we scanning ai cards
+            #         save_state["cw_label"] = self.camwindow.instruction_label.text  # cam's instructions
 
 class playScreen:
     def __init__(self, manager, window, state):
-        self.offload_card_detection = True
-        Colors = Scheme()
-        self.state = state
-        
-        self.width = manager.window_resolution[0]
-        self.height = manager.window_resolution[1]
-        self.clock = pygame.time.Clock()
-        self.window = window
-        self.background = pygame.Surface((self.width, self.height))
-        self.background.fill(Colors.window_bg)
+        global save_state
 
-        self.header = None
-        self.camwindow = None
-        self.betwindow = None
+        if (state == ScreenState.LOAD):
+            with open('saved_game.pickle', 'rb') as f:
+                save_state = pickle.load(f)
 
-        self.results_displayed = False
-        self.camClicked = False
-        self.aiThinking = 0
+            self.offload_card_detection = True
+            Colors = Scheme()
+            self.state = state
 
-        # Class variable for a new GameInstance from game_logic/game.py.
-        # This variable is updated after number of players/AI is selected.
+            self.width = manager.window_resolution[0]
+            self.height = manager.window_resolution[1]
+            self.clock = pygame.time.Clock()
+            self.window = window
+            self.background = pygame.Surface((self.width, self.height))
+            self.background.fill(Colors.window_bg)
 
-        # For future save game functions, this class variable should be loaded
-        # from the saved game's GameInstance object.
-        # (more on this functionality later)
-        self.game_instance = None
+            self.header = None
+            self.camwindow = None
+            self.betwindow = None
 
-        self.game_state = None
+            self.results_displayed = False
+            self.camClicked = False
+            self.aiThinking = save_state['aithinking']
 
-        self.e_p = self.width*0.007 # edge padding
-        self.b_width = self.width*0.055 # button width
-        self.b_height = self.height*0.045 # button height
+            # Class variable for a new GameInstance from game_logic/game.py.
+            # This variable is updated after number of players/AI is selected.
 
-        self.player_actions = []
+            # For future save game functions, this class variable should be loaded
+            # from the saved game's GameInstance object.
+            # (more on this functionality later)
+            self.game_instance = save_state['game_instance']
+
+            self.game_state = save_state['game_state']
+
+            self.e_p = self.width*0.007 # edge padding
+            self.b_width = self.width*0.055 # button width
+            self.b_height = self.height*0.045 # button height
+
+            self.player_actions = []
+        else:
+            self.offload_card_detection = True
+            Colors = Scheme()
+            self.state = state
+
+            self.width = manager.window_resolution[0]
+            self.height = manager.window_resolution[1]
+            self.clock = pygame.time.Clock()
+            self.window = window
+            self.background = pygame.Surface((self.width, self.height))
+            self.background.fill(Colors.window_bg)
+
+            self.header = None
+            self.camwindow = None
+            self.betwindow = None
+
+            self.results_displayed = False
+            self.camClicked = False
+            self.aiThinking = 0
+
+            # Class variable for a new GameInstance from game_logic/game.py.
+            # This variable is updated after number of players/AI is selected.
+
+            # For future save game functions, this class variable should be loaded
+            # from the saved game's GameInstance object.
+            # (more on this functionality later)
+            self.game_instance = None
+
+            self.game_state = None
+
+            self.e_p = self.width * 0.007  # edge padding
+            self.b_width = self.width * 0.055  # button width
+            self.b_height = self.height * 0.045  # button height
+
+            self.player_actions = []
         self.bible_verses = ["Matthew 16:26 - For ywhat will it profit a man if he gains the whole world and forfeits his soul? Or what shall a man give in return for his soul?",
                             "2 Peter 3:18 - But grow in the grace and knowledge of our Lord and Savior Jesus Christ. To him be the glory both now and to the day of eternity. Amen.",
                             "Colossians 3:2 - Set your minds on things that are above, not on things that are on earth.",
@@ -85,113 +159,225 @@ class playScreen:
                             "Philippians 2:3 - Do nothing from selfish ambition or conceit, but in humility count others more significant than yourselves."]
 
     def load(self, manager, state):
-        self.state = state
-        
-        header_rect = pygame.Rect(0, self.height*.01, self.width//3, 150)
+        global save_state
+        if (state == ScreenState.LOAD):
+            self.state = state
 
-        self.header = UILabel(relative_rect=header_rect,
-                            text='Set Up Names...',
-                            manager=manager,
-                            object_id='header_game',
-                            anchors={
-                                'centerx': 'centerx',
-                                'top': 'top'
-                            })
-        self.header.hide()
+            header_rect = pygame.Rect(0, self.height * .01, self.width // 3, 150)
 
-        stp_width = 500
-        stp_height = 500
-        stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
+            self.header = UILabel(relative_rect=header_rect,
+                                  text=save_state['header_text'],       # LOAD FROM SAVED PICKLE
+                                  manager=manager,
+                                  object_id='header_game',
+                                  anchors={
+                                      'centerx': 'centerx',
+                                      'top': 'top'
+                                  })
 
-        # pause button
-        pause_button_rect = pygame.Rect(self.e_p, self.e_p, self.b_width, self.b_height)
-        self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
-                                            text='Pause',
-                                            manager=manager,
-                                            anchors={
-                                            'left': 'left',
-                                            'top': 'top'
-                                            })
-        self.pause_button.hide()
+            stp_width = 500
+            stp_height = 500
+            stppos = pygame.Rect(((self.width / 2) - (stp_width / 2), (self.height / 2) - (stp_height / 2)),
+                                 (stp_width, stp_height))
 
-        # end round button
-        dealing_button_rect = pygame.Rect(15, -100, 250, 50)
-        self.dynamic_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
-                                            text='Scan AI\'s Hand',
-                                            manager=manager,
-                                            anchors={
-                                            'centerx': 'centerx',
-                                            'bottom': 'bottom'
-                                            })
-        self.dynamic_button.hide()
+            # pause button
+            pause_button_rect = pygame.Rect(self.e_p, self.e_p, self.b_width, self.b_height)
+            self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                                             text='Pause',
+                                                             manager=manager,
+                                                             anchors={
+                                                                 'left': 'left',
+                                                                 'top': 'top'
+                                                             })
 
-        # info button
-        info_button_rect = pygame.Rect(-self.e_p-self.b_width/2.5, self.e_p, self.b_width/2.5, self.b_height)
-        self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
-                                                text='i',
+            # end round button
+            dealing_button_rect = pygame.Rect(15, -100, 250, 50)
+            self.dynamic_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                                               text=save_state['dynamic_text'],     # LOAD FROM SAVED PICKLE
+                                                               manager=manager,
+                                                               anchors={
+                                                                   'centerx': 'centerx',
+                                                                   'bottom': 'bottom'
+                                                               })
+
+            # info button
+            info_button_rect = pygame.Rect(-self.e_p - self.b_width / 2.5, self.e_p, self.b_width / 2.5, self.b_height)
+            self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
+                                                            text='i',
+                                                            manager=manager,
+                                                            anchors={
+                                                                'right': 'right'
+                                                            })
+
+            # donation button
+            self.church_button_rect = pygame.Rect(0, self.e_p, -1, self.b_height)
+            self.church_button = pygame_gui.elements.UIButton(relative_rect=self.church_button_rect,
+                                                              text='DONATE TO MAGNOLIA CHURCH',
+                                                              manager=manager)
+
+            # LOAD FROM SAVED PICKLE
+            self.player_index = save_state['player_index']  # keep track of which player we are operating on
+            self.card_index = save_state['card_index']  # which card are we scanning
+            self.cards_scanned = save_state['cards_scanned']
+
+            # bet set up
+            result_width = self.width * .3
+            result_height = self.height * .22
+            results_rect = pygame.Rect(((self.width * .50) - (result_width // 2), self.height / 1.8),
+                                       (result_width, result_height))
+
+            self.result_text = UITextBox(' ',
+                                         relative_rect=results_rect,
+                                         manager=manager,
+                                         object_id='result_textbox',
+                                         anchors={
+                                             'left': 'left',
+                                             'top': 'top'
+                                         })
+
+            # do not show results if they are not displayed from save state
+            if (not save_state['results_displayed']):
+                self.result_text.hide()
+
+            bible_width = self.width * .8
+            bible_height = self.height * .15
+            bible_rect = pygame.Rect(((self.width * .50) - (bible_width // 2), self.height / 3.8),
+                                     (bible_width, bible_height))
+            self.bible_text = UITextBox(
+                'Proverbs 3:6 - In all your ways acknowledge him, and he will make your paths straight.',
+                relative_rect=bible_rect,
+                manager=manager,
+                object_id='result_textbox',
+                anchors={
+                    'left': 'left',
+                    'top': 'top'
+                })
+            self.bible_text.hide()
+
+            character_width = 250
+            character_height = character_width * 1.2
+
+            imgsurf = pygame.Surface(size=(character_width, character_height))
+            imgsurf.fill((40, 62, 51))
+            char_rect = pygame.Rect((self.width * .3, self.height * .5), (character_width, character_height))
+            self.ai_character = pygame_gui.elements.UIImage(relative_rect=char_rect,
+                                                            image_surface=imgsurf,
+                                                            manager=manager,
+                                                            anchors={
+                                                                "left": "left",
+                                                            })
+
+            # Do not setup game, since we are loading from save
+            # self.setup = setupWindow(manager, stppos)
+            self.players_loaded = False
+        else:
+            self.state = state
+
+            header_rect = pygame.Rect(0, self.height*.01, self.width//3, 150)
+
+            self.header = UILabel(relative_rect=header_rect,
+                                text='Set Up Names...',
+                                manager=manager,
+                                object_id='header_game',
+                                anchors={
+                                    'centerx': 'centerx',
+                                    'top': 'top'
+                                })
+            self.header.hide()
+
+            stp_width = 500
+            stp_height = 500
+            stppos = pygame.Rect(((self.width/2)-(stp_width/2), (self.height/2)-(stp_height/2)), (stp_width, stp_height))
+
+            # pause button
+            pause_button_rect = pygame.Rect(self.e_p, self.e_p, self.b_width, self.b_height)
+            self.pause_button = pygame_gui.elements.UIButton(relative_rect=pause_button_rect,
+                                                text='Pause',
                                                 manager=manager,
                                                 anchors={
-                                                'right': 'right'
+                                                'left': 'left',
+                                                'top': 'top'
                                                 })
-        self.info_button.hide()
+            self.pause_button.hide()
 
-        # donation button
-        self.church_button_rect = pygame.Rect(0, self.e_p, -1, self.b_height)
-        self.church_button = pygame_gui.elements.UIButton(relative_rect=self.church_button_rect,
-                                                        text='DONATE TO MAGNOLIA CHURCH',
-                                                        manager=manager)
-        self.church_button.hide()
+            # end round button
+            dealing_button_rect = pygame.Rect(15, -100, 250, 50)
+            self.dynamic_button = pygame_gui.elements.UIButton(relative_rect=dealing_button_rect,
+                                                text='Scan AI\'s Hand',
+                                                manager=manager,
+                                                anchors={
+                                                'centerx': 'centerx',
+                                                'bottom': 'bottom'
+                                                })
+            self.dynamic_button.hide()
 
-        self.player_index = 0 # keep track of which player we are operating on
-        self.card_index = 0 # which card are we scanning
-        self.cards_scanned = []
+            # info button
+            info_button_rect = pygame.Rect(-self.e_p-self.b_width/2.5, self.e_p, self.b_width/2.5, self.b_height)
+            self.info_button = pygame_gui.elements.UIButton(relative_rect=info_button_rect,
+                                                    text='i',
+                                                    manager=manager,
+                                                    anchors={
+                                                    'right': 'right'
+                                                    })
+            self.info_button.hide()
 
-        # bet set up
-        result_width = self.width*.3
-        result_height = self.height*.22
-        results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
+            # donation button
+            self.church_button_rect = pygame.Rect(0, self.e_p, -1, self.b_height)
+            self.church_button = pygame_gui.elements.UIButton(relative_rect=self.church_button_rect,
+                                                            text='DONATE TO MAGNOLIA CHURCH',
+                                                            manager=manager)
+            self.church_button.hide()
 
-        self.result_text = UITextBox(' ',
-                            relative_rect=results_rect,
-                            manager=manager,
-                            object_id='result_textbox',
-                            anchors={
-                                'left': 'left',
-                                'top': 'top'
-                            })
-        self.result_text.hide()
+            self.player_index = 0 # keep track of which player we are operating on
+            self.card_index = 0 # which card are we scanning
+            self.cards_scanned = []
 
-        bible_width = self.width*.8
-        bible_height = self.height*.15
-        bible_rect = pygame.Rect(((self.width*.50)-(bible_width//2), self.height/3.8), (bible_width, bible_height))
-        self.bible_text = UITextBox('Proverbs 3:6 - In all your ways acknowledge him, and he will make your paths straight.',
-                            relative_rect=bible_rect,
-                            manager=manager,
-                            object_id='result_textbox',
-                            anchors={
-                                'left': 'left',
-                                'top': 'top'
-                            })
-        self.bible_text.hide()
+            # bet set up
+            result_width = self.width*.3
+            result_height = self.height*.22
+            results_rect = pygame.Rect(((self.width*.50)-(result_width//2), self.height/1.8), (result_width, result_height))
 
-        character_width = 250
-        character_height = character_width*1.2
+            self.result_text = UITextBox(' ',
+                                relative_rect=results_rect,
+                                manager=manager,
+                                object_id='result_textbox',
+                                anchors={
+                                    'left': 'left',
+                                    'top': 'top'
+                                })
+            self.result_text.hide()
 
-        imgsurf = pygame.Surface(size=(character_width, character_height))
-        imgsurf.fill((40, 62, 51))
-        char_rect = pygame.Rect((self.width*.3, self.height*.5), (character_width, character_height))
-        self.ai_character = pygame_gui.elements.UIImage(relative_rect=char_rect,
-                                                        image_surface=imgsurf,
-                                                        manager=manager,
-                                                        anchors = {
-                                                            "left": "left",
-                                                        }
-        )
+            bible_width = self.width*.8
+            bible_height = self.height*.15
+            bible_rect = pygame.Rect(((self.width*.50)-(bible_width//2), self.height/3.8), (bible_width, bible_height))
+            self.bible_text = UITextBox('Proverbs 3:6 - In all your ways acknowledge him, and he will make your paths straight.',
+                                relative_rect=bible_rect,
+                                manager=manager,
+                                object_id='result_textbox',
+                                anchors={
+                                    'left': 'left',
+                                    'top': 'top'
+                                })
+            self.bible_text.hide()
 
-        self.setup = setupWindow(manager, stppos)
+            character_width = 250
+            character_height = character_width*1.2
+
+            imgsurf = pygame.Surface(size=(character_width, character_height))
+            imgsurf.fill((40, 62, 51))
+            char_rect = pygame.Rect((self.width*.3, self.height*.5), (character_width, character_height))
+            self.ai_character = pygame_gui.elements.UIImage(relative_rect=char_rect,
+                                                            image_surface=imgsurf,
+                                                            manager=manager,
+                                                            anchors = {
+                                                                "left": "left",
+                                                            }
+            )
+
+            self.setup = setupWindow(manager, stppos)
 
     def run(self, manager):
         global homeswitch
+        global pickleswitch
         pauseClicked = False
         infoClicked = False
         churchClicked = False
@@ -266,7 +452,52 @@ class playScreen:
                 setupWindow.startClicked = False
 
             # START THE GAME
-            if(playerNameSetupWindow.submitPlayerClicked):
+            if (self.state == ScreenState.LOAD):
+                if (not self.players_loaded):
+                    # print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
+                    self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames,
+                                                setupWindow.chip_count, setupWindow.ai_player_count)
+                    self.pause_button.show()
+                    playerNameSetupWindow.submitPlayerClicked = False
+
+                    self.header.show()
+                    self.info_button.show()
+                    self.church_button.show()
+
+                    self.table = tableWindow(manager=manager, pos=tablepos)
+                    self.result_table = resultsWindow(manager=manager, pos=resultpos)
+                    self.result_table.hide()
+                    self.bank = bankWindow(manager=manager, pos=bankpos)
+                    self.logwindow = logWindow(manager=manager, pos=logpos)
+                    self.logwindow.hide()
+
+                    self.bank.on_show_log_changed = lambda value: self.viewLog(value)
+
+                    setupWindow.startClicked = False
+
+                    # Process player/AI combo tuple
+                    # self.playerSetUp.playerNames - input player names
+                    # self.players.aiplayercount - selected AI count
+                    # self.players.aiPlayerNames - shuffled AI player names
+                    game_participants = []
+                    chips = setupWindow.chip_count
+                    curr_id = 0
+
+                    for player in self.playerSetUp.playerNames:
+                        person = Player(name=player, is_ai=False, chips=chips, id=curr_id)
+                        game_participants.append(person)
+                        curr_id += 1
+
+                    for i in range(self.players.aiplayercount):
+                        ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips, id=curr_id)
+                        game_participants.append(ai)
+                        curr_id += 1
+
+                    # update chips for player window
+                    self.game_instance = GameInstance(game_participants)  # // START GAME INSTANCE //
+                    self.game_state = GameState.SCAN_AI_HAND  # begin the game by scanning the AI's cards
+
+            if (playerNameSetupWindow.submitPlayerClicked):
                 #print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
                 self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
                 self.pause_button.show()
@@ -381,6 +612,8 @@ class playScreen:
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
 
             player_blinds = {}
+            if (self.state == ScreenState.LOAD and not self.players_loaded):
+
             if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or 
                 self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
                 # get the current player details with
@@ -698,6 +931,9 @@ class playScreen:
                 if self.pause.homeswitch:
                     self.pause.homeswitch = False
                     homeswitch = True
+                if self.pause.pickleswitch:
+                    self.pause.pickleswitch = False
+                    pickleswitch = True
             
             if (infoClicked):
                 if not self.info.alive():
@@ -713,6 +949,44 @@ class playScreen:
                     self.killCamera()
                 self.state = ScreenState.TITLE
                 homeswitch = False
+            if (pickleswitch):
+                # SAVE GAME
+                save_state = {
+                    # "header": self.header,                            - CANNOT STORE THREADED PYGAME OBJECTS
+                    # "camwindow": self.camwindow,                      - CANNOT STORE THREADED PYGAME OBJECTS
+                    # "screenstate": self.state,                        # screen location (unneeded since we only save from PLAY)
+
+                    "camclicked": self.camClicked,                      # is the camera open
+
+                    "header_text": self.header.text,                    # save header's text
+                    "dynamic_text": self.dynamic_button.text,           # save dynamic button's text
+                    "results_displayed": self.results_displayed,        # are game results displayed
+
+                    "aithinking": self.aiThinking,                      # is the ai thinking
+                    "player_actions": self.player_actions,              # used for log window
+
+                    "player_index": self.player_index,                  # needed if we save during scanning cards
+                    "card_index": self.card_index,                      # needed if we save during scanning cards
+                    "cards_scanned": self.cards_scanned,                # needed if we save during scanning cards
+
+                    # "pauseClicked": pauseClicked,                     # we do not care about reopening pause (unneeded)
+                    "infoClicked": infoClicked,                         # is info button clicked
+                    "churchClicked": churchClicked,                     # is church button clicked
+                    "logClicked": logClicked,                           # is log button clicked
+
+                    "game_state": self.game_state,                      # see gamestate.py
+                    "game_instance": self.game_instance                 # the backend
+                }
+                print(save_state)
+
+                if (self.camwindow != None):
+                    if (self.camwindow.alive()):
+                        save_state["cw_scanning_ai"] = self.camwindow.scanning_ai_cards   # were we scanning ai cards
+                        save_state["cw_label"] = self.camwindow.instruction_label.text  # cam's instructions
+
+                with open('saved_game.pickle', 'wb') as f:
+                    pickle.dump(save_state, f)
+
             if (self.state != ScreenState.START):
                 return self.state
 

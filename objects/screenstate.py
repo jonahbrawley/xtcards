@@ -4,5 +4,5 @@ class ScreenState(Enum):
     QUIT = -1
     TITLE = 0
     START = 1
-    CONFIG = 2
+    LOAD = 2
     DEBUG = 3

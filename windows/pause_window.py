@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+import pickle
 
 class pauseWindow(pygame_gui.elements.UIWindow):
     def __init__(self, manager, pos):
@@ -39,9 +40,9 @@ class pauseWindow(pygame_gui.elements.UIWindow):
                                                             })
         
         self.homeswitch = False
+        self.pickleswitch = False
     
     def process_event(self, event):
-        global homeswitch
         handled = super().process_event(event)
 
         if (event.type == pygame_gui.UI_BUTTON_PRESSED):
@@ -50,4 +51,5 @@ class pauseWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.resume_button):
                 self.kill()
             if (event.ui_element == self.save_button):
-                self.homeswitch = True
+                # self.homeswitch = True
+                self.pickleswitch = True
