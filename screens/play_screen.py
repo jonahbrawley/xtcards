@@ -612,7 +612,7 @@ class playScreen:
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
 
             player_blinds = {}
-            if (self.state == ScreenState.LOAD and not self.players_loaded):
+            # if (self.state == ScreenState.LOAD and not self.players_loaded):
 
             if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or 
                 self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
@@ -676,7 +676,7 @@ class playScreen:
                             self.betwindow.kill()
                             self.betwindow = None
                             self.next_state = self.game_instance.step('fold')
-                            player_action_label.set_text("folded")
+                            player_action_label.set_text("fold")
                             self.player_actions.append(player + " has folded, womp womp")
                             self.updateGameLog(self.player_actions)
                         elif (self.betwindow.placed_bet != None):
@@ -696,7 +696,7 @@ class playScreen:
                                 player_action_label.set_text(self.betwindow.placed_bet)
                                 self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
                                 self.updateGameLog(self.player_actions)
-                            else:
+                            elif(int(self.betwindow.placed_bet) > self.player_chips):
                                 # print('Player bet ' + self.betwindow.placed_bet + " chips")
                                 player_action_label.set_text(self.betwindow.placed_bet)
                                 self.next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
@@ -711,28 +711,40 @@ class playScreen:
                 if  self.next_state == GameState.SCAN_FLOP:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
-                        players.set_text('')
+                        if players.text == "fold" or players.text == "0" or players.text == "5":
+                            players.set_text('fold')
+                        else:
+                            players.set_text('')
                     self.game_state = GameState.SCAN_FLOP
                     self.header.set_text('Scan Flop')
 
                 if  self.next_state == GameState.SCAN_TURN:   
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
-                        players.set_text('')
+                        if players.text == "fold":
+                            players.set_text('fold')
+                        else:
+                            players.set_text('')
                     self.game_state = GameState.SCAN_TURN
                     self.header.set_text('Scan Turn Card')
 
                 if  self.next_state == GameState.SCAN_RIVER:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
-                        players.set_text('')
+                        if players.text == "fold":
+                            players.set_text('fold')
+                        else:
+                            players.set_text('')
                     self.game_state = GameState.SCAN_RIVER
                     self.header.set_text('Scan River Card')
 
                 if  self.next_state == GameState.SCAN_PLAYER_HAND:
                     self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
                     for players in self.players.player_action_list:
-                        players.set_text('')
+                        if players.text == "fold":
+                            players.set_text('fold')
+                        else:
+                            players.set_text('')
                     self.game_state = GameState.SCAN_PLAYER_HAND
                     self.player_index = 0
                     self.header.set_text('Scan Player Hands')
@@ -850,6 +862,8 @@ class playScreen:
                         self.player_index = 0
                         self.card_index = 0
                         self.cards_scanned = []
+                        for players in self.players.player_action_list:
+                            players.set_text('')
 
                         self.killCamera()
                         self.game_state = GameState.END_ROUND # ready for reveal
