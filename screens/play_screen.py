@@ -82,7 +82,7 @@ class playScreen:
 
             self.offload_card_detection = True
             Colors = Scheme()
-            self.state = state
+            self.state = ScreenState.LOAD
 
             self.width = manager.window_resolution[0]
             self.height = manager.window_resolution[1]
@@ -161,7 +161,7 @@ class playScreen:
     def load(self, manager, state):
         global save_state
         if (state == ScreenState.LOAD):
-            self.state = state
+            self.state = ScreenState.LOAD
 
             header_rect = pygame.Rect(0, self.height * .01, self.width // 3, 150)
 
@@ -378,6 +378,7 @@ class playScreen:
     def run(self, manager):
         global homeswitch
         global pickleswitch
+        global save_state
         pauseClicked = False
         infoClicked = False
         churchClicked = False
@@ -445,7 +446,7 @@ class playScreen:
             keys = pygame.key.get_pressed()                
 
             # if setup window is closed, open player window and pause button
-            if(setupWindow.startClicked):
+            if (setupWindow.startClicked):
                 # show header
                 self.header.show()
                 self.playerSetUp = playerNameSetupWindow(manager, playerSetuppos, setupWindow.player_count)
@@ -455,8 +456,16 @@ class playScreen:
             if (self.state == ScreenState.LOAD):
                 if (not self.players_loaded):
                     # print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
-                    self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames,
-                                                setupWindow.chip_count, setupWindow.ai_player_count)
+                    chip_count = []
+                    # player_actions = []
+                    for player in self.game_instance.players:
+                        print("Load player: " + player.name)
+                        chip_count.append(player.chips)
+                        # player_actions.append(player.last_action)
+
+                    self.players = playerWindow(manager, playerspos, [],[], 0, False)
+                    self.players.load(manager, playerspos, self.game_instance.players, chip_count)
+
                     self.pause_button.show()
                     playerNameSetupWindow.submitPlayerClicked = False
 
@@ -465,9 +474,15 @@ class playScreen:
                     self.church_button.show()
 
                     self.table = tableWindow(manager=manager, pos=tablepos)
+                    if (self.game_instance.community_cards != ['NA', 'NA', 'NA', 'NA', 'NA']):
+                        self.updateTable(self.game_instance.community_cards)  # update the table from saved community cards
+
                     self.result_table = resultsWindow(manager=manager, pos=resultpos)
                     self.result_table.hide()
+
                     self.bank = bankWindow(manager=manager, pos=bankpos)
+                    self.bank.value_label.set_text(str(self.game_instance.get_total_pot_value()))
+
                     self.logwindow = logWindow(manager=manager, pos=logpos)
                     self.logwindow.hide()
 
@@ -475,31 +490,16 @@ class playScreen:
 
                     setupWindow.startClicked = False
 
-                    # Process player/AI combo tuple
-                    # self.playerSetUp.playerNames - input player names
-                    # self.players.aiplayercount - selected AI count
-                    # self.players.aiPlayerNames - shuffled AI player names
-                    game_participants = []
-                    chips = setupWindow.chip_count
-                    curr_id = 0
-
-                    for player in self.playerSetUp.playerNames:
-                        person = Player(name=player, is_ai=False, chips=chips, id=curr_id)
-                        game_participants.append(person)
-                        curr_id += 1
-
-                    for i in range(self.players.aiplayercount):
-                        ai = Player(name=self.players.aiPlayerNames[i], is_ai=True, chips=chips, id=curr_id)
-                        game_participants.append(ai)
-                        curr_id += 1
-
-                    # update chips for player window
-                    self.game_instance = GameInstance(game_participants)  # // START GAME INSTANCE //
-                    self.game_state = GameState.SCAN_AI_HAND  # begin the game by scanning the AI's cards
+                    print("LOAD: Resuming from last state " + str(save_state['game_state']))
+                    self.game_state = save_state['game_state']  # resume from last state
+                    self.players_loaded = True
+                    pickleswitch = False
+                    homeswitch = False
+                    self.state = ScreenState.START
 
             if (playerNameSetupWindow.submitPlayerClicked):
                 #print("BEFORE: -----------" + str(len(self.playerSetUp.playerNames)) + "-----------")
-                self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count)
+                self.players = playerWindow(manager, playerspos, self.playerSetUp.playerNames, setupWindow.chip_count, setupWindow.ai_player_count, True)
                 self.pause_button.show()
                 playerNameSetupWindow.submitPlayerClicked = False
 
@@ -562,11 +562,11 @@ class playScreen:
 
                 if event.type == pygame.QUIT:
                     return ScreenState.QUIT
-                if keys[pygame.K_ESCAPE]:
-                    print('PLAY: Switching to TITLE')
-                    self.killCamera()
-                    self.killGame()
-                    homeswitch = True
+                # if keys[pygame.K_ESCAPE]:
+                #     print('PLAY: Switching to TITLE')
+                #     self.killCamera()
+                #     self.killGame()
+                #     homeswitch = True
 
                 manager.process_events(event)
 
@@ -612,7 +612,6 @@ class playScreen:
                     self.camwindow.scanning_ai_cards = True # hide AI cards from player
 
             player_blinds = {}
-            # if (self.state == ScreenState.LOAD and not self.players_loaded):
 
             if (self.game_state == GameState.PREFLOP_BETS or self.game_state == GameState.POST_FLOP_BETS or 
                 self.game_state == GameState.POST_TURN_BETS or self.game_state == GameState.FINAL_BETS):
@@ -922,7 +921,7 @@ class playScreen:
                 self.header.set_text('Game Over!')
                 self.dynamic_button.set_text('Quit')
                 self.result_text.set_text(player.name + ' is the winner! better luck next time!')
-                self.bible_text.set_text('Even if you lost, remebmer John 3:16: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." So Even though you lost, you can still have eternal life!')
+                self.bible_text.set_text('Even if you lost, remember John 3:16: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." So Even though you lost, you can still have eternal life!')
                 self.bible_text.show()
                 self.result_text.show()
                 self.dynamic_button.show()
@@ -947,7 +946,11 @@ class playScreen:
                     homeswitch = True
                 if self.pause.pickleswitch:
                     self.pause.pickleswitch = False
-                    pickleswitch = True
+                    # Do not allow saving if gamestate is SCAN_AI_HAND
+                    if (self.game_state == GameState.SCAN_AI_HAND):
+                        pickleswitch = False
+                    else:
+                        pickleswitch = True
             
             if (infoClicked):
                 if not self.info.alive():
@@ -1000,6 +1003,8 @@ class playScreen:
 
                 with open('saved_game.pickle', 'wb') as f:
                     pickle.dump(save_state, f)
+
+                homeswitch = True
 
             if (self.state != ScreenState.START):
                 return self.state
