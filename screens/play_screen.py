@@ -917,6 +917,7 @@ class playScreen:
                         self.player_actions.append("A new round has started!")
                         self.game_state = GameState.SCAN_AI_HAND
                         self.updateGameLog(self.player_actions)
+                        self.bank.value_label.set_text("0")
 
             if (self.game_state == GameState.END_SCREEN):
                 self.header.set_text('Game Over!')
