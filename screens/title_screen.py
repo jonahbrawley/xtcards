@@ -160,9 +160,9 @@ class titleScreen:
                     #     self.isConfClicked = True
                     if (event.ui_element == self.load_button):
                         print('TITLE: Loading saved game')
-                        # This currently assumes there is a saved_game.pickle
-                        # TODO: add a check if there is none and tell user. Or support multiple saves
-                        self.state = ScreenState.LOAD
+                        save_file_exists = os.path.exists("saved_game.pickle")
+                        if (save_file_exists):
+                            self.state = ScreenState.LOAD
 
                 # cfg window position
                 if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT and self.config != None):
