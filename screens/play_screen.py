@@ -41,36 +41,6 @@ import numpy as np
 homeswitch = False
 pickleswitch = False
 save_state = None
-# {
-            #     # "header": self.header,                            - CANNOT STORE THREADED PYGAME OBJECTS
-            #     # "camwindow": self.camwindow,                      - CANNOT STORE THREADED PYGAME OBJECTS
-            #     # "screenstate": self.state,                        # screen location (unneeded since we only save from PLAY)
-            #
-            #     "camclicked": self.camClicked,  # is the camera open
-            #
-            #     "header_text": self.header.text,  # save header's text
-            #     "results_displayed": self.results_displayed,  # are game results displayed
-            #
-            #     "aithinking": self.aiThinking,  # is the ai thinking
-            #     "player_actions": self.player_actions,  # used for log window
-            #
-            #     "player_index": self.player_index,  # needed if we save during scanning cards
-            #     "card_index": self.card_index,  # needed if we save during scanning cards
-            #     "cards_scanned": self.cards_scanned,  # needed if we save during scanning cards
-            #
-            #     # "pauseClicked": pauseClicked,                     # we do not care about reopening pause (unneeded)
-            #     "infoClicked": infoClicked,  # is info button clicked
-            #     "churchClicked": churchClicked,  # is church button clicked
-            #     "logClicked": logClicked,  # is log button clicked
-            #
-            #     "game_state": self.game_state,  # see gamestate.py
-            #     "game_instance": self.game_instance  # the backend
-            # }
-            #
-            # if (self.camwindow != None):
-            #     if (self.camwindow.alive()):
-            #         save_state["cw_scanning_ai"] = self.camwindow.scanning_ai_cards  # were we scanning ai cards
-            #         save_state["cw_label"] = self.camwindow.instruction_label.text  # cam's instructions
 
 class playScreen:
     def __init__(self, manager, window, state):
