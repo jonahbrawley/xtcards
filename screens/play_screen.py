@@ -665,7 +665,7 @@ class playScreen:
                                 player_action_label.set_text(self.betwindow.placed_bet)
                                 self.player_actions.append(player + " has went all in with " + self.betwindow.placed_bet + " chips!")
                                 self.updateGameLog(self.player_actions)
-                            elif(int(self.betwindow.placed_bet) > self.player_chips):
+                            else:
                                 # print('Player bet ' + self.betwindow.placed_bet + " chips")
                                 player_action_label.set_text(self.betwindow.placed_bet)
                                 self.next_state = self.game_instance.step('raise', int(self.betwindow.placed_bet))
@@ -807,10 +807,10 @@ class playScreen:
                     self.camwindow.scanning_ai_cards = False
                     cards_to_scan = 2
 
-                    while (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].is_ai):
+                    while (self.player_index < len(self.game_instance.players) and (self.game_instance.players[self.player_index].is_ai or self.game_instance.players[self.player_index].last_action == 'fold')):
                         self.player_index += 1
                     
-                    if (self.player_index < len(self.game_instance.players)):
+                    if (self.player_index < len(self.game_instance.players) and self.game_instance.players[self.player_index].last_action != 'fold'):
                         curr_player = self.game_instance.players[self.player_index]
                         
                         self.camwindow.instruction_label.set_text( "%s's cards - %d of 2" % (curr_player.name, self.card_index+1) )
