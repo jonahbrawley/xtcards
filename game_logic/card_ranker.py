@@ -2,6 +2,7 @@ import itertools
 
 class CardRanker:
 
+  NA_CARD_REPLACEMENTS = ["VV", "WW", "XX", "YY", "ZZ"]
   CARD_SCORE = {"2" : 12,
                 "3" : 13,
                 "4" : 14,
@@ -14,7 +15,13 @@ class CardRanker:
                 "J" : 21,
                 "Q" : 22,
                 "K" : 23,
-                "A" : 24}
+                "A" : 24,
+                "V" : 0,
+                "W" : 0,
+                "X" : 0,
+                "Y" : 0,
+                "Z" : 0,
+                }
 
   # given players, community_cards, and pots from the class constructor,
   # rank the players and determine how much money each player should win
@@ -22,7 +29,7 @@ class CardRanker:
   def rank_and_calculate_winnings(players, community_cards, pots):
     rankings = CardRanker.rank_players(players, community_cards)
     winnings = CardRanker.calculate_winnings(players, rankings, pots)
-    return winnings
+    return rankings, winnings
 
   # Determine the order of hand rankings
   @staticmethod
@@ -30,7 +37,7 @@ class CardRanker:
     # Get a map of each player and their best hand
     hands = []
     for p in players:
-      if p.last_action not in ["fold", "out"]:
+      if p.last_action not in ["fold", "out", "pending_out"]:
         hands.append([p.id] + CardRanker.find_best_hand(p.cards, community_cards))
 
     # Rank the players from best to worst
@@ -59,6 +66,11 @@ class CardRanker:
   # Determine which hand is optimal for a given player
   @staticmethod
   def find_best_hand(p_cards, c_cards):
+    # change NA in c_cards to replacement values to avoid creating high value hands
+    c_cards = c_cards[:]
+    for i, card in enumerate(c_cards):
+      if card == "NA":
+        c_cards[i] = CardRanker.NA_CARD_REPLACEMENTS[i]
     best_hand = None
     best_score = None
     best_hand_label = None
@@ -73,7 +85,10 @@ class CardRanker:
         best_hand = combo
         best_score = score
         best_hand_label = hand_label
-
+        
+    for i, card in enumerate(best_hand):
+      if card in CardRanker.NA_CARD_REPLACEMENTS:
+        best_hand[i] = "NA"
     return [best_score, best_hand_label, best_hand]
 
   # consider the ranking order and pots to calculate each player's winnings
@@ -89,10 +104,17 @@ class CardRanker:
       winners = []
       while len(winners) == 0:
         rank_i += 1
-        for hand_ranking in rankings[rank_i]:
-          p_id = hand_ranking[0] # rankings[x][0] is a player_id
-          if p_id in pots[pot_i].bets.keys(): # p_id made a bet in this pot
-            winners.append(p_id) # then this player is a winner of this pot
+        # EDGE CASE: winner bets a lot, someone went all in with less money
+        # This creates an extra pot, and the rank_i could go out of bounds because of this.
+        # Therefore, check that rank_i < len(rankings) for the edge case
+        if rank_i < len(rankings): 
+          for hand_ranking in rankings[rank_i]:
+            p_id = hand_ranking[0] # rankings[x][0] is a player_id
+            if p_id in pots[pot_i].bets.keys(): # p_id made a bet in this pot
+              winners.append(p_id) # then this player is a winner of this pot
+        else:
+          print(rankings[0][0][0])
+          winners.append(rankings[0][0][0])
 
       # get the $ winnings for each person using pot.sum() / winners len
       pot_sum = pots[pot_i].sum_bets()

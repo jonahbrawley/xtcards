@@ -1,9 +1,9 @@
-Welcome to the World of Texas Hold'em Poker!
+Welcome to the World of INSERT_GAME_TITLE!
 
-Get ready to dive into a high risk, high reward game of Texas Hold'em Poker – where fortunes are made, bluffs are called, and every card is a potential game-changer.
+Get ready to dive into a high risk, high reward game of INSERT_GAME_TITLE – where fortunes are made, bluffs are called, and every card is a potential game-changer.
 
 Chapter 1: Setting the Stage
-Imagine a grand poker table surrounded by competitive players like yourself. Each player is dealt two private cards, known as the "Hole Cards."
+Imagine a grand table surrounded by competitive players like yourself. Each player is dealt two private cards, known as the "Hole Cards."
 
 Chapter 2: The Blinds
 Before the first card even thinks about hitting the table, two players must make a small blind and a big blind bet. It's like tossing a couple of coins into the poker cauldron, stirring up the excitement for the round.

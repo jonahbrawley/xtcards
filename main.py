@@ -13,19 +13,19 @@ Colors = Scheme()
 class xtcApp:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('xtcards')
+        pygame.display.set_caption('Kingdom Cards')
 
         print('OS: '+ os.name)
         if os.name == 'nt':
             print('Detected Windows, setting ctypes.windll.user32.SetProcessDPIAware')
             #ctypes.windll.user32.SetProcessDPIAware() # fix dpi for winget_relative_rect
             dimensions = (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
-            print(dimensions)
+            #print(dimensions)
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         else:
             display = pygame.display.Info()
             dimensions = (display.current_w, display.current_h)
-            print(dimensions)   
+            #print(dimensions)   
             self.window = pygame.display.set_mode(dimensions, pygame.FULLSCREEN)
         
         self.background = pygame.Surface(dimensions)
@@ -34,12 +34,11 @@ class xtcApp:
         self.manager.add_font_paths('jb-button', 'assets/jbm-semibold.ttf')
         self.manager.add_font_paths('jb-header', 'assets/jbm-semibold.ttf')
 
-        print('>> Initialize webcam')
-
     def run(self):
         screen_state = ScreenState.TITLE # set state to Title screen
         xtTitle = titleScreen(self.manager, self.window, screen_state)
         xtPlay = playScreen(self.manager, self.window, screen_state)
+        xtLoad = None
 
         while True:
             if screen_state == ScreenState.TITLE:
@@ -53,6 +52,13 @@ class xtcApp:
                 xtPlay.load(self.manager, screen_state)
                 screen_state = xtPlay.run(self.manager)
                 xtPlay.delete(self.manager)
+
+            if screen_state == ScreenState.LOAD:
+                print('>> SET STATE LOAD')
+                xtLoad = playScreen(self.manager, self.window, screen_state)
+                xtLoad.load(self.manager, screen_state)
+                screen_state = xtLoad.run(self.manager)
+                xtLoad.delete(self.manager)
 
             if screen_state == ScreenState.QUIT:
                 print('>> SET STATE QUIT')

@@ -19,47 +19,51 @@ class camWindow(pygame_gui.elements.UIWindow):
         
         imgsurf = pygame.Surface(size=(pos.width, pos.height))
         imgsurf.fill((0, 0, 0)) # black
+
+        buttonHeight = pos.height*.07
+        buttonWidth = pos.width*.3
+        windowSpacer = pos.height*.05
+
+        camRect = pygame.Rect(((pos.width*.8)/8, (pos.height*.6)/10), (pos.width*.75, pos.height*.55))
+        captureRect = pygame.Rect((0, -(buttonHeight+windowSpacer)), (buttonWidth, buttonHeight))
+        textRect = pygame.Rect((0, -(buttonHeight+windowSpacer/2)), (pos.width, 50))
         
-        self.camera_display = pygame_gui.elements.UIImage(pygame.Rect(((pos.width*.8)/8, (pos.height*.6)/10), (pos.width*.75, pos.height*.6)),
+        self.camera_display = pygame_gui.elements.UIImage(camRect,
                                                           image_surface=imgsurf,
                                                           manager=manager,
                                                           container=self,
                                                           parent_element=self
                                                           )
-        
-        self.instruction_label = pygame_gui.elements.UILabel(pygame.Rect((0, 30), (pos.width, 40)),
-                                                                    "Scan cards - 1 of 2",
-                                                                    manager=manager,
-                                                                    object_id="header_game",
-                                                                    container=self,
-                                                                    parent_element=self,
-                                                                    anchors={
-                                                                        "top_target": self.camera_display,
-                                                                        "centerx": "centerx"
-                                                                    })
-        
-        self.capture_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((0, 20), (150, 50)),
-                                            text='Capture',
-                                            manager=manager,
-                                            container=self,
-                                            anchors={
-                                            'top_target': self.instruction_label,
-                                            'centerx': 'centerx'
-                                            })
-        
-        #cameras = pygame.camera.list_cameras()
-        #self.webcam = pygame.camera.Camera(cameras[0])
+
+        self.capture_button = pygame_gui.elements.UIButton(captureRect,
+                                                           text='Capture',
+                                                           manager=manager,
+                                                           container=self,
+                                                           anchors={
+                                                               'bottom': 'bottom',
+                                                               'centerx': 'centerx'
+                                                           })
+
+        self.instruction_label = pygame_gui.elements.UILabel(textRect,
+                                                            "Scan cards - 1 of 2",
+                                                            manager=manager,
+                                                            object_id="header_game",
+                                                            container=self,
+                                                            parent_element=self,
+                                                            anchors={
+                                                                "centerx": "centerx",
+                                                                "bottom": "bottom",
+                                                                "bottom_target": self.capture_button
+                                                            })
+
         self.webcam = cv2.VideoCapture(0)
-        #self.webcam.start()
     
     def draw_camera(self):
         if self.drawcam:
-            #self.img = self.webcam.get_image()
             _, frame = self.webcam.read()
             frame = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)) # fix colors
             self.img = frame
 
-            
             disp = np.swapaxes(frame, 0, 1) # display as proper array
 
             if (self.scanning_ai_cards):
@@ -70,17 +74,21 @@ class camWindow(pygame_gui.elements.UIWindow):
             self.camera_display.set_image(disp)
 
     def aiFilter(self, img):
-        h, w = img.shape[:2]
-        
-        img = cv2.blur(img, (135,135))
-
-        img = cv2.resize(img, (15, 15), interpolation=cv2.INTER_LINEAR)
+        # h, w = img.shape[:2]
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-        img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
         
-        #edges = cv2.Canny(imgblur, 200, 150)
-        return img
+        img = cv2.GaussianBlur(img, (31, 31), 0)
+        # img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        _, thresh = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+        kernel = np.ones((70, 70), np.uint8)
+        processed_image = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_GRAY2RGB)
+
+        # img = cv2.resize(processed_image, (100, 100), interpolation=cv2.INTER_LINEAR)
+        # img = cv2.resize(img, (w, h), interpolation=cv2.INTER_NEAREST)
+        # img = cv2.blur(processed_image, (70, 70))
+        
+        return processed_image
 
     def process_event(self, event):
         handled = super().process_event(event)
@@ -89,4 +97,3 @@ class camWindow(pygame_gui.elements.UIWindow):
             if (event.ui_element == self.capture_button):
                 self.drawcam = False
                 self.snaptaken = True
-                # SEND self.img to lambda or set state to do this here

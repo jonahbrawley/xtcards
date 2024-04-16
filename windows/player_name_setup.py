@@ -1,6 +1,8 @@
 import pygame
 import pygame_gui
 
+# Window used to set player names based on how many players are specified in setup.py
+
 class playerNameSetupWindow(pygame_gui.elements.UIWindow):
     submitPlayerClicked = False
     ai_player_count = 1
@@ -55,5 +57,5 @@ class playerNameSetupWindow(pygame_gui.elements.UIWindow):
                 self.playerNames = self.player_name
                 playerNameSetupWindow.submitPlayerClicked = True
                 self.kill()
-                print(self.playerNames)
+                print("PLAY: Human players: " + str(self.playerNames))
         self.playerNames = self.player_name

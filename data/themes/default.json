@@ -67,7 +67,21 @@
         "font":
         {
             "name": "jb-header-game",
-            "size": "30",
+            "size": "25",
+            "regular_path": "assets/jbm-semibold.ttf"
+        }
+    },
+    "value_header":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_text": "rgb(243, 243, 243)"
+        },
+        "font":
+        {
+            "name": "jb-header-game",
+            "size": "20",
             "regular_path": "assets/jbm-semibold.ttf"
         }
     },
@@ -160,6 +174,20 @@
             "enable_close_button": "0"
         }
     },
+    "#log_window":
+    {
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_border": "rgb(105, 119, 118)"
+        },
+        "misc":
+        {
+            "title_bar_height": "28",
+            "border_width": "5",
+            "enable_close_button": "0"
+        }
+    },
     "#info_window":
     {
         "colours":
@@ -202,12 +230,9 @@
     },
     "#church_button": 
     {
-        "images": 
+        "misc":
         {
-            "normal_image": 
-            {
-                "path": ""
-            }
+            "text_horiz_alignment": "center"
         }
     },
     "drop_down_menu.button":
@@ -217,6 +242,24 @@
             "name": "jb-dropdown",
             "size": "16",
             "regular_path": "assets/jbm-regular.ttf"
+        }
+    },
+    "result_textbox": 
+    {
+        "font":
+        {
+            "name": "jb-button",
+            "size": "18",
+            "regular_path": "assets/jbm-regular.ttf"
+        },
+        "colours":
+        {
+            "dark_bg": "rgb(40, 62, 51)",
+            "normal_text":"rgb(243, 243, 243)"
+        },
+        "misc":
+        {
+            "text_horiz_alignment": "left"
         }
     },
     "drop_down_menu.#drop_down_options_list.button":

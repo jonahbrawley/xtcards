@@ -22,7 +22,7 @@ class titleScreen:
 
         self.header = None
         self.quit_button = None
-        self.settings_button = None
+        self.load_button = None
         self.play_button = None
         self.config = None
 
@@ -47,7 +47,7 @@ class titleScreen:
         if len(card_filenames) >= num_cards:
             card_filenames = random.sample(card_filenames, num_cards)
         
-        print(card_filenames)
+        #print(card_filenames)
 
         self.cards = []
         for filename in card_filenames:
@@ -75,20 +75,25 @@ class titleScreen:
         global debugswitch
         debugswitch = False
         self.state = state
-        header_rect = pygame.Rect(0, self.height*.15, self.width//3, 150)
+        header_rect = pygame.Rect(0, self.height*.15, self.width, 150)
 
         self.header = UILabel(relative_rect=header_rect,
-                              text='xtcards',
+                              text='Kingdom Cards',
                               manager=manager,
                               object_id='header',
                               anchors={
                                   'centerx': 'centerx',
                                   'top': 'top'
                               })
+        
+        b_height = self.height*0.05
+        b_width = self.width*0.09
+        b_pad = self.height*0.063
+        b_pos = ( (self.circle_surface.get_height()) - (self.height*2.236) )/8
 
-        quit_button_rect = pygame.Rect(0, -self.height*.13, 180, 50)
-        settings_button_rect = pygame.Rect(0, -65, 180, 50)
-        play_button_rect = pygame.Rect(0, -65, 180, 50)
+        quit_button_rect = pygame.Rect(0, b_pos, b_width, b_height)
+        load_button_rect = pygame.Rect(0, -b_pad, b_width, b_height)
+        play_button_rect = pygame.Rect(0, -b_pad, b_width, b_height)
 
         self.quit_button = UIButton(relative_rect=quit_button_rect,
                                                  text='Quit',
@@ -98,8 +103,8 @@ class titleScreen:
                                                      'bottom': 'bottom'
                                                  })
 
-        self.settings_button = UIButton(relative_rect=settings_button_rect,
-                                                 text='Settings',
+        self.load_button = UIButton(relative_rect=load_button_rect,
+                                                 text='Load Game',
                                                  manager=manager,
                                                  anchors={
                                                      'centerx': 'centerx',
@@ -108,12 +113,12 @@ class titleScreen:
                                                  })
         
         self.play_button = UIButton(relative_rect=play_button_rect,
-                                                 text='Play',
+                                                 text='New Game',
                                                  manager=manager,
                                                  anchors={
                                                      'centerx': 'centerx',
                                                      'bottom': 'bottom',
-                                                     'bottom_target': self.settings_button
+                                                     'bottom_target': self.load_button
                                                  })
         
         self.place_animation() # draw ring
@@ -145,20 +150,22 @@ class titleScreen:
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.play_button:
                         print('TITLE: Starting game')
-                        self.animate = False
                         self.state = ScreenState.START
-                        self.animate = True
                     if event.ui_element == self.quit_button:
-                        print('TITLE: I should really be going!')
+                        print('TITLE: Quitting')
                         return ScreenState.QUIT
-                    if (event.ui_element == self.settings_button and not self.isConfClicked):
-                        print('TITLE: Drawing config dialog')
-                        self.config = configWindow(manager=manager, pos=cfgpos)
-                        self.isConfClicked = True
+                    # if (event.ui_element == self.settings_button and not self.isConfClicked):
+                    #     print('TITLE: Drawing config')
+                    #     self.config = configWindow(manager=manager, pos=cfgpos)
+                    #     self.isConfClicked = True
+                    if (event.ui_element == self.load_button):
+                        print('TITLE: Loading saved game')
+                        save_file_exists = os.path.exists("saved_game.pickle")
+                        if (save_file_exists):
+                            self.state = ScreenState.LOAD
 
                 # cfg window position
-                # TODO: CHANGE WINDOW HAS TO BE CONFIG
-                if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT):
+                if (event.type == pygame_gui.UI_WINDOW_MOVED_TO_FRONT and self.config != None):
                     cfgpos = self.config.rect
                 
                 # cfg snap to bounds
@@ -183,11 +190,11 @@ class titleScreen:
 
             # drawing animation
             # (don't draw on different screens to save memory)
-            if (self.animate):
+            if (self.animate and self.state == ScreenState.TITLE):
+                self.rotation_angle += 10 * time_delta # update rotation
                 rotated_circle = pygame.transform.rotate(self.circle_surface, self.rotation_angle)
                 rc_rect = rotated_circle.get_rect(center=self.circle_center)
                 self.window.blit(rotated_circle, rc_rect.topleft)
-                self.rotation_angle += 10 * time_delta # update rotation
 
             manager.draw_ui(self.window)
 

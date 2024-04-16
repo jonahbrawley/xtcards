@@ -6,7 +6,6 @@ from game_logic.poker_agent import predict_ai_move
 import random
 from enum import Enum
 from objects.gamestate import GameState
-import json
 
 
 class GameInstance:
@@ -23,7 +22,7 @@ class GameInstance:
     END = 4
 
   
-  USE_PHYSICAL_DECK = False
+  USE_PHYSICAL_DECK = True
   SMALL_BLIND = 5
   BIG_BLIND = 10
 
@@ -32,6 +31,7 @@ class GameInstance:
     self.game_active = False
     self.dealer_pos = random.randint(0, len(self.players))
     self.curr_pos = 0
+    self.round = None
 
   # Check which players can start a new game and return that number
   def ready_up_players(self):
@@ -53,7 +53,7 @@ class GameInstance:
     player_inactive = True
     while player_inactive:
       pos = (pos + 1) % n_players
-      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["out", "fold", "all_in"]
+      player_inactive = self.players[pos].chips <= 0 or self.players[pos].last_action in ["pending_out", "out", "fold", "all_in", "pot_committed"]
     return pos
 
   def increment_curr_pos(self):
@@ -66,6 +66,12 @@ class GameInstance:
 
   def is_curr_pos_at_ai(self):
     return self.players[self.curr_pos].is_ai
+  
+  def get_min_required_bet(self, player=None):
+    if not player:
+      player = self.players[self.curr_pos]
+    return self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+
 
   # setup all variables for a new game state
   def start_game(self):
@@ -100,8 +106,7 @@ class GameInstance:
     # If a physical deck is not being used, deal all the cards to the players
     if not GameInstance.USE_PHYSICAL_DECK:
       for player in self.players:
-        if player.cards is None:
-          player.pull_cards(self.deck)
+        player.pull_cards(self.deck)
     
     return GameState.SCAN_AI_HAND
 
@@ -113,7 +118,7 @@ class GameInstance:
 
     while p_action is None:
       p_action = input(f"Bet requirement: {self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]}\nMake your move (fold, call, raise, all_in):")
-      if p_action not in ["fold", "call", "raise", "all_in"]:
+      if p_action not in ["fold", "call", "raise", "all_in", "pot_committed"]:
         p_action = None
 
     if p_action != "raise":
@@ -133,7 +138,7 @@ class GameInstance:
     return p_action, p_bet
 
   def execute_player_action(self, player, action, bet_amount):
-    min_required_bet = self.tmp_pot.highest_bet() - self.tmp_pot.bets[player.id]
+    min_required_bet = self.get_min_required_bet(player)
     print(f"min_required_bet = {min_required_bet}")
 
     if action == "fold":
@@ -144,8 +149,9 @@ class GameInstance:
 
     elif action == "call":
       bet_amount = min(min_required_bet, player.chips)
-      if bet_amount == player.chips:
+      if bet_amount >= player.chips:
         action = "all_in"
+        bet_amount = player.chips
       elif bet_amount < min_required_bet:
         return False
 
@@ -186,7 +192,7 @@ class GameInstance:
       Initiate the next game step (e.g. start round, player move, etc.)
       Returns: GameState -- next game state value after step method is completed
       '''
-      if not self.game_active:
+      if not self.game_active or self.round == self.GameRound.END:
         print("Error: Cannot step to next game move because game is not in progress.")
         return GameState.ERROR_STATE
 
@@ -204,8 +210,14 @@ class GameInstance:
 
         p_b = self.players[self.curr_pos]
         self.execute_player_action(p_b, "blind", min(p_b.chips, GameInstance.BIG_BLIND))
-        self.increment_curr_pos()
-        return GameState.PREFLOP_BETS # this is the next state the game should look at
+        game_over = True
+        for player in self.players:
+          if player.chips > 0:
+            game_over = False
+        
+        if not game_over:
+          self.increment_curr_pos()
+          return GameState.PREFLOP_BETS # this is the next state the game should look at
       else:
         # If a play should not take place, end round immediately
         if self.is_round_over():
@@ -241,7 +253,7 @@ class GameInstance:
     # check if only one player is not out
     out_cnt = 0
     for p in self.players:
-      if p.last_action in ["out", "fold"]:
+      if p.last_action in ["pending_out", "out", "fold", "pot_committed"]:
         out_cnt += 1
     if out_cnt == len(self.players) - 1:
       return True
@@ -277,7 +289,7 @@ class GameInstance:
         if player.last_action == "all_in":
           player.last_action = "pot_committed"
 
-        if player.last_action != "out" and player.last_action != "pot_committed" and player.last_action != "fold":
+        if player.last_action != "pending_out" and player.last_action != "out" and player.last_action != "pot_committed" and player.last_action != "fold":
           player.last_action = "wait"
           player.curr_bet = 0
 
@@ -333,12 +345,15 @@ class GameInstance:
     self.side_pots += self.tmp_pot.to_sidepots()
 
     # rank and calculate winnings for players based on cards
-    winnings = CardRanker.rank_and_calculate_winnings(self.players, self.community_cards, self.side_pots)
+    rankings, winnings = CardRanker.rank_and_calculate_winnings(self.players, self.community_cards, self.side_pots)
 
     # distribute winnings
     for player in self.players:
       if player.id in winnings.keys():
         player.chips += winnings[player.id]
+        player.won_last = True
+      else:
+        player.won_last = False
 
     # show off winning amounts
     print("WINNINGS:")
@@ -346,12 +361,12 @@ class GameInstance:
 
     # for each player with no chips, set player.last_action to "out"
     for p in self.players:
-      if p.chips == 0:
-        p.last_action = "out"
+      if p.chips == 0 and p.last_action != "out":
+        p.last_action = "pending_out"
         print(f"Player Out: {p.name}")
     self.game_active = False
 
-    return winnings
+    return rankings, winnings
 
 
   def players_that_can_do_action(self):
@@ -361,9 +376,21 @@ class GameInstance:
         res.append(player)
     return res
 
-  def to_json_at_ai(self):
+  def get_total_pot_value(self):
+    # current round pot value
+    pot_round_value = self.tmp_pot.sum_bets()
+
+    # total game pot value
+    pot_game_value = pot_round_value
+    for pot in self.side_pots:
+      pot_game_value += pot.sum_bets()
+
+    return pot_game_value
+
+  def get_state_ai(self, pos=None):
     '''
-    data to add to json object:
+    data to add to dictionary:
+    - river state/round name
     - total game pot value
     - current round pot
     - opponents' last actions, current bets, chip counts (only who is still playing & not including current pos)
@@ -373,6 +400,11 @@ class GameInstance:
     - ai's current bet amount
     '''
     print("Generating a json object for the AI model at curr_pos")
+    if pos == None:
+      pos = self.curr_pos
+
+    river_state = self.round.name
+
     # current round pot value
     pot_round_value = self.tmp_pot.sum_bets()
 
@@ -381,16 +413,38 @@ class GameInstance:
     for pot in self.side_pots:
       pot_game_value += pot.sum_bets()
 
+    ai_total_bets = 0
+    for pot in self.side_pots:
+      if pos in pot.bets:
+        ai_total_bets += pot.bets[pos]
+
     community_cards = self.community_cards
-    ai_instance = self.players[self.curr_pos]
+    ai_instance = self.players[pos]
     ai_cards = ai_instance.cards
+    ai_hand_strength = CardRanker.find_best_hand(ai_cards, community_cards)[0]
     ai_last_action = ai_instance.last_action
     ai_curr_bet = ai_instance.curr_bet
+    ai_chips = ai_instance.chips
+    min_req_bet = self.get_min_required_bet()
 
+    players_in = 0
+    for player in self.players:
+      if player.last_action not in ["pending_out", "out", "fold", "pot_committed"]:
+        players_in += 1
+
+    # calculate the no. of players ai is after the dealer
+    pos_from_dealer = 0
+    pos_index = self.dealer_pos
+    while pos_index != pos:
+      if self.players[pos_index].last_action not in ["pending_out", "out", "fold", "pot_committed"]:
+        pos_from_dealer += 1
+      pos_index += 1
+      if pos_index == len(self.players):
+        pos_index = 0
     # opponents must be NOT 'out' and NOT be the current ai player
     opponents_data = []
     for opponent in self.players:
-      if opponent.id != self.curr_pos and opponent.last_action != 'out':
+      if opponent.id != pos and opponent.last_action != 'out':
         opponent_obj = {
           "last_action" : opponent.last_action,
           "curr_bet" : opponent.curr_bet,
@@ -399,16 +453,23 @@ class GameInstance:
         opponents_data.append(opponent_obj)
 
     res_dict = {
+      "river_state" : river_state,
       "pot_round" : pot_round_value,
       "pot_game" : pot_game_value,
       "community_cards" : community_cards,
       "ai_cards" : ai_cards,
+      "ai_hand_strength" : ai_hand_strength,
       "ai_last_action" : ai_last_action,
       "ai_curr_bet" : ai_curr_bet,
+      "ai_total_bets" : ai_total_bets,
+      "ai_chips" : ai_chips,
+      "min_req_bet" : min_req_bet,
+      "players_in" : players_in,
+      "pos_from_dealer" : pos_from_dealer,
       "opponents" : opponents_data
     }
 
-    return json.dumps(res_dict)
+    return res_dict
 
   def divider(s):
     return "\n-------------------- " + s + " --------------------\n\n"
@@ -442,9 +503,9 @@ class GameInstance:
 # Sample code previously used in game demo
 
 # players = [
-#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"]), 
-#   Player("John", is_ai=False, chips=200, cards=["KC", "8H"]), 
-#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"])
+#   Player("Bill", is_ai=False, chips=100, cards=["AH", "AS"], id=0), 
+#   Player("John", is_ai=True, chips=200, cards=["KC", "8H"], id=1), 
+#   Player("Sam", is_ai=False, chips=300, cards=["2D", "2C"], id=2)
 #   ]
 
 # community_cards = ['2H', '2D', '8C', '6C', '7H']
@@ -460,11 +521,12 @@ class GameInstance:
 #       print(instance.step().name)
 #     # execute a player turn & update round/cards if necessary
 #     else:
+#       next_state = None
 #       if instance.is_curr_pos_at_ai():
 #         print("AI response")
-#         ai_state = instance.to_json_at_ai()
+#         ai_state = instance.get_state_ai()
 #         p_action = predict_ai_move(ai_state)
-#         print(instance.step(p_action).name)
+#         next_state = instance.step(p_action)
 #       else:
 #         print("Not AI response")
 #         p_action = input("Action:\n")
@@ -472,9 +534,9 @@ class GameInstance:
 #         if p_action.lower() == "raise":
 #           p_bet = int(input("Bet:\n"))
 #         next_state = instance.step(p_action, p_bet)
-#         print(next_state.name)
-#         if next_state == GameState.SCAN_PLAYER_HAND:
-#           print(instance.end_game())
+        
+#       if next_state == GameState.SCAN_PLAYER_HAND:
+#         print(instance.end_game())
 
 #     print(instance.players[instance.curr_pos], instance.curr_pos)
 #     if instance.game_active:
