@@ -1,4 +1,4 @@
-# xtcards
+# Kingdom Cards
 An AI integrated poker capstone project written with Python, using [pygame](https://www.pygame.org/) and [pygame_gui](https://github.com/MyreMylar/pygame_gui)
 
 Created by Jacob Penman, Jonah Brawley, Dylan Lau, and Jeremiah Oh
